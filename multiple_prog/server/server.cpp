@@ -35,13 +35,18 @@ int main(int ac, char **av)
 	listen(socketServer, 3);
 	sockaddr_in addrClient;
 	socklen_t clientSize = sizeof(addrClient);
-	int socketClient = accept(socketServer, (struct sockaddr *)&addrClient, &clientSize);
-	std::cout << "Accepted\n";
-	std::cout << "Client : " << socketClient << "\n";
-	
-	char buffer[1024] = "Bonjour";
+	int socketClient;
 
-	write(socketClient, buffer, strlen(buffer));	
+	while ((socketClient = accept(socketServer, (struct sockaddr *)&addrClient, &clientSize)) >= 0)
+	{
+		std::cout << "Accepted\n";
+		
+		char buffer[1024];
+		bzero(buffer, 1024);
+		std::cout << "Enter a message to send to the client " << socketClient << "\n";
+		read(STDIN_FILENO, buffer, 1024);
+		write(socketClient, buffer, strlen(buffer));	
+	}
 	close(socketClient);
 	close(socketServer);
 	return 0;

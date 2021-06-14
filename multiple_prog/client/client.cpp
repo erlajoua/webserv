@@ -8,6 +8,13 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <string.h>
+
+void ft_error(std::string error)
+{
+	std::cout << "Error at " << error << "\n";
+	exit(EXIT_FAILURE);
+}
 
 int main(int ac, char **av)
 {
@@ -19,6 +26,8 @@ int main(int ac, char **av)
 	}
 
 	int socketClient = socket(AF_INET, SOCK_STREAM, 0);
+	if (socketClient < 0)
+		ft_error("socket");
 
 	sockaddr_in addrClient;
 	addrClient.sin_addr.s_addr = INADDR_ANY;
@@ -26,12 +35,15 @@ int main(int ac, char **av)
 	addrClient.sin_port = htons(port);
 	connect(socketClient, (struct sockaddr *)&addrClient, sizeof(addrClient));
 	std::cout << "Connected\n";
-
-	char buffer[1024];
-
-	read(socketClient, buffer, 1024);
 	
-	std::cout << "User receveid : " << buffer << "\n";
+	while (true)
+	{
+		char buffer[1024];
+	
+		bzero(buffer, 1024);
+		read(socketClient, buffer, 1024);
+		std::cout << "User receveid : " << buffer << "\n";
+	}
 	close(socketClient);
 
 	return 0;

@@ -32,7 +32,7 @@ int main(int ac, char **av)
 		ft_error("Listen");
 
 	socklen_t addrlen = sizeof(sockaddr);
-	int connection = accept(sockfd, (struct sockaddr *)&sockaddr,&addrlen);
+	int connection = accept(sockfd, (struct sockaddr *)&sockaddr, &addrlen);
 	while (true)
 	{
 		char buffer[1024];
