@@ -13,6 +13,8 @@
 #ifndef MAIN_HPP
 # define MAIN_HPP
 
+# include <cstdlib>
+
 # include "../includes/Program.hpp"
 # include "../includes/Server.hpp"
 # include "../includes/Route.hpp"

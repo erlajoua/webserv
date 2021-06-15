@@ -37,7 +37,7 @@ int		main(int argc, char **argv)
 		return (0);
 	}
 
-	std::ifstream	file(path);
+	std::ifstream	file(path.c_str());
 	if (!file.is_open())
 	{
 		std::cerr << "Config file at path " << path << " can't be opened" << std::endl;
