@@ -6,17 +6,17 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/15 11:28:22 by user42           ###   ########.fr        #
+#    Updated: 2021/06/15 13:17:03 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = select
 
-SRCS = main.cpp Servers.cpp
+SRCS = main.cpp Server.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
-FLAGS = -Wall -Wextra -Werror -std=c++98
+FLAGS = -Wall -Wextra -std=c++98 #-Werror -std=c++98
 
 COMPILER = clang++
 
@@ -37,3 +37,4 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+
