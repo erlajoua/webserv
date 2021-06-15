@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/14 16:54:19 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/15 08:56:04 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <string>
 # include <vector>
 # include <stdexcept>
+# include <signal.h>
 
 class Program {
 private:
