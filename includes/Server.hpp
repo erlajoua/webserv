@@ -1,39 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Program.hpp                                        :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/15 08:56:04 by user42           ###   ########.fr       */
+/*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
+/*   Updated: 2021/06/15 13:32:45 by nessayan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PROGRAM_HPP
-# define PROGRAM_HPP
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
-# include <iostream>
-# include <fstream>
 # include <string>
 # include <vector>
-# include <stdexcept>
-# include <signal.h>
 
-class Program {
+# include "./Route.hpp"
+
+class Server {
 private:
-	Program(Program const &p);
-	Program		&operator=(Program const &p);
-	int			checkErrorConfig(void);
+	// ATTRIBUTES
+	int 						port;
+	std::string 				host;
+	std::string 				server_name;
+	std::string					root;
+	std::vector<std::string>	errors;
+	int 						client_body_size;
+	std::string					upload_dir;	
+	std::vector<Route> 			routes;
+
+	// UNUSED NORMALIZED FUNCTIONS
+	Server		&operator=(Server const &s);
+
 public:
-	Program(void);
-	~Program(void);
-	void		parseConfig(std::string path);
-	void		start(void);
-	void		stop(void);
-	class 		IncorrectConfigFileException: public std::exception {
-		virtual const char* what() const throw();
-	};
+	Server(void);
+	~Server(void);
+	Server(Server const &s);
 };
 
 #endif

@@ -1,20 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.hpp                                           :+:      :+:    :+:   */
+/*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/14 14:31:41 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/14 16:54:11 by nessayan         ###   ########.fr       */
+/*   Created: 2021/06/15 13:34:11 by nessayan          #+#    #+#             */
+/*   Updated: 2021/06/15 13:34:25 by nessayan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAIN_HPP
-# define MAIN_HPP
+#include "../includes/Route.hpp"
 
-# include "../includes/Program.hpp"
-# include "../includes/Server.hpp"
-# include "../includes/Route.hpp"
+Route::Route(void) {
+}
 
-#endif
+Route::~Route(void) {
+}

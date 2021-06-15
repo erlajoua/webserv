@@ -1,6 +1,6 @@
 NAME = webserv
 
-SRCS = main.cpp /Program/Program.cpp
+SRCS = main.cpp Program.cpp Server.cpp Route.cpp
 
 PATH_SRCS = ./srcs/
 
