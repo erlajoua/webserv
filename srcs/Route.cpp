@@ -15,5 +15,14 @@
 Route::Route(void) {
 }
 
+Route::Route(Route const &r) {
+	(void)r;
+}
+
 Route::~Route(void) {
+}
+
+Route				&Route::operator=(Route const &r) {
+	(void)r;
+	return (*this);
 }

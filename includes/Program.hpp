@@ -15,6 +15,7 @@
 
 # include <iostream>
 # include <fstream>
+# include <sstream>
 # include <string>
 # include <vector>
 # include <stdexcept>
@@ -34,9 +35,12 @@ private:
 	// HELPERS
 	int			checkErrorConfig(void);
 	bool		isServConfig(std::string const &line) const;
-	bool		isServField(std::string	const &field) const;
 	bool 		isRouteConfig(std::string const &line) const;
-	bool		isRouteField(std::string const &field) const;
+	bool		isField(std::string const &line, std::string const &field) const;
+	bool		isClosingBracket(std::string const &line) const;
+	bool		isEmptyLine(std::string const &line) const;
+
+	void		revealLines(std::vector<std::string> lines);
 	void		parseServers(std::vector<std::string> lines);
 
 public:

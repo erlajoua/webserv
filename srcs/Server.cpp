@@ -13,11 +13,21 @@
 #include "../includes/Server.hpp"
 
 Server::Server(void) {
+	this->server_name = std::string("default_server");
 }
 
 Server::Server(Server const &s) {
-	(void)s;
+	this->server_name = s.server_name;
 }
 
 Server::~Server(void) {
+}
+
+Server				&Server::operator=(Server const &s) {
+	this->server_name = s.server_name;
+	return (*this);
+}
+
+std::string			Server::getServer_name(void) {
+	return (this->server_name);
 }

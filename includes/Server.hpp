@@ -21,22 +21,24 @@
 class Server {
 private:
 	// ATTRIBUTES
-	int 						port;
+	//int 						port;
 	std::string 				host;
 	std::string 				server_name;
 	std::string					root;
 	std::vector<std::string>	errors;
-	int 						client_body_size;
+	//int 						client_body_size;
 	std::string					upload_dir;	
 	std::vector<Route> 			routes;
 
 	// UNUSED NORMALIZED FUNCTIONS
-	Server		&operator=(Server const &s);
+
 
 public:
 	Server(void);
-	~Server(void);
 	Server(Server const &s);
+	~Server(void);
+	Server						&operator=(Server const &s);
+	std::string					getServer_name(void);
 };
 
 #endif

@@ -19,19 +19,18 @@
 class Route {
 private:
 	// ATTRIBUTES
+	std::string						path;
 	std::vector<std::string> 		methods;
 	std::string						redirection;
-	bool							autoindex;
+	//bool							autoindex;
 	std::string						cgi_extension;
 	std::string						cgi_bin;
 
-	// UNUSED NORMALIZED FUNCTIONS
-	Route(Route const &r);
-	Route		&operator=(Route const &r);
-
 public:
 	Route(void);
+	Route(Route const &r);
 	~Route(void);
+	Route							&operator=(Route const &r);
 };
 
 #endif
