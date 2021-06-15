@@ -1,37 +1,44 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
+#    Updated: 2021/06/15 15:23:29 by user42           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = webserv
 
-SRCS = main.cpp Program.cpp Server.cpp Route.cpp
+SRCS =	srcs/main.cpp \
+		srcs/Program.cpp \
+		srcs/Route.cpp \
+		srcs/Server.cpp
 
-PATH_SRCS = ./srcs/
+OBJS = $(SRCS:.cpp=.o)
 
-_SRCS = ${addprefix ${PATH_SRCS}, ${SRCS}}
+FLAGS = -Wall -Wextra -std=c++98 #-Werror -std=c++98
 
-OBJS = ${_SRCS:.cpp=.o}
+COMPILER = clang++
 
-CC = clang++
+.cpp.o:
+	$(COMPILER) ${FLAGS} -c $< -o ${<:.cpp=.o}
 
-FLAGS = -Wall -Wextra -Werror -std=c++98
+$(NAME): $(OBJS)
+	${COMPILER} $(FLAGS) $(OBJS) -o $(NAME)
 
-RM = rm -rf
-
-PATH_HEADER = ./includes/
-
-.c.o:
-		${CC} ${FLAGS} -I${PATH_HEADER} -c $< -o ${<:.cpp=.o}
-
-all:			${NAME}
-
-${NAME}:		${OBJS}
-				${CC} ${FLAGS} ${OBJS} -o ${NAME}
+all: $(NAME)
 
 clean:
-				${RM} ${OBJS}
+	rm -rf $(OBJS)
 
-fclean:			clean
-				${RM} ${NAME}
+fclean: clean
+	rm -rf $(NAME)
 
-re:				fclean all
+re: fclean all
 
-test:			re
+.PHONY: all clean fclean re
 
-.PHONY:			all clean fclean re
+
