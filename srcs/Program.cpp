@@ -95,7 +95,7 @@ void			Program::parseServers(std::vector<std::string> lines)
 void			Program::parseConfig(std::string path) {
 	std::string							line;
 	std::vector<std::string>			lines;
-	std::ifstream						file(path);
+	std::ifstream						file(path.c_str());
 
 	std::cout << "Parsing conf file at path "<< path << "..." << std::endl;
 	while (std::getline(file, line))
