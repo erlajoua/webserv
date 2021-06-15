@@ -26,7 +26,6 @@ void	quit(int arg)
 int		main(int argc, char **argv)
 {
 	std::string		path;
-	std::ifstream	file;
 
 	if (argc == 1)
 		path = "./config/default.conf";
@@ -38,7 +37,7 @@ int		main(int argc, char **argv)
 		return (0);
 	}
 
-	file.open(path);
+	std::ifstream	file(path);
 	if (!file.is_open())
 	{
 		std::cerr << "Config file at path " << path << " can't be opened" << std::endl;

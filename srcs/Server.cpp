@@ -16,6 +16,7 @@ Server::Server(void) {
 }
 
 Server::Server(Server const &s) {
+	(void)s;
 }
 
 Server::~Server(void) {
