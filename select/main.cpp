@@ -102,11 +102,6 @@ int main(int ac, char **av)
 
 	while (true)
 	{
-		/*int client_socket = accept_new_connection(server_socket);
-
-		handle_connection(client_socket);*/
-
-		//because select is destructive
 		ready_sockets = current_sockets;
 
 		if (select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) < 0)
@@ -118,13 +113,11 @@ int main(int ac, char **av)
 			{
 				if (i == server_socket)
 				{
-					//new connection
 					int client_socket = accept_new_connection(server_socket);
 					FD_SET(client_socket, &current_sockets);
 				}
 				else
 				{
-					//std::cout << "passage\n";
 					handle_connection(i);
 					FD_CLR(i, &current_sockets);
 				}
