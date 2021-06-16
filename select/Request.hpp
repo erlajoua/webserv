@@ -21,7 +21,7 @@ enum HttpMethod {
 
 class Request {
 private:
-	class BadRequestException : public std::exception {
+	class BadRequestException : public std::exception{
 	public:
 		virtual char const* what() const throw();
 	};
