@@ -19,7 +19,7 @@ void	quit(int arg)
 	(void)arg;
 	std::cout << "\b\b  " << std::endl;
 	program.stop();
-	std::cout << "The user has stopped the program." << std::endl;
+	std::cout << YELLOW << "The user has stopped the program." << RESET << std::endl;
 	exit(0);
 }
 
@@ -33,14 +33,14 @@ int		main(int argc, char **argv)
 		path = argv[1];
 	else
 	{
-		std::cerr << "0 or 1 argument (= path to config file)." << std::endl;
+		std::cerr << BOLDRED << "0 or 1 argument (= path to config file)." << RESET << std::endl;
 		return (0);
 	}
 
 	std::ifstream	file(path.c_str());
 	if (!file.is_open())
 	{
-		std::cerr << "Config file at path " << path << " can't be opened." << std::endl;
+		std::cerr << BOLDRED << "Config file at path " << path << " can't be opened." << RESET << std::endl;
 		return (0);
 	}
 	file.close();
@@ -51,7 +51,7 @@ int		main(int argc, char **argv)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << BOLDRED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;	
 		return (0);
 	}
 	signal(SIGINT, quit);

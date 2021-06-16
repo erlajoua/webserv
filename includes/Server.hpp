@@ -21,7 +21,7 @@
 class Server {
 private:
 	// ATTRIBUTES
-	//int 						port;
+	//int 						port; 
 	std::string 				host;
 	std::string 				server_name;
 	std::string					root;
@@ -30,15 +30,27 @@ private:
 	std::string					upload_dir;	
 	std::vector<Route> 			routes;
 
-	// UNUSED NORMALIZED FUNCTIONS
-
-
 public:
+	// CONSTRUCTOR & DESTRUCTOR
 	Server(void);
 	Server(Server const &s);
 	~Server(void);
+
+	// OPERATOR
 	Server						&operator=(Server const &s);
-	std::string					getServer_name(void);
+
+	// GETTERS
+	std::string					getServerName(void) const;
+	std::vector<Route>			getRoutes(void) const;
+
+	// SETTERS
+	void						setPort(std::string const &field);
+	void						setHost(std::string const &field);
+	void						setServerName(std::string const &field);
+	void						setRoot(std::string const &field);
+	void						setErrors(std::string const &field);
+	void						setClientBodySize(std::string const &field);
+	void						setUploadDir(std::string const &field);	
 };
 
 #endif

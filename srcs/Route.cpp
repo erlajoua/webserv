@@ -12,17 +12,51 @@
 
 #include "../includes/Route.hpp"
 
+// CONSTRUCTOR & DESTRUCTOR
+
 Route::Route(void) {
+	this->path = std::string("default_path");
 }
 
 Route::Route(Route const &r) {
-	(void)r;
+	this->path = r.path;
 }
 
 Route::~Route(void) {
 }
 
+// OPERATOR
+
 Route				&Route::operator=(Route const &r) {
-	(void)r;
+	this->path = r.path;
 	return (*this);
 }
+
+// GETTERS
+
+// SETTERS
+
+void				Route::setPath(std::string const &field) {
+	(void)field;
+}
+
+void				Route::setMethods(std::string const &field) {
+	(void)field;
+}
+
+void				Route::setRedirection(std::string const &field) {
+	(void)field;
+}
+
+void				Route::setAutoindex(std::string const &field) {
+	(void)field;
+}
+
+void				Route::setCgiExtension(std::string const &field) {
+	(void)field;
+}
+
+void				Route::setCgiBin(std::string const &field) {
+	(void)field;
+}
+
