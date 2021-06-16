@@ -23,12 +23,14 @@ Request::Request(Request const& src)
 
 Request& Request::operator=(Request const& rhs)
 {
-	content_ = rhs.content_;
-	method_ = rhs.method_;
-	uri_ = rhs.uri_;
-	http_version_ = rhs.http_version_;
-	host_ = rhs.host_;
-	port_ = rhs.port_;
+	this->content = rhs.content;
+	this->is_bad = rhs.is_bad;
+	this->error_type = rhs.error_type;
+	this->method = rhs.method;
+	this->uri = rhs.uri;
+	this->http_version = rhs.http_version;
+	this->host = rhs.host;
+	this->port = rhs.port;
 	return *this;
 }
 
@@ -40,19 +42,19 @@ std::string Request::receiveContent(int const& request_fd)
 
 std::size_t Request::parseMethod()
 {
-	if (content_.compare(0, 3, "GET") == 0)
+	if (this->content.compare(0, 3, "GET") == 0)
 	{
-		method_ = kGet;
+		this->method = kGet;
 		return 3;
 	}
-	else if (content_.compare(0, 4, "POST") == 0)
+	else if (this->content.compare(0, 4, "POST") == 0)
 	{
-		method_ = kGet;
+		this->method = kGet;
 		return 4;
 	}
-	else if (content_.compare(0, 6, "DELETE") == 0)
+	else if (this->content.compare(0, 6, "DELETE") == 0)
 	{
-		method_ = kDelete;
+		this->method = kDelete;
 		return 6;
 	}
 	throw Request::BadRequestException();
@@ -60,53 +62,53 @@ std::size_t Request::parseMethod()
 
 std::size_t Request::parseUri(std::size_t pos)
 {
-	if (content_[pos] != '/')
+	if (this->content[pos] != '/')
 	{
 		throw Request::BadRequestException();
 	}
-	std::size_t uri_length = content_.find(' ', pos) - pos;
-	if (uri_length + pos == content_.npos)
+	std::size_t uri_length = this->content.find(' ', pos) - pos;
+	if (uri_length + pos == this->content.npos)
 	{
 		throw Request::BadRequestException();
 	}
-	uri_ = content_.substr(pos, uri_length);
+	this->uri = this->content.substr(pos, uri_length);
 	return pos + uri_length;
 }
 
 std::size_t Request::parseHttpVersion(std::size_t pos)
 {
-	if (content_.compare(pos, 5, "HTTP/") != 0)
+	if (this->content.compare(pos, 5, "HTTP/") != 0)
 	{
 		throw Request::BadRequestException();
 	}
 	pos += 5;
-	if (std::isdigit(content_[pos]) == 0 || content_[pos + 1] != '.'
-			|| std::isdigit(content_[pos + 2]) == 0)
+	if (std::isdigit(this->content[pos]) == 0 || this->content[pos + 1] != '.'
+			|| std::isdigit(this->content[pos + 2]) == 0)
 	{
 		throw Request::BadRequestException();
 	}
-	else if (content_[pos] != '1' || content_[pos + 2] > '1')
+	else if (this->content[pos] != '1' || this->content[pos + 2] > '1')
 	{
 		throw Request::VersionNotImplementedException();
 	}
-	http_version_ = std::strtod(content_.substr(pos, 3).c_str(), NULL);
+	this->http_version = std::strtod(this->content.substr(pos, 3).c_str(), NULL);
 	return pos + 3;
 }
 
 std::size_t Request::parseRequestLine()
 {
 	std::size_t pos = this->parseMethod();
-	if (content_[pos] != ' ')
+	if (this->content[pos] != ' ')
 	{
 		throw Request::BadRequestException();
 	}
 	pos = this->parseUri(pos + 1);
-	if (content_[pos] != ' ')
+	if (this->content[pos] != ' ')
 	{
 		throw Request::BadRequestException();
 	}
 	pos = this->parseHttpVersion(pos + 1);
-	if (content_.compare(pos, 2, "\r\n") != 0)
+	if (this->content.compare(pos, 2, "\r\n") != 0)
 	{
 		throw Request::BadRequestException();
 	}
@@ -116,14 +118,14 @@ std::size_t Request::parseRequestLine()
 void Request::parseHostFieldValue(std::string const& field_value)
 {
 	std::size_t colon_pos = field_value.find(':');
-	host_ = field_value.substr(0, colon_pos);
+	this->host = field_value.substr(0, colon_pos);
 	if (colon_pos == field_value.npos)
 	{
-		port_ = 80;
+		this->port = 80;
 	}
 	else
 	{
-		port_ = std::atoi(field_value.substr(colon_pos + 1).c_str());
+		this->port = std::atoi(field_value.substr(colon_pos + 1).c_str());
 	}
 	return;
 }
@@ -133,17 +135,14 @@ void Request::parseHeaderField(std::string const& header_field)
 	std::size_t colon_pos = header_field.find(':');
 	std::string field_name = header_field.substr(0, colon_pos);
 	std::size_t field_value_start_pos = header_field.find_first_not_of(" \t", colon_pos + 1);
-	std::size_t field_value_end_pos = header_field.find_first_of(" \t", field_value_start_pos);
+	std::size_t field_value_end_pos = header_field.find_last_not_of(" \t");
 	if (colon_pos == header_field.npos
-			|| field_value_start_pos == header_field.npos
-			|| (field_value_end_pos != header_field.npos
-				&& header_field.find_first_not_of(" \t",
-					field_value_end_pos + 1) != header_field.npos))
+			|| field_value_start_pos == header_field.npos)
 	{
 		throw Request::BadRequestException();
 	}
 	std::string field_value = header_field.substr(field_value_start_pos,
-			field_value_end_pos - field_value_start_pos);
+			field_value_end_pos - field_value_start_pos + 1);
 	if (field_name == "Host")
 	{
 		this->parseHostFieldValue(field_value);
@@ -153,22 +152,22 @@ void Request::parseHeaderField(std::string const& header_field)
 
 std::size_t Request::parseHeaders(std::size_t pos)
 {
-	std::size_t crlf_pos = content_.find("\r\n", pos);
-	if (crlf_pos == content_.npos)
+	std::size_t crlf_pos = this->content.find("\r\n", pos);
+	if (crlf_pos == this->content.npos)
 	{
 		throw Request::BadRequestException();
 	}
-	std::string header_field = content_.substr(pos, crlf_pos - pos);
+	std::string header_field = this->content.substr(pos, crlf_pos - pos);
 	while (header_field != "")
 	{
 		this->parseHeaderField(header_field);
 		pos = crlf_pos + 2;
-		crlf_pos = content_.find("\r\n", pos);
-		if (crlf_pos == content_.npos)
+		crlf_pos = this->content.find("\r\n", pos);
+		if (crlf_pos == this->content.npos)
 		{
 			throw Request::BadRequestException();
 		}
-		header_field = content_.substr(pos, crlf_pos - pos);
+		header_field = this->content.substr(pos, crlf_pos - pos);
 	}
 	return crlf_pos + 2;
 }
@@ -179,34 +178,34 @@ void Request::parseContent()
 	{
 		std::size_t pos = this->parseRequestLine();
 		pos = this->parseHeaders(pos);
-		body_ = content_.substr(pos);
+		this->body = this->content.substr(pos);
 	}
 	catch (Request::BadRequestException const& e)
 	{
-		is_bad_ = true;
-		error_type_ = kBadRequest;
+		this->is_bad = true;
+		this->error_type = kBadRequest;
 	}
 	catch (Request::VersionNotImplementedException const& e)
 	{
-		is_bad_ = true;
-		error_type_ = kVersionNotImplemented;
+		this->is_bad = true;
+		this->error_type = kVersionNotImplemented;
 	}
 	return;
 }
 
 Request::Request(std::string const& content) :
-	content_(content),
-	is_bad_(false)
+	content(content),
+	is_bad(false)
 {
 	this->parseContent();
 	return;
 }
 
 Request::Request(int const& request_fd) :
-	content_(""),
-	is_bad_(false)
+	content(""),
+	is_bad(false)
 {
-	content_ = this->receiveContent(request_fd);
+	this->content = this->receiveContent(request_fd);
 	this->parseContent();
 	return;
 }
@@ -216,57 +215,57 @@ Request::~Request()
 	return;
 }
 
-std::string const& Request::content() const
+std::string const& Request::getContent() const
 {
-	return content_;
+	return this->content;
 }
 
-bool const& Request::is_bad() const
+bool const& Request::getIs_bad() const
 {
-	return is_bad_;
+	return this->is_bad;
 }
 
-HttpErrorType const& Request::error_type() const
+HttpErrorType const& Request::getError_type() const
 {
-	return error_type_;
+	return this->error_type;
 }
 
-HttpMethod const& Request::method() const
+HttpMethod const& Request::getMethod() const
 {
-	return method_;
+	return this->method;
 }
 
-std::string const& Request::uri() const
+std::string const& Request::getUri() const
 {
-	return uri_;
+	return this->uri;
 }
 
-double const& Request::http_version() const
+double const& Request::getHttp_version() const
 {
-	return http_version_;
+	return this->http_version;
 }
 
-std::string const& Request::host() const
+std::string const& Request::getHost() const
 {
-	return host_;
+	return this->host;
 }
 
-int const& Request::port() const
+int const& Request::getPort() const
 {
-	return port_;
+	return this->port;
 }
 
-std::string const& Request::body() const
+std::string const& Request::getBody() const
 {
-	return body_;
+	return this->body;
 }
 
 std::ostream& operator<<(std::ostream& os, Request const& req)
 {
-	if (req.is_bad() == true)
+	if (req.getIs_bad() == true)
 	{
 		os << "error_type : ";
-		if (req.error_type() == kBadRequest)
+		if (req.getError_type() == kBadRequest)
 		{
 			os << "bad request" << std::endl;
 		}
@@ -277,11 +276,11 @@ std::ostream& operator<<(std::ostream& os, Request const& req)
 		return os;
 	}
 	os << "method : ";
-	if (req.method() == kGet) 
+	if (req.getMethod() == kGet) 
 	{
 		os << "GET" << std::endl;
 	}
-	else if (req.method() == kPost)
+	else if (req.getMethod() == kPost)
 	{
 		os << "POST" << std::endl;
 	}
@@ -289,9 +288,9 @@ std::ostream& operator<<(std::ostream& os, Request const& req)
 	{
 		os << "DELETE" << std::endl;
 	}
-	os << "uri : " << req.uri() << std::endl;
-	os << "http_version : " << req.http_version() << std::endl;
-	os << "host : " << req.host() << std::endl;
-	os << "port : " << req.port() << std::endl;
+	os << "uri : " << req.getUri() << std::endl;
+	os << "http_version : " << req.getHttp_version() << std::endl;
+	os << "host : " << req.getHost() << std::endl;
+	os << "port : " << req.getPort() << std::endl;
 	return os;
 }
