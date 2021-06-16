@@ -2,6 +2,8 @@
 #include "Request.hpp"
 #include "Response.hpp"
 
+//constructors
+
 Server::Server(void)
 {
 	Server tmp(static_cast<short>(DEFAULT_PORT), DEFAULT_HOST, DEFAULT_NB_CLIENT_MAX);
@@ -16,12 +18,9 @@ Server::Server(void)
 }
 
 Server::Server(short port, const char *host, int nb_client_max) :
-port(port),
-host(host),
-nb_client_max(nb_client_max)
+port(port), host(host), nb_client_max(nb_client_max)
 {
 	memset(&this->addr, 0, sizeof(this->addr));
-
 
     if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		ftError("Socket");
@@ -34,20 +33,20 @@ nb_client_max(nb_client_max)
     FD_SET(this->server_socket, &this->current_sockets);
     
 	if (bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr)) < 0)
-		perror("bind");
+		ftError("bind (port maybe already use)");
 
 	if (listen(this->server_socket, this->nb_client_max) < 0)
-		perror("Listen");
+		ftError("Listen");
     std::cout << "===SUCCESS===\n\n-> A server has been setup on: " << this->host << ":" << this->port <<"\n\n=============\n";
 }
+
+//destructors
 
 Server::~Server(void)
 {
 }
 
-//
-
-#include <errno.h>
+//methods
 
 void    Server::start(void)
 {

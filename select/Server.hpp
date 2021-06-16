@@ -43,7 +43,9 @@ private:
 public:
     Server(void);
     Server(short port, const char *host, int nb_client_max);
+
     virtual ~Server(void);
+    
     void start(void);
 };
 
