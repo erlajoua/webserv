@@ -2,27 +2,24 @@
 
 std::string const Response::server = "webserver/1.0";
 
+//constructors
+
 Response::Response()
 {
-	return;
 }
 
 Response::Response(Response const& src)
 {
 	*this = src;
-	return;
 }
 
-Response& Response::operator=(Response const& rhs)
+//destructors
+
+Response::~Response()
 {
-	this->http_version = rhs.http_version;
-	this->status_code = rhs.status_code;
-	this->reason_phrase = rhs.reason_phrase;
-	this->content_type = rhs.content_type;
-	this->content_length = rhs.content_length;
-	this->body = rhs.body;
-	return *this;
 }
+
+//methods
 
 std::string Response::readUri(std::string const& uri)
 {
@@ -30,11 +27,12 @@ std::string Response::readUri(std::string const& uri)
 
 	if (ifs.is_open() == false)
 	{
-		return "open error";
+		return ("open error");
 	}
 
 	std::string file_content;
 	std::string buf;
+
 	while (ifs.bad() == false && ifs.eof() == false)
 	{
 		std::getline(ifs, buf);
@@ -42,7 +40,7 @@ std::string Response::readUri(std::string const& uri)
 		if (ifs.eof() == false)
 			file_content += "\n";
 	}
-	return file_content;
+	return (file_content);
 }
 
 Response::Response(Request const& request)
@@ -53,12 +51,6 @@ Response::Response(Request const& request)
 	this->status_code = 200;
 	this->reason_phrase = "OK";
 	this->content_type = "text/html";
-	return;
-}
-
-Response::~Response()
-{
-	return;
 }
 
 std::string Response::toString() const
@@ -68,5 +60,18 @@ std::string Response::toString() const
 		<< this->reason_phrase << "\r\nServer: " << this->server
 		<< "\r\nContent-Type: " << this->content_type
 		<< "\r\nContent-Length: " << this->content_length << "\r\n\r\n" << this->body;
-	return ss.str();
+	return (ss.str());
+}
+
+//overloads
+
+Response& Response::operator=(Response const& rhs)
+{
+	this->http_version = rhs.http_version;
+	this->status_code = rhs.status_code;
+	this->reason_phrase = rhs.reason_phrase;
+	this->content_type = rhs.content_type;
+	this->content_length = rhs.content_length;
+	this->body = rhs.body;
+	return (*this);
 }

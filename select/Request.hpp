@@ -8,47 +8,49 @@
 #include <iostream>
 #include <exception>
 
-enum HttpErrorType {
+enum HttpErrorType
+{
 	kBadRequest,
 	kVersionNotImplemented
 };
 
-enum HttpMethod {
+enum HttpMethod
+{
 	kGet,
 	kPost,
 	kDelete
 };
 
-class Request {
+class Request
+{
 private:
-	class BadRequestException : public std::exception{
+	class BadRequestException : public std::exception
+	{
 	public:
 		virtual char const* what() const throw();
 	};
 
-	class VersionNotImplementedException : public std::exception {
+	class VersionNotImplementedException : public std::exception
+	{
 	public:
 		virtual char const* what() const throw();
 	};
 
-	std::string content;
-
-	bool is_bad;
-	HttpErrorType error_type;
-
-	HttpMethod method;
-	std::string uri;
-	double http_version;
-
-	std::string host;
-	int port;
-
-	std::string body;
+	std::string		content;
+	bool			is_bad;
+	HttpErrorType	error_type;
+	
+	HttpMethod		method;
+	std::string		uri;
+	double			http_version;
+	std::string		host;
+	int				port;
+	std::string		body;
 
 	Request();
 	Request(Request const& src);
 
-	Request& operator=(Request const& rhs);
+	Request& operator =(Request const& rhs);
 
 	std::string receiveContent(int const& request_fd);
 

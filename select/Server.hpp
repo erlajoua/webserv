@@ -38,14 +38,14 @@ private:
     fd_set              ready_sockets;
     sockaddr_in         addr;
 
-    int     acceptNewConnection(int server_socket);
+    int     acceptNewConnection(int server_socket) const;
     void    handleConnection(int client_socket);
 public:
     Server(void);
     Server(short port, const char *host, int nb_client_max);
 
     virtual ~Server(void);
-    
+
     void start(void);
 };
 

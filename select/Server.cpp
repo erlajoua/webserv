@@ -75,7 +75,7 @@ void    Server::start(void)
     }
 }
 
-int     Server::acceptNewConnection(int server_socket)
+int     Server::acceptNewConnection(int server_socket) const
 {
 	int addr_size = sizeof(sockaddr_in);
 	int client_socket;
