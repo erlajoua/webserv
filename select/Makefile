@@ -6,13 +6,13 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/15 13:17:03 by user42           ###   ########.fr        #
+#    Updated: 2021/06/16 10:04:00 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = select
 
-SRCS = main.cpp Server.cpp
+SRCS = main.cpp Server.cpp Request.cpp Response.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
