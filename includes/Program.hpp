@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/15 12:56:10 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/16 06:55:27 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <vector>
 # include <stdexcept>
 # include <signal.h>
+# include <iterator>
 
 # include "./Server.hpp"
 
