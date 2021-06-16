@@ -55,6 +55,7 @@ private:
 	std::string receiveContent(int const& request_fd);
 
 	std::size_t parseMethod();
+	void decodeUri();
 	std::size_t parseUri(std::size_t pos);
 	std::size_t parseHttpVersion(std::size_t pos);
 	std::size_t parseRequestLine();
