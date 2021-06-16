@@ -67,8 +67,8 @@ private:
 	void		checkInvalidDeclaration(std::vector<std::string> lines);
 	void		checkErrorConfig(std::vector<std::string> lines);
 
-	void		setServField(Server s, std::string const &field);
-	void		setRouteField(Route r, std::string const &field);
+	Server		setServField(Server s, std::string const &field);
+	Route		setRouteField(Route r, std::string const &field);
 	void		parseValue(std::vector<std::string> lines);
 
 public:
@@ -78,6 +78,7 @@ public:
 
 	// MEMBER FUNCTIONS
 	void		parseConfig(std::string path);
+	void 		printSetup(void);
 	void		start(void);
 	void		stop(void);
 

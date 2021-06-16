@@ -15,18 +15,20 @@
 
 # include <string>
 # include <vector>
+# include <sstream>
+# include <iostream>
 
 # include "./Route.hpp"
 
 class Server {
 private:
 	// ATTRIBUTES
-	//int 						port; 
+	int 						port; 
 	std::string 				host;
 	std::string 				server_name;
 	std::string					root;
 	std::vector<std::string>	errors;
-	//int 						client_body_size;
+	int 						client_body_size;
 	std::string					upload_dir;	
 	std::vector<Route> 			routes;
 
@@ -40,8 +42,14 @@ public:
 	Server						&operator=(Server const &s);
 
 	// GETTERS
+	int							getPort(void) const;
+	std::string					getHost(void) const;
 	std::string					getServerName(void) const;
-	std::vector<Route>			getRoutes(void) const;
+	std::string					getRoot(void) const;
+	std::vector<std::string>	getErrors(void) const;
+	int							getClientBodySize(void) const;
+	std::string					getUploadDir(void) const;
+	std::vector<Route>			*getRoutes(void);
 
 	// SETTERS
 	void						setPort(std::string const &field);

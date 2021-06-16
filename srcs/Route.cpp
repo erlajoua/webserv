@@ -14,12 +14,18 @@
 
 // CONSTRUCTOR & DESTRUCTOR
 
-Route::Route(void) {
-	this->path = std::string("default_path");
+Route::Route(void)
+	:path(std::string("none")), redirection(std::string("none")), autoindex(false),
+	cgi_extension(std::string("none")), cgi_bin(std::string("none")) {
 }
 
 Route::Route(Route const &r) {
 	this->path = r.path;
+	this->methods = r.methods;
+	this->redirection = r.redirection;
+	this->autoindex = r.autoindex;
+	this->cgi_extension = r.cgi_extension;
+	this->cgi_bin = r.cgi_bin;	
 }
 
 Route::~Route(void) {
@@ -29,6 +35,11 @@ Route::~Route(void) {
 
 Route				&Route::operator=(Route const &r) {
 	this->path = r.path;
+	this->methods = r.methods;
+	this->redirection = r.redirection;
+	this->autoindex = r.autoindex;
+	this->cgi_extension = r.cgi_extension;
+	this->cgi_bin = r.cgi_bin;
 	return (*this);
 }
 

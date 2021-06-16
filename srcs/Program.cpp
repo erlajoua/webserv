@@ -119,7 +119,7 @@ bool			Program::isRouteField(std::string const &field) const {
 void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 	bool	test = true;
 
-	std::cout << YELLOW << "Checking for any invalid instruction..." << RESET << std::endl;
+	std::cout << BOLDYELLOW << "Checking for any invalid instruction..." << RESET << std::endl;
 	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++) {
 		std::cout << "---------------" << std::endl;
@@ -170,7 +170,7 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 }
 
 void			Program::checkInvalidDeclaration(std::vector<std::string> lines) {
-	std::cout << YELLOW << "Checking for any invalid declaration..." << RESET << std::endl;
+	std::cout << BOLDYELLOW << "Checking for any invalid declaration..." << RESET << std::endl;
 	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
@@ -237,7 +237,7 @@ void			Program::checkErrorConfig(std::vector<std::string> lines) {
 	}
 }
 
-void				Program::setServField(Server s, std::string const &field) {
+Server			Program::setServField(Server s, std::string const &field) {
 	if (this->isFieldSingle(field, "port") == true)
 	{
 		try
@@ -247,6 +247,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 5;
+			return (s);
 		}
 	}
 	else if (this->isFieldSingle(field, "host") == true)
@@ -258,6 +259,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 6;
+			return (s);
 		}
 	}
 	else if (this->isFieldSingle(field, "server_name") == true)
@@ -269,6 +271,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 7;
+			return (s);
 		}
 	}
 	else if (this->isFieldSingle(field, "root") == true)
@@ -280,6 +283,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 8;
+			return (s);
 		}
 	}
 	else if (this->isFieldMultiple(field, "errors") == true)
@@ -291,6 +295,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 9;
+			return (s);
 		}
 	}
 	else if (this->isFieldSingle(field, "client_body_size") == true)
@@ -302,6 +307,7 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 10;
+			return (s);
 		}
 	}
 	else if (this->isFieldSingle(field, "upload_dir") == true)
@@ -313,11 +319,13 @@ void				Program::setServField(Server s, std::string const &field) {
 		catch (int e)
 		{
 			throw 11;
+			return (s);
 		}
 	}
+	return (s);
 }
 
-void				Program::setRouteField(Route r, std::string const &field) {
+Route			Program::setRouteField(Route r, std::string const &field) {
 	if (this->isFieldSingle(field, "path") == true)
 	{
 		try
@@ -327,6 +335,7 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 12;
+			return (r);
 		}
 	}
 	if (this->isFieldMultiple(field, "methods") == true)
@@ -338,6 +347,7 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 13;
+			return (r);
 		}
 	}
 	else if (this->isFieldSingle(field, "redirection") == true)
@@ -349,6 +359,7 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 14;
+			return (r);
 		}
 	}
 	else if (this->isFieldSingle(field, "autoindex") == true)
@@ -360,6 +371,7 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 15;
+			return (r);
 		}
 	}
 	else if (this->isFieldSingle(field, "cgi_extension") == true)
@@ -371,6 +383,7 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 16;
+			return (r);
 		}
 	}
 	else if (this->isFieldSingle(field, "cgi_bin") == true)
@@ -382,12 +395,14 @@ void				Program::setRouteField(Route r, std::string const &field) {
 		catch (int e)
 		{
 			throw 17;
+			return (r);
 		}
 	}
+	return (r);
 }
 
 void			Program::parseValue(std::vector<std::string> lines) {
-	std::cout << YELLOW << "Parsing valid values..." << RESET << std::endl;
+	std::cout << BOLDYELLOW << "Parsing valid values..." << RESET << std::endl;
 	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
@@ -403,7 +418,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 				{
 					try
 					{
-						this->setServField(s, *it);
+						s = this->setServField(s, *it);
 					}
 					catch (int e)
 					{
@@ -427,7 +442,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 						{
 							try
 							{
-								this->setRouteField(r, *it);
+								r = this->setRouteField(r, *it);
 							}
 							catch (int e)
 							{
@@ -437,7 +452,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 						}
 						it++;
 					}
-					s.getRoutes().push_back(r);
+					s.getRoutes()->push_back(r);
 					it++;
 				}
 				else
@@ -446,7 +461,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 			this->servers.push_back(s);
 		}
 	}
-	std::cout << BOLDGREEN << "\n=> OK! Launching program...\n" << RESET << std::endl;
+	std::cout << BOLDGREEN << "\n=> OK! Starting program...\n" << RESET << std::endl;
 }
 
 
@@ -465,7 +480,7 @@ void			Program::parseConfig(std::string path) {
 	std::vector<std::string>			lines;
 	std::ifstream						file(path.c_str());
 
-	std::cout << YELLOW << "\nParsing conf file at path "<< path << "...\n" << RESET << std::endl;
+	std::cout << BOLDYELLOW << "\nParsing conf file at path "<< path << "...\n" << RESET << std::endl;
 	while (std::getline(file, line))
 		lines.push_back(line);
 	file.close();
@@ -524,15 +539,46 @@ void			Program::parseConfig(std::string path) {
 	}
 }
 
+void			Program::printSetup(void) {
+	std::cout << BOLDYELLOW << "Program has started with " << this->servers.size() << " active server(s):" << RESET << std::endl;
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		std::cout << YELLOW << "Server name = " << RESET;
+		std::cout << (*it).getServerName() << std::endl;
+
+		std::cout << YELLOW << "\tPort = " << RESET;
+		std::cout << (*it).getPort() << std::endl;		
+
+		std::cout << YELLOW << "\tHost = " << RESET;
+		std::cout << (*it).getHost() << std::endl;
+
+		std::cout << YELLOW << "\tRoot = " << RESET;
+		std::cout << (*it).getRoot() << std::endl;
+
+		std::cout << YELLOW << "\tNumber of error pages = " << RESET;
+		std::cout << (*it).getErrors().size() << std::endl;
+
+		std::cout << YELLOW << "\tMaximum client body size = " << RESET;
+		std::cout << (*it).getClientBodySize() << std::endl;
+
+		std::cout << YELLOW << "\tUpload directory = " << RESET;
+		std::cout << (*it).getUploadDir() << std::endl;
+
+		std::cout << YELLOW << "\tNumber of routes = " << RESET;
+		std::cout << (*it).getRoutes()->size() << std::endl;
+
+		std::cout << std::endl;
+	}
+}
+
 void			Program::start(void) {
-	std::cout << "Starting program with " << this->servers.size() << " active server(s)..." << std::endl;
 	while (1)
 	{
 	}
 }
 
 void			Program::stop(void) {
-	std::cout << "Stopping server..." << std::endl;
+	std::cout << BOLDYELLOW << "Stopping server(s)..." << RESET << std::endl << std::endl;
 }
 
 // EXCEPTIONS

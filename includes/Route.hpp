@@ -22,7 +22,7 @@ private:
 	std::string					path;
 	std::vector<std::string> 	methods;
 	std::string					redirection;
-	//bool						autoindex;
+	bool						autoindex;
 	std::string					cgi_extension;
 	std::string					cgi_bin;
 
