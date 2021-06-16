@@ -60,18 +60,32 @@ std::size_t Request::parseMethod()
 	throw Request::BadRequestException();
 }
 
+void Request::decodeUri()
+{
+	std::size_t pos = this->uri.find('%');
+	while (pos != this->uri.npos)
+	{
+		if (std::isxdigit(this->uri[pos + 1]) == 0
+				|| std::isxdigit(this->uri[pos + 2]) == 0)
+		{
+			throw Request::BadRequestException();
+		}
+		this->uri.replace(pos, 3, 1, std::strtol(this->uri.substr(
+						pos + 1, 2).c_str(), NULL, 16));
+		pos = this->uri.find('%', pos + 1);
+	}
+}
+
 std::size_t Request::parseUri(std::size_t pos)
 {
-	if (this->content[pos] != '/')
-	{
-		throw Request::BadRequestException();
-	}
 	std::size_t uri_length = this->content.find(' ', pos) - pos;
-	if (uri_length + pos == this->content.npos)
+	if (this->content[pos] != '/'
+			|| uri_length + pos == this->content.npos)
 	{
 		throw Request::BadRequestException();
 	}
 	this->uri = this->content.substr(pos, uri_length);
+	this->decodeUri();
 	return (pos + uri_length);
 }
 
