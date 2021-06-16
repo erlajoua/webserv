@@ -14,35 +14,35 @@
 # include <cstring>
 # include <fstream>
 
-//
+//surement inutile
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void ft_error(std::string error);
+void ftError(std::string error);
 
 # define DEFAULT_PORT 8042
 # define DEFAULT_HOST "127.0.0.1"
-# define DEFAULT_NBCLIENTMAX 3
+# define DEFAULT_NB_CLIENT_MAX 3
 
 class Server
 {
 private:
     //from parsing
-    short               _port;
-    const char *        _host;
-    int                 _nbClientMax;
+    short               port;
+    const char *        host;
+    int                 nb_client_max;
     //.../
-    int                 _serverSocket;
-    fd_set              _currentSockets;
-    fd_set              _readySockets;
-    sockaddr_in         _addr;
+    int                 server_socket;
+    fd_set              current_sockets;
+    fd_set              ready_sockets;
+    sockaddr_in         addr;
 
-    int     accept_new_connection(int server_socket);
-    void    handle_connection(int client_socket);
+    int     acceptNewConnection(int server_socket);
+    void    handleConnection(int client_socket);
 public:
     Server(void);
-    Server(short port, const char *host, int nbClientMax);
+    Server(short port, const char *host, int nb_client_max);
     virtual ~Server(void);
     void start(void);
 };

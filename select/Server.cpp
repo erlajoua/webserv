@@ -4,41 +4,41 @@
 
 Server::Server(void)
 {
-	Server tmp(static_cast<short>(DEFAULT_PORT), DEFAULT_HOST, DEFAULT_NBCLIENTMAX);
+	Server tmp(static_cast<short>(DEFAULT_PORT), DEFAULT_HOST, DEFAULT_NB_CLIENT_MAX);
 
-	_port = tmp._port;
-	_host = tmp._host;
-	_nbClientMax = tmp._nbClientMax;
-	_serverSocket = tmp._serverSocket;
-	_currentSockets = tmp._currentSockets;
-	_readySockets = tmp._readySockets;
-	_addr = tmp._addr;
+	this->port = tmp.port;
+	this->host = tmp.host;
+	this->nb_client_max = tmp.nb_client_max;
+	this->server_socket = tmp.server_socket;
+	this->current_sockets = tmp.current_sockets;
+	this->ready_sockets = tmp.ready_sockets;
+	this->addr = tmp.addr;
 }
 
-Server::Server(short port, const char *host, int nbClientMax) :
-_port(port),
-_host(host),
-_nbClientMax(nbClientMax)
+Server::Server(short port, const char *host, int nb_client_max) :
+port(port),
+host(host),
+nb_client_max(nb_client_max)
 {
-	memset(&_addr, 0, sizeof(_addr));
+	memset(&this->addr, 0, sizeof(this->addr));
 
 
-    if ((_serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		ft_error("Socket");
+    if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		ftError("Socket");
 
-	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = inet_addr(_host);
-	_addr.sin_port = htons(_port);
+	this->addr.sin_family = AF_INET;
+	this->addr.sin_addr.s_addr = inet_addr(this->host);
+	this->addr.sin_port = htons(this->port);
 
-    FD_ZERO(&_currentSockets);
-    FD_SET(_serverSocket, &_currentSockets);
+    FD_ZERO(&this->current_sockets);
+    FD_SET(this->server_socket, &this->current_sockets);
     
-	if (bind(_serverSocket, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
+	if (bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr)) < 0)
 		perror("bind");
 
-	if (listen(_serverSocket, _nbClientMax) < 0)
+	if (listen(this->server_socket, this->nb_client_max) < 0)
 		perror("Listen");
-    std::cout << "===SUCCESS===\n\n-> A server has been setup on: " << _host << ":" << _port <<"\n\n=============\n";
+    std::cout << "===SUCCESS===\n\n-> A server has been setup on: " << this->host << ":" << this->port <<"\n\n=============\n";
 }
 
 Server::~Server(void)
@@ -53,30 +53,30 @@ void    Server::start(void)
 {
     while (true)
     {
-        _readySockets = _currentSockets;
+        this->ready_sockets = this->current_sockets;
 
-		if (select(FD_SETSIZE, &_readySockets, NULL, NULL, NULL) < 0)
-			ft_error("Select");
+		if (select(FD_SETSIZE, &this->ready_sockets, NULL, NULL, NULL) < 0)
+			ftError("Select");
 		for (int i = 0; i < FD_SETSIZE; i++)
 		{
-			if (FD_ISSET(i, &_readySockets))
+			if (FD_ISSET(i, &this->ready_sockets))
 			{
-				if (i == _serverSocket)
+				if (i == this->server_socket)
 				{
-					int client_socket = accept_new_connection(_serverSocket);
-					FD_SET(client_socket, &_currentSockets);
+					int client_socket = acceptNewConnection(this->server_socket);
+					FD_SET(client_socket, &this->current_sockets);
 				}
 				else
 				{
-					handle_connection(i);
-					FD_CLR(i, &_currentSockets);
+					handleConnection(i);
+					FD_CLR(i, &this->current_sockets);
 				}
 			}
 		}
     }
 }
 
-int     Server::accept_new_connection(int server_socket)
+int     Server::acceptNewConnection(int server_socket)
 {
 	int addr_size = sizeof(sockaddr_in);
 	int client_socket;
@@ -85,12 +85,12 @@ int     Server::accept_new_connection(int server_socket)
 	client_socket = accept(server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addr_size);
 
 	if (client_socket == -1)
-		ft_error("Accept new connection");
+		ftError("Accept new connection");
 
-	return client_socket;
+	return (client_socket);
 }
 
-void    Server::handle_connection(int client_socket)
+void    Server::handleConnection(int client_socket)
 {
 	//get the request content from the client_socket
 	char request_buffer[4096];

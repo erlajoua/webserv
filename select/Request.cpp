@@ -1,43 +1,43 @@
 #include "Request.hpp"
 
-char const* Request::BadRequestException::what() const throw()
-{
-	return "bad request";
-}
-
-char const* Request::VersionNotImplementedException::what() const throw()
-{
-	return "version not implemented";
-}
+//constructors
 
 Request::Request()
 {
-	return;
 }
 
 Request::Request(Request const& src)
 {
 	*this = src;
-	return;
 }
 
-Request& Request::operator=(Request const& rhs)
+Request::Request(std::string const& content) :
+	content(content),
+	is_bad(false)
 {
-	this->content = rhs.content;
-	this->is_bad = rhs.is_bad;
-	this->error_type = rhs.error_type;
-	this->method = rhs.method;
-	this->uri = rhs.uri;
-	this->http_version = rhs.http_version;
-	this->host = rhs.host;
-	this->port = rhs.port;
-	return *this;
+	this->parseContent();
 }
+
+Request::Request(int const& request_fd) :
+	content(""),
+	is_bad(false)
+{
+	this->content = this->receiveContent(request_fd);
+	this->parseContent();
+}
+
+//destructor
+
+Request::~Request()
+{
+}
+
+//methods
 
 std::string Request::receiveContent(int const& request_fd)
 {
 	static_cast<void>(request_fd);
-	return "";
+	return ("");
 }
 
 std::size_t Request::parseMethod()
@@ -45,17 +45,17 @@ std::size_t Request::parseMethod()
 	if (this->content.compare(0, 3, "GET") == 0)
 	{
 		this->method = kGet;
-		return 3;
+		return (3);
 	}
 	else if (this->content.compare(0, 4, "POST") == 0)
 	{
 		this->method = kGet;
-		return 4;
+		return (4);
 	}
 	else if (this->content.compare(0, 6, "DELETE") == 0)
 	{
 		this->method = kDelete;
-		return 6;
+		return (6);
 	}
 	throw Request::BadRequestException();
 }
@@ -72,7 +72,7 @@ std::size_t Request::parseUri(std::size_t pos)
 		throw Request::BadRequestException();
 	}
 	this->uri = this->content.substr(pos, uri_length);
-	return pos + uri_length;
+	return (pos + uri_length);
 }
 
 std::size_t Request::parseHttpVersion(std::size_t pos)
@@ -92,7 +92,7 @@ std::size_t Request::parseHttpVersion(std::size_t pos)
 		throw Request::VersionNotImplementedException();
 	}
 	this->http_version = std::strtod(this->content.substr(pos, 3).c_str(), NULL);
-	return pos + 3;
+	return (pos + 3);
 }
 
 std::size_t Request::parseRequestLine()
@@ -112,7 +112,7 @@ std::size_t Request::parseRequestLine()
 	{
 		throw Request::BadRequestException();
 	}
-	return pos + 2;
+	return (pos + 2);
 }
 
 void Request::parseHostFieldValue(std::string const& field_value)
@@ -120,14 +120,9 @@ void Request::parseHostFieldValue(std::string const& field_value)
 	std::size_t colon_pos = field_value.find(':');
 	this->host = field_value.substr(0, colon_pos);
 	if (colon_pos == field_value.npos)
-	{
 		this->port = 80;
-	}
 	else
-	{
 		this->port = std::atoi(field_value.substr(colon_pos + 1).c_str());
-	}
-	return;
 }
 
 void Request::parseHeaderField(std::string const& header_field)
@@ -147,7 +142,6 @@ void Request::parseHeaderField(std::string const& header_field)
 	{
 		this->parseHostFieldValue(field_value);
 	}
-	return;
 }
 
 std::size_t Request::parseHeaders(std::size_t pos)
@@ -169,7 +163,7 @@ std::size_t Request::parseHeaders(std::size_t pos)
 		}
 		header_field = this->content.substr(pos, crlf_pos - pos);
 	}
-	return crlf_pos + 2;
+	return (crlf_pos + 2);
 }
 
 void Request::parseContent()
@@ -190,75 +184,56 @@ void Request::parseContent()
 		this->is_bad = true;
 		this->error_type = kVersionNotImplemented;
 	}
-	return;
 }
 
-Request::Request(std::string const& content) :
-	content(content),
-	is_bad(false)
-{
-	this->parseContent();
-	return;
-}
-
-Request::Request(int const& request_fd) :
-	content(""),
-	is_bad(false)
-{
-	this->content = this->receiveContent(request_fd);
-	this->parseContent();
-	return;
-}
-
-Request::~Request()
-{
-	return;
-}
+//getters
 
 std::string const& Request::getContent() const
 {
-	return this->content;
+	return (this->content);
 }
 
 bool const& Request::getIs_bad() const
 {
-	return this->is_bad;
+	return (this->is_bad);
 }
 
 HttpErrorType const& Request::getError_type() const
 {
-	return this->error_type;
+	return (this->error_type);
 }
 
 HttpMethod const& Request::getMethod() const
 {
-	return this->method;
+	return (this->method);
 }
 
 std::string const& Request::getUri() const
 {
-	return this->uri;
+	return (this->uri);
 }
 
 double const& Request::getHttp_version() const
 {
-	return this->http_version;
+	return (this->http_version);
 }
 
 std::string const& Request::getHost() const
 {
-	return this->host;
+	return (this->host);
 }
 
 int const& Request::getPort() const
 {
-	return this->port;
+	return (this->port);
 }
 
 std::string const& Request::getBody() const
 {
-	return this->body;
+	return (this->body);
 }
+
+//overloads
 
 std::ostream& operator<<(std::ostream& os, Request const& req)
 {
@@ -266,31 +241,48 @@ std::ostream& operator<<(std::ostream& os, Request const& req)
 	{
 		os << "error_type : ";
 		if (req.getError_type() == kBadRequest)
-		{
 			os << "bad request" << std::endl;
-		}
 		else
-		{
 			os << "version not implemented" << std::endl;
-		}
 		return os;
 	}
 	os << "method : ";
 	if (req.getMethod() == kGet) 
-	{
 		os << "GET" << std::endl;
-	}
 	else if (req.getMethod() == kPost)
-	{
 		os << "POST" << std::endl;
-	}
 	else
-	{
 		os << "DELETE" << std::endl;
-	}
 	os << "uri : " << req.getUri() << std::endl;
 	os << "http_version : " << req.getHttp_version() << std::endl;
 	os << "host : " << req.getHost() << std::endl;
 	os << "port : " << req.getPort() << std::endl;
-	return os;
+	
+	return (os);
+}
+
+Request& Request::operator=(Request const& rhs)
+{
+	this->content = rhs.content;
+	this->is_bad = rhs.is_bad;
+	this->error_type = rhs.error_type;
+	this->method = rhs.method;
+	this->uri = rhs.uri;
+	this->http_version = rhs.http_version;
+	this->host = rhs.host;
+	this->port = rhs.port;
+
+	return (*this);
+}
+
+//exceptions
+
+char const* Request::BadRequestException::what() const throw()
+{
+	return ("bad request");
+}
+
+char const* Request::VersionNotImplementedException::what() const throw()
+{
+	return ("version not implemented");
 }
