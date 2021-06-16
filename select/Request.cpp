@@ -257,7 +257,9 @@ std::ostream& operator<<(std::ostream& os, Request const& req)
 	os << "http_version : " << req.getHttp_version() << std::endl;
 	os << "host : " << req.getHost() << std::endl;
 	os << "port : " << req.getPort() << std::endl;
-	os << "body : " << req.getBody() << std::endl;
+
+	if (req.getMethod() == kPost)
+		os << "body : " << req.getBody() << std::endl;
 	
 	return (os);
 }
