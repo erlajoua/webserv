@@ -10,13 +10,13 @@
 
 class Response {
 private:
-	double http_version_;
-	int status_code_;
-	std::string reason_phrase_;
-	static std::string const server_;
-	std::string content_type_;
-	std::size_t content_length_;
-	std::string body_;
+	double http_version;
+	int status_code;
+	std::string reason_phrase;
+	static std::string const server;
+	std::string content_type;
+	std::size_t content_length;
+	std::string body;
 
 	Response();
 	Response(Response const& src);

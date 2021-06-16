@@ -31,19 +31,19 @@ private:
 		virtual char const* what() const throw();
 	};
 
-	std::string content_;
+	std::string content;
 
-	bool is_bad_;
-	HttpErrorType error_type_;
+	bool is_bad;
+	HttpErrorType error_type;
 
-	HttpMethod method_;
-	std::string uri_;
-	double http_version_;
+	HttpMethod method;
+	std::string uri;
+	double http_version;
 
-	std::string host_;
-	int port_;
+	std::string host;
+	int port;
 
-	std::string body_;
+	std::string body;
 
 	Request();
 	Request(Request const& src);
@@ -66,15 +66,15 @@ public:
 	Request(int const& request_fd);
 	~Request();
 
-	std::string const& content() const;
-	bool const& is_bad() const;
-	HttpErrorType const& error_type() const;
-	HttpMethod const& method() const;
-	std::string const& uri() const;
-	double const& http_version() const;
-	std::string const& host() const;
-	int const& port() const;
-	std::string const& body() const;
+	std::string const& getContent() const;
+	bool const& getIs_bad() const;
+	HttpErrorType const& getError_type() const;
+	HttpMethod const& getMethod() const;
+	std::string const& getUri() const;
+	double const& getHttp_version() const;
+	std::string const& getHost() const;
+	int const& getPort() const;
+	std::string const& getBody() const;
 };
 
 std::ostream& operator<<(std::ostream& os, Request const& req);
