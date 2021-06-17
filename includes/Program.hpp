@@ -58,18 +58,22 @@ private:
 	bool 		isRouteConfig(std::string const &line) const;
 	bool		isFieldSingle(std::string const &line, std::string const &field) const;
 	bool		isFieldMultiple(std::string const &line, std::string const &field) const;
+	bool		isField3(std::string const &line, std::string const &field) const;
 	bool 		isServField(std::string const &line) const;
 	bool 		isRouteField(std::string const &line) const;
 	bool		isClosingBracket(std::string const &line) const;
 	bool		isEmptyLine(std::string const &line) const;
 
+	void		checkNoServer(std::vector<std::string> lines);
 	void		checkInvalidInstruction(std::vector<std::string> lines);
 	void		checkInvalidDeclaration(std::vector<std::string> lines);
 	void		checkErrorConfig(std::vector<std::string> lines);
 
 	Server		setServField(Server s, std::string const &field);
-	Route		setRouteField(Route r, std::string const &field);
+	Route		setRouteField(Server s, Route r, std::string const &field);
 	void		parseValue(std::vector<std::string> lines);
+
+	void		checkMinimumSetup(void);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -83,6 +87,10 @@ public:
 	void		stop(void);
 
 	// EXCEPTIONS
+	class 		NoServerException: public std::exception {
+		virtual const char* what() const throw();
+	};
+
 	class 		InvalidInstructionException: public std::exception {
 		virtual const char* what() const throw();
 	};
@@ -134,6 +142,20 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		InvalidCgiBinDirException: public std::exception {
+		virtual const char* what() const throw();
+	};
+
+	class 		RootNoneException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		SameMethodException: public std::exception {
+		virtual const char* what() const throw();
+	};
+
+	class 		NoPortSetupException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		NoHostSetupException: public std::exception {
 		virtual const char* what() const throw();
 	};
 };

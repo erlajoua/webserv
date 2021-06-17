@@ -17,12 +17,16 @@
 # include <vector>
 # include <sstream>
 # include <iostream>
+# include <cstdlib>
+# include <arpa/inet.h>
+# include <sys/stat.h>
 
 # include "./Route.hpp"
 
 class Server {
 private:
 	// ATTRIBUTES
+	bool						default_server;
 	int 						port; 
 	std::string 				host;
 	std::string 				server_name;
@@ -42,6 +46,7 @@ public:
 	Server						&operator=(Server const &s);
 
 	// GETTERS
+	bool						getDefaultServer(void) const;
 	int							getPort(void) const;
 	std::string					getHost(void) const;
 	std::string					getServerName(void) const;
@@ -52,11 +57,12 @@ public:
 	std::vector<Route>			*getRoutes(void);
 
 	// SETTERS
+	void						setDefaultServer(void);
 	void						setPort(std::string const &field);
 	void						setHost(std::string const &field);
 	void						setServerName(std::string const &field);
 	void						setRoot(std::string const &field);
-	void						setErrors(std::string const &field);
+	void						setErrors(std::string const &root, std::string const &field);
 	void						setClientBodySize(std::string const &field);
 	void						setUploadDir(std::string const &field);	
 };

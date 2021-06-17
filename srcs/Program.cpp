@@ -64,6 +64,22 @@ bool			Program::isFieldMultiple(std::string const &line, std::string const &fiel
 		return (false);
 }
 
+bool			Program::isField3(std::string const &line, std::string const &field) const {
+	(void) field;
+	size_t 	i = 0;
+	while(line[i] != '\0' && line[i] != ';')
+		i++;
+	if (line[i] == '\0')
+		return (false);
+	std::string up_to_colon(line, 0, i);
+	std::istringstream iss(up_to_colon);
+	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+	if (split.size() > 1 && split.size() < 5 && split[0] == field)
+		return (true);
+	else
+		return (false);
+}
+
 bool			Program::isClosingBracket(std::string const &line) const {
 	std::istringstream iss(line);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -102,7 +118,7 @@ bool			Program::isServField(std::string const &field) const {
 }
 
 bool			Program::isRouteField(std::string const &field) const {
-	if (this->isFieldMultiple(field, "methods") == true)
+	if (this->isField3(field, "methods") == true)
 		return (true);
 	else if (this->isFieldSingle(field, "redirection") == true)
 		return (true);
@@ -114,6 +130,20 @@ bool			Program::isRouteField(std::string const &field) const {
 		return (true);
 	else
 		return (false);	
+}
+
+void			Program::checkNoServer(std::vector<std::string> lines) {
+	std::cout << BOLDYELLOW << "Checking at least one server is declared..." << RESET << std::endl;
+	usleep(1000000);
+	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
+	{
+		if (this->isServConfig(*it) == true)
+		{
+			std::cout << BOLDGREEN << "\n=> OK! Continuing parsing...\n" << RESET << std::endl;
+			return;
+		}
+	}
+	throw 0;
 }
 
 void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
@@ -142,7 +172,7 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 			std::cout << GREEN << "*** Upload Directory single field ***" << RESET << std::endl;
 		else if (this->isRouteConfig(*it) == true)
 			std::cout << GREEN << "*** Route block starts ***" << RESET << std::endl;
-		else if (this->isFieldMultiple(*it, "methods") == true)
+		else if (this->isField3(*it, "methods") == true)
 			std::cout << GREEN << "*** Methods multiple field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "redirection") == true)
 			std::cout << GREEN << "*** Redirection single field ***" << RESET << std::endl;
@@ -219,6 +249,15 @@ void			Program::checkInvalidDeclaration(std::vector<std::string> lines) {
 void			Program::checkErrorConfig(std::vector<std::string> lines) {
 	try
 	{
+		this->checkNoServer(lines);
+	}
+	catch (int e)
+	{
+		throw e;
+		return;
+	}
+	try
+	{
 		this->checkInvalidInstruction(lines);
 	}
 	catch (int e)
@@ -246,7 +285,7 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 5;
+			throw e;
 			return (s);
 		}
 	}
@@ -258,7 +297,7 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 6;
+			throw e;
 			return (s);
 		}
 	}
@@ -270,7 +309,7 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 7;
+			throw e;
 			return (s);
 		}
 	}
@@ -282,7 +321,7 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 8;
+			throw e;
 			return (s);
 		}
 	}
@@ -290,11 +329,11 @@ Server			Program::setServField(Server s, std::string const &field) {
 	{
 		try
 		{
-			s.setErrors(field);
+			s.setErrors(s.getRoot(), field);
 		}
 		catch (int e)
 		{
-			throw 9;
+			throw e;
 			return (s);
 		}
 	}
@@ -306,7 +345,7 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 10;
+			throw e;
 			return (s);
 		}
 	}
@@ -318,27 +357,15 @@ Server			Program::setServField(Server s, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 11;
+			throw e;
 			return (s);
 		}
 	}
 	return (s);
 }
 
-Route			Program::setRouteField(Route r, std::string const &field) {
-	if (this->isFieldSingle(field, "path") == true)
-	{
-		try
-		{
-			r.setPath(field);
-		}
-		catch (int e)
-		{
-			throw 12;
-			return (r);
-		}
-	}
-	if (this->isFieldMultiple(field, "methods") == true)
+Route			Program::setRouteField(Server s, Route r, std::string const &field) {
+	if (this->isField3(field, "methods") == true)
 	{
 		try
 		{
@@ -346,7 +373,7 @@ Route			Program::setRouteField(Route r, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 13;
+			throw e;
 			return (r);
 		}
 	}
@@ -354,11 +381,11 @@ Route			Program::setRouteField(Route r, std::string const &field) {
 	{
 		try
 		{
-			r.setRedirection(field);
+			r.setRedirection(s.getRoot(), field);
 		}
 		catch (int e)
 		{
-			throw 14;
+			throw e;
 			return (r);
 		}
 	}
@@ -370,7 +397,7 @@ Route			Program::setRouteField(Route r, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 15;
+			throw e;
 			return (r);
 		}
 	}
@@ -382,7 +409,7 @@ Route			Program::setRouteField(Route r, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 16;
+			throw e;
 			return (r);
 		}
 	}
@@ -394,7 +421,7 @@ Route			Program::setRouteField(Route r, std::string const &field) {
 		}
 		catch (int e)
 		{
-			throw 17;
+			throw e;
 			return (r);
 		}
 	}
@@ -411,6 +438,8 @@ void			Program::parseValue(std::vector<std::string> lines) {
 			std::cout << GREEN << "Parsing next server..." << RESET << std::endl;
 			usleep(10000);
 			Server s;
+			if (this->servers.size() == 0)
+				s.setDefaultServer();
 			it++;
 			while (this->isServField(*it) == true || this->isEmptyLine(*it) == true)
 			{
@@ -435,6 +464,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 					std::cout << GREEN << "\tParsing next route..." << RESET << std::endl;
 					usleep(10000);
 					Route r;
+					r.setPath(*it);
 					it++;
 					while (this->isRouteField(*it) == true || this->isEmptyLine(*it) == true)
 					{
@@ -442,7 +472,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 						{
 							try
 							{
-								r = this->setRouteField(r, *it);
+								r = this->setRouteField(s, r, *it);
 							}
 							catch (int e)
 							{
@@ -459,6 +489,26 @@ void			Program::parseValue(std::vector<std::string> lines) {
 					it++;
 			}	
 			this->servers.push_back(s);
+		}
+	}
+	std::cout << BOLDGREEN << "\n=> OK! Continuing parsing...\n" << RESET << std::endl;
+}
+
+void			Program::checkMinimumSetup(void) {
+	std::cout << BOLDYELLOW << "Checking minimum setup..." << RESET << std::endl;
+	usleep(1000000);
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		std::cout << GREEN << "Checking next server..." << RESET << std::endl;
+		if ((*it).getPort() == 0)
+		{
+			throw 31;
+			return;
+		}
+		if ((*it).getHost() == "none")
+		{
+			throw 32;
+			return;
 		}
 	}
 	std::cout << BOLDGREEN << "\n=> OK! Starting program...\n" << RESET << std::endl;
@@ -487,11 +537,13 @@ void			Program::parseConfig(std::string path) {
 	usleep(1000000);
 	try
 	{
-		checkErrorConfig(lines);
+		this->checkErrorConfig(lines);
 	}
 	catch (int e)
 	{
-		if (e == 1)
+		if (e == 0)
+			throw NoServerException();
+		else if (e == 1)
 			throw InvalidInstructionException();
 		else if (e == 2)
 			throw ServerFirstException();
@@ -499,8 +551,15 @@ void			Program::parseConfig(std::string path) {
 			throw InvalidServerFieldException();
 		else if (e == 4)
 			throw InvalidRouteFieldException();
-		
-		else if (e == 5)
+		return;
+	}
+	try
+	{
+		this->parseValue(lines);
+	}
+	catch (int e)
+	{
+		if (e == 5)
 			throw InvalidPortException();
 		else if (e == 6)
 			throw InvalidHostException();
@@ -527,24 +586,41 @@ void			Program::parseConfig(std::string path) {
 			throw InvalidCgiExtensionException();
 		else if (e == 17)
 			throw InvalidCgiBinDirException();
+	
+		else if (e == 21)
+			throw RootNoneException();
+		else if (e == 22)
+			throw SameMethodException();
+
 		return;
 	}
 	try
 	{
-		parseValue(lines);
+		this->checkMinimumSetup();
 	}
 	catch (int e)
 	{
+		if (e == 31)
+			throw NoPortSetupException();
+		else if (e == 32)
+			throw NoHostSetupException();
 		return;
 	}
 }
 
 void			Program::printSetup(void) {
 	std::cout << BOLDYELLOW << "Program has started with " << this->servers.size() << " active server(s):" << RESET << std::endl;
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		std::cout << YELLOW << "Server name = " << RESET;
 		std::cout << (*it).getServerName() << std::endl;
+
+		std::cout << YELLOW << "\tDefault server = " << RESET;
+		if ((*it).getDefaultServer() == true)
+			std::cout << "yes" << std::endl;
+		else	
+			std::cout << "no" << std::endl;
 
 		std::cout << YELLOW << "\tPort = " << RESET;
 		std::cout << (*it).getPort() << std::endl;		
@@ -558,6 +634,12 @@ void			Program::printSetup(void) {
 		std::cout << YELLOW << "\tNumber of error pages = " << RESET;
 		std::cout << (*it).getErrors().size() << std::endl;
 
+		for (std::vector<std::string>::iterator it2 = (*it).getErrors().begin(); it2 != (*it).getErrors().end(); it2++)
+		{
+			std::cout << YELLOW << "\t\tPath = " << RESET;
+			std::cout << *it2 << std::endl;
+		}
+
 		std::cout << YELLOW << "\tMaximum client body size = " << RESET;
 		std::cout << (*it).getClientBodySize() << std::endl;
 
@@ -566,6 +648,34 @@ void			Program::printSetup(void) {
 
 		std::cout << YELLOW << "\tNumber of routes = " << RESET;
 		std::cout << (*it).getRoutes()->size() << std::endl;
+
+		for (std::vector<Route>::iterator it3 = (*it).getRoutes()->begin(); it3 != (*it).getRoutes()->end(); it3++)
+		{
+			std::cout << YELLOW << "\t\tPath = " << RESET;
+			std::cout << (*it3).getPath() << std::endl;
+
+			std::cout << YELLOW << "\t\t\tMethods = " << RESET;
+			for (std::vector<std::string>::iterator it4 = (*it3).getMethods().begin(); it4 != (*it3).getMethods().end(); it4++)
+			{
+				std::cout << (*it4) << " ";				
+			}
+			std::cout << std::endl;
+
+			std::cout << YELLOW << "\t\t\tRedirection = " << RESET;
+			std::cout << (*it3).getRedirection() << std::endl;
+
+			std::cout << YELLOW << "\t\t\tAutoindex = " << RESET;
+			if ((*it3).getAutoindex() == true)
+				std::cout << "on" << std::endl;
+			else		
+				std::cout << "off" << std::endl;
+
+			std::cout << YELLOW << "\t\t\tCGI extension = " << RESET;
+			std::cout << (*it3).getCgiExtension() << std::endl;
+
+			std::cout << YELLOW << "\t\t\tCGI executable = " << RESET;
+			std::cout << (*it3).getCgiBin() << std::endl;
+		}
 
 		std::cout << std::endl;
 	}
@@ -582,6 +692,12 @@ void			Program::stop(void) {
 }
 
 // EXCEPTIONS
+
+const char*		Program::NoServerException::what() const throw()
+{
+	return "Config file is incorrect: no server declared.";
+}
+
 
 const char*		Program::InvalidInstructionException::what() const throw()
 {
@@ -606,67 +722,86 @@ const char*		Program::InvalidRouteFieldException::what() const throw()
 
 const char*		Program::InvalidPortException::what() const throw()
 {
-	return "Config file is incorrect: port value is incorrect.";
+	return "Config file is incorrect: port value must be 0 < int < 65535.";
 }
 
 const char*		Program::InvalidHostException::what() const throw()
 {
-	return "Config file is incorrect: host value is incorrect.";
+	return "Config file is incorrect: host value is not a valid IPv4 address.";
 }
 
 const char*		Program::InvalidServerNameException::what() const throw()
 {
-	return "Config file is incorrect: server_name value is incorrect.";
+	return "Config file is incorrect: server_name value can't be set to none.";
 }
 
 const char*		Program::InvalidRootException::what() const throw()
 {
-	return "Config file is incorrect: root value is incorrect.";
+	return "Config file is incorrect: root value is not a valid path.";
 }
 
 const char*		Program::InvalidErrorsException::what() const throw()
 {
-	return "Config file is incorrect: any of errors value is incorrect.";
+	return "Config file is incorrect: any of errors value (concatenated with root/) is not a valid path.";
 }
 
 const char*		Program::InvalidClientBodySizeException::what() const throw()
 {
-	return "Config file is incorrect: client_body_size value is incorrect.";
+	return "Config file is incorrect: client_body_size value must be 0 < int < 65535.";
 }
 
 const char*		Program::InvalidUploadDirException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: upload_dir value is not a valid path.";
 }
 
 
 const char*		Program::InvalidPathException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: route path must start by /.";
 }
 
 const char*		Program::InvalidMethodsException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: methods value can only be get, post or delete.";
 }
 
 const char*		Program::InvalidRedirectionException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: redirection value (concatenated with root/) is not a valid path";
 }
 
 const char*		Program::InvalidAutoindexException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: autoindex value can only be on or off.";
 }
 
 const char*		Program::InvalidCgiExtensionException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: cgi_extension value can't be set to none.";
 }
 
 const char*		Program::InvalidCgiBinDirException::what() const throw()
 {
-	return "Config file is incorrect: upload value is incorrect.";
+	return "Config file is incorrect: cgi_bin value is not a valid executable.";
 }
 
+const char*		Program::RootNoneException::what() const throw()
+{
+	return "Config file is incorrect: errors or redirection path can't be declared when root is set to none.";
+}
+
+const char*		Program::SameMethodException::what() const throw()
+{
+	return "Config file is incorrect: multiple declarations of the same method.";
+}
+
+const char*		Program::NoPortSetupException::what() const throw()
+{
+	return "Config file is incorrect: a port must be declared for each server.";
+}
+
+const char*		Program::NoHostSetupException::what() const throw()
+{
+	return "Config file is incorrect: a host must be declared for each server.";
+}
