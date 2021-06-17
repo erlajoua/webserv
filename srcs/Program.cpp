@@ -511,7 +511,7 @@ void			Program::checkMinimumSetup(void) {
 			return;
 		}
 	}
-	std::cout << BOLDGREEN << "\n=> OK! Starting program...\n" << RESET << std::endl;
+	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
 
 
@@ -608,8 +608,8 @@ void			Program::parseConfig(std::string path) {
 	}
 }
 
-void			Program::printSetup(void) {
-	std::cout << BOLDYELLOW << "Program has started with " << this->servers.size() << " active server(s):" << RESET << std::endl;
+void			Program::printParsing(void) {
+	std::cout << BOLDYELLOW << "Printing parsed server(s)..." << RESET << std::endl;
 	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
@@ -682,8 +682,11 @@ void			Program::printSetup(void) {
 }
 
 void			Program::start(void) {
-	while (1)
+
+	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " servers..." << RESET << std::endl;
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
+		(*it).start();
 	}
 }
 

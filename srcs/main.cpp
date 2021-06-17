@@ -55,7 +55,7 @@ int		main(int argc, char **argv)
 		return (0);
 	}
 	signal(SIGINT, quit);
-	program.printSetup();
+	program.printParsing();
 	program.start();
 	return (0);
 }

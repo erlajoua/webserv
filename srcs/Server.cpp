@@ -17,6 +17,10 @@
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
 	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")) {
+		memset(&this->addr, 0, sizeof(this->addr));
+		this->server_socket = socket(AF_INET, SOCK_STREAM, 0);
+		FD_ZERO(&this->current_sockets);
+		FD_ZERO(&this->ready_sockets); //check;
 }
 
 Server::Server(Server const &s) {
@@ -29,6 +33,10 @@ Server::Server(Server const &s) {
 	this->client_body_size = s.client_body_size;
 	this->upload_dir = s.upload_dir;
 	this->routes = s.routes;
+	this->addr = s.addr;
+	this->server_socket = s.server_socket;
+	this->current_sockets = s.current_sockets;
+	this->ready_sockets = s.ready_sockets;	
 }
 
 Server::~Server(void) {
@@ -46,6 +54,10 @@ Server				&Server::operator=(Server const &s) {
 	this->client_body_size = s.client_body_size;
 	this->upload_dir = s.upload_dir;
 	this->routes = s.routes;
+	this->addr = s.addr;
+	this->server_socket = s.server_socket;
+	this->current_sockets = s.current_sockets;
+	this->ready_sockets = s.ready_sockets;
 	return (*this);
 }
 
@@ -215,3 +227,13 @@ void				Server::setUploadDir(std::string const &field) {
 	else
 		this->upload_dir = split[1];
 }
+
+// MEMBER FUNCTIONS
+
+void				Server::start(void) {
+	std::cout << GREEN << this->getServerName() << " is now listening on " << this->getHost() << ":" << this->getPort() << "..." << RESET << std::endl;
+	while (1)
+	{
+	}
+}
+

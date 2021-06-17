@@ -20,6 +20,8 @@
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <sys/stat.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 
 # include "./Route.hpp"
 
@@ -35,6 +37,15 @@ private:
 	int 						client_body_size;
 	std::string					upload_dir;	
 	std::vector<Route> 			routes;
+
+    sockaddr_in         		addr;
+    int                 		server_socket;
+    fd_set              		current_sockets;
+    fd_set              		ready_sockets;
+
+	// PRIVATE HELPERS
+    //int     					acceptNewConnection(int server_socket) const;
+    //void    					handleConnection(int client_socket);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -64,7 +75,10 @@ public:
 	void						setRoot(std::string const &field);
 	void						setErrors(std::string const &root, std::string const &field);
 	void						setClientBodySize(std::string const &field);
-	void						setUploadDir(std::string const &field);	
+	void						setUploadDir(std::string const &field);
+
+	// MEMBER FUNCTIONS
+	void						start(void);		
 };
 
 #endif
