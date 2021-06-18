@@ -12,13 +12,45 @@
 
 #include "../includes/Server.hpp"
 
+// PRIVATE HELPERS
+
+int     Server::acceptNewConnection(int server_socket) const
+{
+	int addr_size = sizeof(sockaddr_in);
+	int client_socket;
+
+	sockaddr_in client_addr;
+	client_socket = accept(server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addr_size);
+
+	if (client_socket == -1)
+		throw AcceptNewConectionException();
+
+	return (client_socket);
+}
+
+void    Server::handleConnection(int client_socket)
+{
+	//get the request content from the client_socket
+	char request_buffer[4096];
+
+	int bytesRead = read(client_socket, request_buffer, 4096);
+	request_buffer[bytesRead] = 0;
+
+	//create the request
+	std::string request_content (request_buffer);
+	Request request(request_content);
+	std::cout << BLUE << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
+	std::cout << request;
+}
+
 // CONSTRUCTOR & DESTRUCTOR
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
 	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")) {
 		memset(&this->addr, 0, sizeof(this->addr));
-		this->server_socket = socket(AF_INET, SOCK_STREAM, 0);
+		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+			throw SocketInitializationException();
 		FD_ZERO(&this->current_sockets);
 		FD_ZERO(&this->ready_sockets); //check;
 }
@@ -226,9 +258,10 @@ void				Server::setup(void) {
 	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	this->addr.sin_port = htons(this->port);
     FD_SET(this->server_socket, &this->current_sockets);
-	bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr));
-	listen(this->server_socket, NB_CLIENT_MAX);
-
+	if (bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr)) < 0)
+		throw BindException();
+	if (listen(this->server_socket, NB_CLIENT_MAX) < 0)
+		throw ListenException();
 	std::cout << GREEN << this->getServerName() << " is setup on socket " << this->server_socket << "." << RESET << std::endl;
 	usleep(10000);
 }
@@ -236,12 +269,44 @@ void				Server::setup(void) {
 void				Server::start(void) {
 	std::cout << GREEN << this->getServerName() << " is now listening on " << this->getHost() << ":" << this->getPort() << "..." << RESET << std::endl;
 	usleep(10000);
-	while (1)
+	while (true)
 	{
+		try
+		{
+		    this->ready_sockets = this->current_sockets;
+
+			if (select(FD_SETSIZE, &this->ready_sockets, NULL, NULL, NULL) < 0)
+				throw SelectException();
+			for (int i = 0; i < FD_SETSIZE; i++)
+			{
+				if (FD_ISSET(i, &this->ready_sockets))
+				{
+					if (i == this->server_socket)
+					{
+						int client_socket = acceptNewConnection(this->server_socket);
+						FD_SET(client_socket, &this->current_sockets);
+					}
+					else
+					{
+						handleConnection(i);
+						FD_CLR(i, &this->current_sockets);
+					}
+				}
+			}
+		}
+		catch (std::exception &e)
+		{
+			std::cerr << RED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;
+		}
 	}
 }
 
 // EXCEPTIONS
+
+const char*		Server::SocketInitializationException::what() const throw()
+{
+	return "Server instanciation error: invalid socket creation.";
+}
 
 const char*		Server::InvalidPortException::what() const throw()
 {
@@ -276,4 +341,24 @@ const char*		Server::InvalidClientBodySizeException::what() const throw()
 const char*		Server::InvalidUploadDirException::what() const throw()
 {
 	return "Config file is incorrect: upload_dir value is not a valid path.";
+}
+
+const char*		Server::BindException::what() const throw()
+{
+	return "Server setup error: can't bind (port may be already used).";
+}
+
+const char*		Server::ListenException::what() const throw()
+{
+	return "Server setup error: can't listen.";
+}
+
+const char*		Server::AcceptNewConectionException::what() const throw()
+{
+	return "Server runtime error: can't accept new connection.";
+}
+
+const char*		Server::SelectException::what() const throw()
+{
+	return "Server runtime error: select error.";
 }

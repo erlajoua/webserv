@@ -25,6 +25,7 @@
 # include <unistd.h>
 
 # include "./Route.hpp"
+# include "./Request.hpp"
 
 # define NB_CLIENT_MAX 500
 
@@ -47,8 +48,8 @@ private:
     fd_set              		ready_sockets;
 
 	// PRIVATE HELPERS
-    //int     					acceptNewConnection(int server_socket) const;
-    //void    					handleConnection(int client_socket);
+    int     					acceptNewConnection(int server_socket) const;
+    void    					handleConnection(int client_socket);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -85,6 +86,9 @@ public:
 	void						start(void);
 
 	// EXCEPTIONS
+	class 		SocketInitializationException: public std::exception {
+		virtual const char* what() const throw();
+	};
 	class 		InvalidPortException: public std::exception {
 		virtual const char* what() const throw();
 	};
@@ -104,6 +108,18 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		InvalidUploadDirException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		BindException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		ListenException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		AcceptNewConectionException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		SelectException: public std::exception {
 		virtual const char* what() const throw();
 	};
 };

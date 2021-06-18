@@ -475,6 +475,8 @@ void			Program::setup(void) {
 void			Program::start(void) {
 
 	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " servers..." << RESET << std::endl;
+
+	//pthread_t	tid[this->servers.size()];
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		(*it).start();

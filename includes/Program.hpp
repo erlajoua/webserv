@@ -22,6 +22,7 @@
 # include <signal.h>
 # include <iterator>
 # include <unistd.h>
+# include <pthread.h>
 
 # include "./Server.hpp"
 

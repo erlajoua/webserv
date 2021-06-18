@@ -6,7 +6,7 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/17 12:28:37 by nessayan         ###   ########.fr        #
+#    Updated: 2021/06/18 12:27:50 by nessayan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,8 +14,9 @@ NAME = webserv
 
 SRCS =	srcs/main.cpp \
 		srcs/Program.cpp \
+		srcs/Server.cpp \
 		srcs/Route.cpp \
-		srcs/Server.cpp
+		srcs/Request.cpp
 
 INCLUDES =	-I ./includes
 

@@ -48,6 +48,8 @@ int		main(int argc, char **argv)
 	try
 	{	
 		program.parseConfig(path);
+		program.printParsing();
+		program.setup();
 	}
 	catch (std::exception &e)
 	{
@@ -55,8 +57,6 @@ int		main(int argc, char **argv)
 		return (0);
 	}
 	signal(SIGINT, quit);
-	program.printParsing();
-	program.setup();
 	program.start();
 	return (0);
 }
