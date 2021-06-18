@@ -359,6 +359,7 @@ void			Program::checkMinimumSetup(void) {
 			throw NoPortSetupException();
 		if ((*it).getHost() == "none")
 			throw NoHostSetupException();
+		usleep(10000);
 	}
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
@@ -456,9 +457,8 @@ void			Program::printParsing(void) {
 
 			std::cout << YELLOW << "\t\t\tCGI executable = " << RESET;
 			std::cout << (*it3).getCgiBin() << std::endl;
-			usleep(10000);
 		}
-		usleep(10000);
+		usleep(1000000);
 		std::cout << std::endl;
 	}
 }
@@ -466,9 +466,11 @@ void			Program::printParsing(void) {
 void			Program::setup(void) {
 
 	std::cout << BOLDYELLOW << "Setting up " << this->servers.size() << " servers..." << RESET << std::endl;
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		(*it).setup();
+		usleep(10000);
 	}
 	std::cout << std::endl;
 }
@@ -476,6 +478,7 @@ void			Program::setup(void) {
 void			Program::start(void) {
 
 	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " server(s)..." << RESET << std::endl;
+	usleep(1000000);
 	pthread_t	tid[this->servers.size()];
 	for (size_t i = 0; i < this->servers.size(); i++)
 	{
@@ -492,6 +495,7 @@ void			Program::start(void) {
 
 void			Program::stop(void) {
 	std::cout << BOLDYELLOW << "Stopping " << this->servers.size() << " server(s)..." << RESET << std::endl;
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		(*it).stop();
