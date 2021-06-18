@@ -90,7 +90,7 @@ void				Route::setPath(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (split[1][0] != '/')
-		throw 12;
+		throw InvalidPathException();
 	else
 		this->path = split[1];
 }
@@ -106,15 +106,9 @@ void				Route::setMethods(std::string const &field) {
 	for (size_t j = 1; j < l; j++)
 	{
 		if (split[j] != "get" && split[j] != "post" && split[j] != "delete")
-		{
-			throw 13;
-			return;
-		}
+			throw InvalidMethodsException();
 		else if (this->isMethodDeclared(this->methods, split[j]))
-		{
-			throw 21;
-			return;
-		}
+			throw SameMethodException();
 		else
 			this->methods.push_back(split[j]);
 	}
@@ -122,10 +116,7 @@ void				Route::setMethods(std::string const &field) {
 
 void				Route::setRedirection(std::string const &root, std::string const &field) {
 	if (root == "none")
-	{
-		throw 20;
-		return;
-	}
+		throw RootNoneException();
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -135,7 +126,7 @@ void				Route::setRedirection(std::string const &root, std::string const &field)
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	std::string concat = root + "/" + split[1];
 	if (stat (concat.c_str(), &buffer) != 0)
-		throw 14;
+		throw InvalidRedirectionException();
 	else
 		this->redirection = split[1];
 }
@@ -148,7 +139,7 @@ void				Route::setAutoindex(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (split[1] != "on" && split[1] != "off")
-		throw 15;
+		throw InvalidAutoindexException();
 	else
 	{
 		if (split[1] == "on")
@@ -166,7 +157,7 @@ void				Route::setCgiExtension(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (split[1] == "none")
-		throw 16;
+		throw InvalidCgiExtensionException();
 	else
 		this->cgi_extension = split[1];
 }
@@ -180,8 +171,49 @@ void				Route::setCgiBin(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (stat (split[1].c_str(), &buffer) != 0)
-		throw 17;
+		throw InvalidCgiBinDirException();
 	else
 		this->cgi_bin = split[1];
 }
 
+// EXCEPTIONS
+
+const char*		Route::InvalidPathException::what() const throw()
+{
+	return "Config file is incorrect: route path must start by /.";
+}
+
+const char*		Route::InvalidMethodsException::what() const throw()
+{
+	return "Config file is incorrect: methods value can only be get, post or delete.";
+}
+
+const char*		Route::InvalidRedirectionException::what() const throw()
+{
+	return "Config file is incorrect: redirection value (concatenated with root/) is not a valid path";
+}
+
+const char*		Route::InvalidAutoindexException::what() const throw()
+{
+	return "Config file is incorrect: autoindex value can only be on or off.";
+}
+
+const char*		Route::InvalidCgiExtensionException::what() const throw()
+{
+	return "Config file is incorrect: cgi_extension value can't be set to none.";
+}
+
+const char*		Route::InvalidCgiBinDirException::what() const throw()
+{
+	return "Config file is incorrect: cgi_bin value is not a valid executable.";
+}
+
+const char*		Route::RootNoneException::what() const throw()
+{
+	return "Config file is incorrect: errors or redirection path can't be declared when root is set to none.";
+}
+
+const char*		Route::SameMethodException::what() const throw()
+{
+	return "Config file is incorrect: multiple declarations of the same method.";
+}

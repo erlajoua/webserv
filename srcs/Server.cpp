@@ -116,14 +116,11 @@ void				Server::setPort(std::string const &field) {
 	for (size_t j = 0; j < split[1].length(); j++)
 	{
 		if (isdigit(split[1][j]) == false)
-		{
-			throw 5;
-			return;
-		}
+			throw InvalidPortException();
 	}
 	ret = atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
-		throw 5;
+		throw InvalidPortException();
 	else
 		this->port = ret;
 }
@@ -139,7 +136,7 @@ void				Server::setHost(std::string const &field) {
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	ret = inet_pton(AF_INET, split[1].c_str(), &(sa.sin_addr));
 	if (ret == 0)
-		throw 6;
+		throw InvalidHostException();
 	else
 		this->host = split[1];
 }
@@ -152,7 +149,7 @@ void				Server::setServerName(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (split[1] == "none")
-		throw 7;
+		throw InvalidServerNameException();
 	else
 		this->server_name = split[1];
 }
@@ -166,17 +163,14 @@ void				Server::setRoot(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (stat (split[1].c_str(), &buffer) != 0)
-		throw 8;
+		throw InvalidRootException();
 	else
 		this->root = split[1];
 }
 
 void				Server::setErrors(std::string const &root, std::string const &field) {
 	if (root == "none")
-	{
-		throw 20;
-		return;
-	}
+		throw Route::RootNoneException();
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -190,10 +184,7 @@ void				Server::setErrors(std::string const &root, std::string const &field) {
 	{
 		concat = root + "/" + split[j];
 		if (stat (concat.c_str(), &buffer) != 0)
-		{
-			throw 9;
-			return;
-		}
+			throw InvalidErrorsException();
 		else
 			this->errors.push_back(split[j]);
 	}
@@ -209,7 +200,7 @@ void				Server::setClientBodySize(std::string const &field) {
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	ret = atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
-		throw 10;
+		throw InvalidClientBodySizeException();
 	else
 		this->client_body_size = ret;
 }
@@ -223,7 +214,7 @@ void				Server::setUploadDir(std::string const &field) {
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	if (stat (split[1].c_str(), &buffer) != 0)
-		throw 11;
+		throw InvalidUploadDirException();
 	else
 		this->upload_dir = split[1];
 }
@@ -248,4 +239,41 @@ void				Server::start(void) {
 	while (1)
 	{
 	}
+}
+
+// EXCEPTIONS
+
+const char*		Server::InvalidPortException::what() const throw()
+{
+	return "Config file is incorrect: port value must be 0 < int < 65535.";
+}
+
+const char*		Server::InvalidHostException::what() const throw()
+{
+	return "Config file is incorrect: host value is not a valid IPv4 address.";
+}
+
+const char*		Server::InvalidServerNameException::what() const throw()
+{
+	return "Config file is incorrect: server_name value can't be set to none.";
+}
+
+const char*		Server::InvalidRootException::what() const throw()
+{
+	return "Config file is incorrect: root value is not a valid path.";
+}
+
+const char*		Server::InvalidErrorsException::what() const throw()
+{
+	return "Config file is incorrect: any of errors value (concatenated with root/) is not a valid path.";
+}
+
+const char*		Server::InvalidClientBodySizeException::what() const throw()
+{
+	return "Config file is incorrect: client_body_size value must be 0 < int < 65535.";
+}
+
+const char*		Server::InvalidUploadDirException::what() const throw()
+{
+	return "Config file is incorrect: upload_dir value is not a valid path.";
 }

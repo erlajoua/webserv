@@ -72,7 +72,6 @@ public:
 	class 		NoServerException: public std::exception {
 		virtual const char* what() const throw();
 	};
-
 	class 		InvalidInstructionException: public std::exception {
 		virtual const char* what() const throw();
 	};
@@ -85,55 +84,6 @@ public:
 	class 		InvalidRouteFieldException: public std::exception {
 		virtual const char* what() const throw();
 	};
-
-	class 		InvalidPortException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidHostException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidServerNameException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidRootException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidErrorsException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidClientBodySizeException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidUploadDirException: public std::exception {
-		virtual const char* what() const throw();
-	};
-
-	class 		InvalidPathException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidMethodsException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidRedirectionException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidAutoindexException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidCgiExtensionException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidCgiBinDirException: public std::exception {
-		virtual const char* what() const throw();
-	};
-
-	class 		RootNoneException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		SameMethodException: public std::exception {
-		virtual const char* what() const throw();
-	};
-
 	class 		NoPortSetupException: public std::exception {
 		virtual const char* what() const throw();
 	};

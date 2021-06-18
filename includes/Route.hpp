@@ -74,6 +74,32 @@ public:
 	void						setAutoindex(std::string const &field);
 	void						setCgiExtension(std::string const &field);
 	void						setCgiBin(std::string const &field);
+
+	// EXCEPTIONS
+	class 		InvalidPathException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidMethodsException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		SameMethodException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidRedirectionException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		RootNoneException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidAutoindexException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidCgiExtensionException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidCgiBinDirException: public std::exception {
+		virtual const char* what() const throw();
+	};
 };
 
 #endif

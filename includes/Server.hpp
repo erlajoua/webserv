@@ -82,7 +82,30 @@ public:
 
 	// MEMBER FUNCTIONS
 	void						setup(void);
-	void						start(void);	
+	void						start(void);
+
+	// EXCEPTIONS
+	class 		InvalidPortException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidHostException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidServerNameException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidRootException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidErrorsException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidClientBodySizeException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		InvalidUploadDirException: public std::exception {
+		virtual const char* what() const throw();
+	};
 };
 
 #endif
