@@ -230,10 +230,22 @@ void				Server::setUploadDir(std::string const &field) {
 
 // MEMBER FUNCTIONS
 
+void				Server::setup(void) {
+	this->addr.sin_family = AF_INET;
+	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
+	this->addr.sin_port = htons(this->port);
+    FD_SET(this->server_socket, &this->current_sockets);
+	bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr));
+	listen(this->server_socket, NB_CLIENT_MAX);
+
+	std::cout << GREEN << this->getServerName() << " is setup on socket " << this->server_socket << "." << RESET << std::endl;
+	usleep(10000);
+}
+
 void				Server::start(void) {
 	std::cout << GREEN << this->getServerName() << " is now listening on " << this->getHost() << ":" << this->getPort() << "..." << RESET << std::endl;
+	usleep(10000);
 	while (1)
 	{
 	}
 }
-

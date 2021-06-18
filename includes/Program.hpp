@@ -64,6 +64,7 @@ public:
 	// MEMBER FUNCTIONS
 	void		parseConfig(std::string path);
 	void 		printParsing(void);
+	void		setup(void);
 	void		start(void);
 	void		stop(void);
 

@@ -22,8 +22,11 @@
 # include <sys/stat.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
+# include <unistd.h>
 
 # include "./Route.hpp"
+
+# define NB_CLIENT_MAX 500
 
 class Server {
 private:
@@ -78,7 +81,8 @@ public:
 	void						setUploadDir(std::string const &field);
 
 	// MEMBER FUNCTIONS
-	void						start(void);		
+	void						setup(void);
+	void						start(void);	
 };
 
 #endif

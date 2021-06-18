@@ -681,6 +681,16 @@ void			Program::printParsing(void) {
 	}
 }
 
+void			Program::setup(void) {
+
+	std::cout << BOLDYELLOW << "Setting up " << this->servers.size() << " servers..." << RESET << std::endl;
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		(*it).setup();
+	}
+	std::cout << std::endl;
+}
+
 void			Program::start(void) {
 
 	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " servers..." << RESET << std::endl;
@@ -688,6 +698,7 @@ void			Program::start(void) {
 	{
 		(*it).start();
 	}
+	std::cout << std::endl;
 }
 
 void			Program::stop(void) {
