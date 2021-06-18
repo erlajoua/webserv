@@ -456,8 +456,9 @@ void			Program::printParsing(void) {
 
 			std::cout << YELLOW << "\t\t\tCGI executable = " << RESET;
 			std::cout << (*it3).getCgiBin() << std::endl;
+			usleep(10000);
 		}
-
+		usleep(10000);
 		std::cout << std::endl;
 	}
 }
@@ -474,18 +475,28 @@ void			Program::setup(void) {
 
 void			Program::start(void) {
 
-	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " servers..." << RESET << std::endl;
-
-	//pthread_t	tid[this->servers.size()];
-	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " server(s)..." << RESET << std::endl;
+	pthread_t	tid[this->servers.size()];
+	for (size_t i = 0; i < this->servers.size(); i++)
 	{
-		(*it).start();
+		pthread_create(&tid[i], NULL, this->servers[i].start, &(this->servers[i]));
+		usleep(10000);
+	}
+	for (size_t j = 0; j < this->servers.size(); j++)
+	{
+		pthread_join(tid[j], NULL);
+		pthread_detach(tid[j]);
 	}
 	std::cout << std::endl;
 }
 
 void			Program::stop(void) {
-	std::cout << BOLDYELLOW << "Stopping server(s)..." << RESET << std::endl << std::endl;
+	std::cout << BOLDYELLOW << "Stopping " << this->servers.size() << " server(s)..." << RESET << std::endl;
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		(*it).stop();
+		usleep(10000);
+	}
 }
 
 // EXCEPTIONS

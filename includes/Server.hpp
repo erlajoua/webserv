@@ -46,6 +46,7 @@ private:
     int                 		server_socket;
     fd_set              		current_sockets;
     fd_set              		ready_sockets;
+    bool						running;
 
 	// PRIVATE HELPERS
     int     					acceptNewConnection(int server_socket) const;
@@ -83,7 +84,8 @@ public:
 
 	// MEMBER FUNCTIONS
 	void						setup(void);
-	void						start(void);
+	static void					*start(void *server_v);
+	void						stop(void);
 
 	// EXCEPTIONS
 	class 		SocketInitializationException: public std::exception {

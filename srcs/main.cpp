@@ -19,7 +19,7 @@ void	quit(int arg)
 	(void)arg;
 	std::cout << "\b\b  " << std::endl;
 	program.stop();
-	std::cout << BOLDGREEN << "The user has stopped the program. 👋👋👋" << RESET << std::endl;
+	std::cout << std::endl << BOLDGREEN << "The user has stopped the program. 👋👋👋" << RESET << std::endl;
 	exit(0);
 }
 

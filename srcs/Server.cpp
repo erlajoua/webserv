@@ -39,7 +39,7 @@ void    Server::handleConnection(int client_socket)
 	//create the request
 	std::string request_content (request_buffer);
 	Request request(request_content);
-	std::cout << BLUE << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
+	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
 	std::cout << request;
 }
 
@@ -47,7 +47,7 @@ void    Server::handleConnection(int client_socket)
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")) {
+	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), running(false) {
 		memset(&this->addr, 0, sizeof(this->addr));
 		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw SocketInitializationException();
@@ -68,7 +68,8 @@ Server::Server(Server const &s) {
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
-	this->ready_sockets = s.ready_sockets;	
+	this->ready_sockets = s.ready_sockets;
+	this->running = s.running;	
 }
 
 Server::~Server(void) {
@@ -90,6 +91,7 @@ Server				&Server::operator=(Server const &s) {
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
 	this->ready_sockets = s.ready_sockets;
+	this->running = s.running;
 	return (*this);
 }
 
@@ -266,30 +268,34 @@ void				Server::setup(void) {
 	usleep(10000);
 }
 
-void				Server::start(void) {
-	std::cout << GREEN << this->getServerName() << " is now listening on " << this->getHost() << ":" << this->getPort() << "..." << RESET << std::endl;
+void				*Server::start(void *server_v) {
+	Server	*server;
+	server = reinterpret_cast<Server *>(server_v);
+
+	server->running = true;
+	std::cout << GREEN << server->getServerName() << " is now listening on " << server->getHost() << ":" << server->getPort() << "..." << RESET << std::endl;
 	usleep(10000);
-	while (true)
+	while (server->running == true)
 	{
 		try
 		{
-		    this->ready_sockets = this->current_sockets;
+		    server->ready_sockets = server->current_sockets;
 
-			if (select(FD_SETSIZE, &this->ready_sockets, NULL, NULL, NULL) < 0)
+			if (select(FD_SETSIZE, &server->ready_sockets, NULL, NULL, NULL) < 0)
 				throw SelectException();
 			for (int i = 0; i < FD_SETSIZE; i++)
 			{
-				if (FD_ISSET(i, &this->ready_sockets))
+				if (FD_ISSET(i, &server->ready_sockets))
 				{
-					if (i == this->server_socket)
+					if (i == server->server_socket)
 					{
-						int client_socket = acceptNewConnection(this->server_socket);
-						FD_SET(client_socket, &this->current_sockets);
+						int client_socket = server->acceptNewConnection(server->server_socket);
+						FD_SET(client_socket, &server->current_sockets);
 					}
 					else
 					{
-						handleConnection(i);
-						FD_CLR(i, &this->current_sockets);
+						server->handleConnection(i);
+						FD_CLR(i, &server->current_sockets);
 					}
 				}
 			}
@@ -299,6 +305,13 @@ void				Server::start(void) {
 			std::cerr << RED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;
 		}
 	}
+	return (NULL);
+}
+
+void				Server::stop(void) {
+	this->running = false;
+	std::cout << GREEN << this->getServerName() << " has stopped." << RESET << std::endl;
+	usleep(10000);
 }
 
 // EXCEPTIONS
