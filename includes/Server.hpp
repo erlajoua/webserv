@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/15 13:32:45 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/19 09:21:51 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <unistd.h>
+# include <iterator> 
+# include <string.h>
 
 # include "./Route.hpp"
 # include "./Request.hpp"

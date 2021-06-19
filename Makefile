@@ -6,7 +6,7 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/18 12:27:50 by nessayan         ###   ########.fr        #
+#    Updated: 2021/06/19 09:23:32 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ COMPILER = clang++
 	$(COMPILER) ${FLAGS} ${INCLUDES} -c $< -o ${<:.cpp=.o}
 
 $(NAME): $(OBJS)
-	${COMPILER} $(FLAGS) $(OBJS) -o $(NAME)
+	${COMPILER} $(FLAGS) $(OBJS) -o $(NAME) -lpthread
 
 all: $(NAME)
 

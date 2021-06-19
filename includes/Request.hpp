@@ -6,16 +6,17 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:26:29 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/18 12:26:40 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/19 09:22:35 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-#include <string>
-#include <sstream>
-#include <iostream>
+# include <string>
+# include <sstream>
+# include <iostream>
+# include <cstdlib>
 
 enum HttpErrorType {
 	kBadRequest,
