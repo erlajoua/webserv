@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/15 12:56:07 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/19 10:18:09 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -416,7 +416,7 @@ void			Program::printParsing(void) {
 		std::cout << YELLOW << "\tNumber of error pages = " << RESET;
 		std::cout << (*it).getErrors().size() << std::endl;
 
-		for (std::vector<std::string>::iterator it2 = (*it).getErrors().begin(); it2 != (*it).getErrors().end(); it2++)
+		for (std::vector<std::string>::const_iterator it2 = (*it).getErrors().begin(); it2 != (*it).getErrors().end(); it2++)
 		{
 			std::cout << YELLOW << "\t\tPath = " << RESET;
 			std::cout << *it2 << std::endl;
@@ -437,9 +437,9 @@ void			Program::printParsing(void) {
 			std::cout << (*it3).getPath() << std::endl;
 
 			std::cout << YELLOW << "\t\t\tMethods = " << RESET;
-			for (std::vector<std::string>::iterator it4 = (*it3).getMethods().begin(); it4 != (*it3).getMethods().end(); it4++)
+			for (std::vector<std::string>::const_iterator it4 = (*it3).getMethods().begin(); it4 != (*it3).getMethods().end(); it4++)
 			{
-				std::cout << (*it4) << " ";				
+				std::cout << (*it4) << " ";
 			}
 			std::cout << std::endl;
 

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/15 13:34:00 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/19 10:17:56 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ std::string					Server::getRoot(void) const {
 	return (this->root);
 }
 
-std::vector<std::string>	Server::getErrors(void) const {
+std::vector<std::string> const&	Server::getErrors(void) const {
 	return (this->errors);
 }
 

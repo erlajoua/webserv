@@ -60,7 +60,7 @@ std::string					Route::getPath(void) const {
 	return (this->path);
 }
 
-std::vector<std::string>	Route::getMethods(void) const {
+std::vector<std::string> const&	Route::getMethods(void) const {
 	return (this->methods);
 }
 

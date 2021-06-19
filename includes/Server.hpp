@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:21:51 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/19 10:17:48 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ public:
 	std::string					getHost(void) const;
 	std::string					getServerName(void) const;
 	std::string					getRoot(void) const;
-	std::vector<std::string>	getErrors(void) const;
+	std::vector<std::string> const&	getErrors(void) const;
 	int							getClientBodySize(void) const;
 	std::string					getUploadDir(void) const;
 	std::vector<Route>			*getRoutes(void);

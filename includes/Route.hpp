@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:52 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:22:04 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/19 10:16:43 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ public:
 
 	// GETTERS
 	std::string					getPath(void) const;
-	std::vector<std::string>	getMethods(void) const;
+	std::vector<std::string> const&	getMethods(void) const;
 	std::string					getRedirection(void) const;
 	bool						getAutoindex(void) const;
 	std::string					getCgiExtension(void) const;
