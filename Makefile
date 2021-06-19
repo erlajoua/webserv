@@ -16,7 +16,8 @@ SRCS =	srcs/main.cpp \
 		srcs/Program.cpp \
 		srcs/Server.cpp \
 		srcs/Route.cpp \
-		srcs/Request.cpp
+		srcs/Request.cpp \
+		srcs/Response.cpp
 
 INCLUDES =	-I ./includes
 

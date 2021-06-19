@@ -40,7 +40,11 @@ void    Server::handleConnection(int client_socket)
 	std::string request_content (request_buffer);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
-	std::cout << request;
+	
+	Response response(request);
+	
+	std::cout << "Response = " << response.toString() << "\n";
+	write(client_socket, response.toString().c_str(), strlen(response.toString().c_str()));
 }
 
 // CONSTRUCTOR & DESTRUCTOR
@@ -265,7 +269,7 @@ void				Server::setup(void) {
 	if (listen(this->server_socket, NB_CLIENT_MAX) < 0)
 		throw ListenException();
 	std::cout << GREEN << this->getServerName() << " is setup on socket " << this->server_socket << "." << RESET << std::endl;
-	usleep(10000);
+	//usleep(10000);
 }
 
 void				*Server::start(void *server_v) {
@@ -274,7 +278,7 @@ void				*Server::start(void *server_v) {
 
 	server->running = true;
 	std::cout << GREEN << server->getServerName() << " is now listening on " << server->getHost() << ":" << server->getPort() << "..." << RESET << std::endl;
-	usleep(10000);
+	//usleep(10000);
 	while (server->running == true)
 	{
 		try
@@ -311,7 +315,7 @@ void				*Server::start(void *server_v) {
 void				Server::stop(void) {
 	this->running = false;
 	std::cout << GREEN << this->getServerName() << " has stopped." << RESET << std::endl;
-	usleep(10000);
+	//usleep(10000);
 }
 
 // EXCEPTIONS

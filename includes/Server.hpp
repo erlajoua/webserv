@@ -28,6 +28,7 @@
 
 # include "./Route.hpp"
 # include "./Request.hpp"
+# include "./Response.hpp"
 
 # define NB_CLIENT_MAX 500
 

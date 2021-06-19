@@ -14,6 +14,25 @@
 
 Program			program;
 
+std::string	getAllFile(std::string filename)
+{
+	std::ifstream input;
+
+	input.open(filename.c_str());
+
+	std::string file_content;
+	std::string buf;
+
+	while (input.bad() == false && input.eof() == false)
+	{
+		std::getline(input, buf);
+		file_content += buf;
+		if (input.eof() == false)
+			file_content += "\n";
+	}
+	return (file_content);
+}
+
 void	quit(int arg)
 {
 	(void)arg;
