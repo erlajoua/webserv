@@ -32,7 +32,8 @@
 
 # define NB_CLIENT_MAX 500
 
-class Server {
+class Server
+{
 private:
 	// ATTRIBUTES
 	bool						default_server;
@@ -61,8 +62,11 @@ public:
 	Server(Server const &s);
 	~Server(void);
 
-	// OPERATOR
-	Server						&operator=(Server const &s);
+	// MEMBER FUNCTIONS
+	void						setup(void);
+	static void					*start(void *server_v);
+	void						stop(void);
+	int						hasRoute(std::string uri) const;
 
 	// GETTERS
 	bool						getDefaultServer(void) const;
@@ -85,10 +89,8 @@ public:
 	void						setClientBodySize(std::string const &field);
 	void						setUploadDir(std::string const &field);
 
-	// MEMBER FUNCTIONS
-	void						setup(void);
-	static void					*start(void *server_v);
-	void						stop(void);
+	// OPERATOR
+	Server						&operator=(Server const &s);
 
 	// EXCEPTIONS
 	class 		SocketInitializationException: public std::exception {

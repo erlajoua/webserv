@@ -12,14 +12,36 @@
 
 #include "../includes/Request.hpp"
 
+// constructors
+
+Request::Request(std::string const &content): content(content), is_bad(false) {
+	this->parseContent();
+}
+
+Request::Request(int const &request_fd): content(""), is_bad(false) {
+	this->content = this->receiveContent(request_fd);
+	this->parseContent();
+}
+
+Request::Request(Request const &r) {
+	*this = r;
+}
+
+// destructors
+
+Request::~Request(void) {
+}
+
 // PRIVATE HELPERS
 
-std::string 		Request::receiveContent(int const& request_fd) {
+std::string 		Request::receiveContent(int const& request_fd)
+{
 	static_cast<void>(request_fd);
 	return ("");
 }
 
-std::size_t 		Request::parseMethod(void) {
+std::size_t 		Request::parseMethod(void)
+{
 	if (this->content.compare(0, 3, "GET") == 0)
 	{
 		this->method = kGet;
@@ -170,24 +192,6 @@ void 				Request::parseContent(void) {
 	}
 }
 
-// CONSTRUCTOR & DESTRUCTOR
-
-Request::Request(std::string const &content): content(content), is_bad(false) {
-	this->parseContent();
-}
-
-Request::Request(int const &request_fd): content(""), is_bad(false) {
-	this->content = this->receiveContent(request_fd);
-	this->parseContent();
-}
-
-Request::Request(Request const &r) {
-	*this = r;
-}
-
-Request::~Request(void) {
-}
-
 // OPERATOR
 
 Request				&Request::operator=(Request const &rhs) {
@@ -204,55 +208,67 @@ Request				&Request::operator=(Request const &rhs) {
 
 // GETTERS
 
-std::string const	&Request::getContent(void) const {
+std::string const	&Request::getContent(void) const
+{
 	return (this->content);
 }
 
-bool const			&Request::getIs_bad(void) const {
+bool const			&Request::getIs_bad(void) const
+{
 	return (this->is_bad);
 }
 
-HttpErrorType const	&Request::getError_type(void) const {
+HttpErrorType const	&Request::getError_type(void) const
+{
 	return (this->error_type);
 }
 
-HttpMethod const 	&Request::getMethod(void) const {
+HttpMethod const 	&Request::getMethod(void) const
+{
 	return (this->method);
 }
 
-std::string const 	&Request::getUri(void) const {
+std::string const 	&Request::getUri(void) const
+{
 	return (this->uri);
 }
 
-double const		&Request::getHttp_version(void) const {
+double const		&Request::getHttp_version(void) const
+{
 	return (this->http_version);
 }
 
-std::string const 	&Request::getHost(void) const {
+std::string const 	&Request::getHost(void) const
+{
 	return (this->host);
 }
 
-int const			&Request::getPort(void) const {
+int const			&Request::getPort(void) const
+{
 	return (this->port);
 }
 
-std::string const	&Request::getBody(void) const {
+std::string const	&Request::getBody(void) const
+{
 	return (this->body);
 }
 
 // EXCEPTIONS
 
-char const* Request::BadRequestException::what() const throw() {
+char const* Request::BadRequestException::what() const throw()
+{
 	return ("Request error: bad request.");
 }
 
-char const* Request::VersionNotImplementedException::what() const throw() {
+char const* Request::VersionNotImplementedException::what() const throw()
+{
 	return ("Request error: version not implemented.");
 }
 
 // OVERLOAD
 
-std::ostream &operator<<(std::ostream &os, Request const &req) {
+std::ostream &operator<<(std::ostream &os, Request const &req)
+{
 	if (req.getIs_bad() == true)
 	{
 		os << "error_type : ";

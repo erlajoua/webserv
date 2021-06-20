@@ -36,12 +36,14 @@ void    Server::handleConnection(int client_socket)
 	int bytesRead = read(client_socket, request_buffer, 4096);
 	request_buffer[bytesRead] = 0;
 
+	std::cout << YELLOW << request_buffer << RESET << "\n";
+
 	//create the request
 	std::string request_content (request_buffer);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
 	
-	Response response(request);
+	Response response(request, *this);
 	
 	std::cout << "Response = " << response.toString() << "\n";
 	write(client_socket, response.toString().c_str(), strlen(response.toString().c_str()));
@@ -51,7 +53,8 @@ void    Server::handleConnection(int client_socket)
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), running(false) {
+	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), running(false)
+{
 		memset(&this->addr, 0, sizeof(this->addr));
 		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw SocketInitializationException();
@@ -59,7 +62,8 @@ Server::Server(void)
 		FD_ZERO(&this->ready_sockets); //check;
 }
 
-Server::Server(Server const &s) {
+Server::Server(Server const &s)
+{
 	this->default_server = s.default_server;
 	this->port = s.port;
 	this->host = s.host;
@@ -76,12 +80,14 @@ Server::Server(Server const &s) {
 	this->running = s.running;	
 }
 
-Server::~Server(void) {
+Server::~Server(void)
+{
 }
 
 // OPERATOR
 
-Server				&Server::operator=(Server const &s) {
+Server				&Server::operator=(Server const &s)
+{
 	this->default_server = s.default_server;
 	this->port = s.port;
 	this->host = s.host;
@@ -129,21 +135,25 @@ int							Server::getClientBodySize(void) const {
 	return (this->client_body_size);
 }
 
-std::string					Server::getUploadDir(void) const {
+std::string					Server::getUploadDir(void) const
+{
 	return (this->upload_dir);
 }
 
-std::vector<Route>			*Server::getRoutes(void) {
+std::vector<Route>			*Server::getRoutes(void)
+{
 	return (&(this->routes));
 }
 
 // SETTERS
 
-void				Server::setDefaultServer(void) {
+void				Server::setDefaultServer(void)
+{
 	this->default_server = true;
 }
 
-void				Server::setPort(std::string const &field) {
+void				Server::setPort(std::string const &field)
+{
 	size_t 	i = 0;
 	int 	ret;
 	while(field[i] != '\0' && field[i] != ';')
@@ -163,7 +173,8 @@ void				Server::setPort(std::string const &field) {
 		this->port = ret;
 }
 
-void				Server::setHost(std::string const &field) {
+void				Server::setHost(std::string const &field)
+{
 	size_t 	i = 0;
 	int 	ret;
 	struct sockaddr_in sa;
@@ -179,7 +190,8 @@ void				Server::setHost(std::string const &field) {
 		this->host = split[1];
 }
 
-void				Server::setServerName(std::string const &field) {
+void				Server::setServerName(std::string const &field)
+{
 	size_t 	i = 0;
 	while(field[i] != '\0' && field[i] != ';')
 		i++;
@@ -192,7 +204,8 @@ void				Server::setServerName(std::string const &field) {
 		this->server_name = split[1];
 }
 
-void				Server::setRoot(std::string const &field) {
+void				Server::setRoot(std::string const &field)
+{
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -206,7 +219,8 @@ void				Server::setRoot(std::string const &field) {
 		this->root = split[1];
 }
 
-void				Server::setErrors(std::string const &root, std::string const &field) {
+void				Server::setErrors(std::string const &root, std::string const &field)
+{
 	if (root == "none")
 		throw Route::RootNoneException();
 	size_t 	i = 0;
@@ -228,7 +242,8 @@ void				Server::setErrors(std::string const &root, std::string const &field) {
 	}
 }
 
-void				Server::setClientBodySize(std::string const &field) {
+void				Server::setClientBodySize(std::string const &field)
+{
 	size_t 	i = 0;
 	int 	ret;
 	while(field[i] != '\0' && field[i] != ';')
@@ -243,7 +258,8 @@ void				Server::setClientBodySize(std::string const &field) {
 		this->client_body_size = ret;
 }
 
-void				Server::setUploadDir(std::string const &field) {
+void				Server::setUploadDir(std::string const &field)
+{
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -259,7 +275,20 @@ void				Server::setUploadDir(std::string const &field) {
 
 // MEMBER FUNCTIONS
 
-void				Server::setup(void) {
+int				Server::hasRoute(std::string uri) const
+{
+	size_t i;
+	for (i = 0; i < routes.size(); i++)
+	{
+		std::cout << "==->" << routes[i].getPath() << "\n";
+		if (this->root + routes[i].getPath() == uri)
+			return (i);
+	}
+	return (-1);
+}
+
+void				Server::setup(void)
+{
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	this->addr.sin_port = htons(this->port);
@@ -272,7 +301,8 @@ void				Server::setup(void) {
 	//usleep(10000);
 }
 
-void				*Server::start(void *server_v) {
+void				*Server::start(void *server_v)
+{
 	Server	*server;
 	server = reinterpret_cast<Server *>(server_v);
 
@@ -312,7 +342,8 @@ void				*Server::start(void *server_v) {
 	return (NULL);
 }
 
-void				Server::stop(void) {
+void				Server::stop(void)
+{
 	this->running = false;
 	std::cout << GREEN << this->getServerName() << " has stopped." << RESET << std::endl;
 	//usleep(10000);

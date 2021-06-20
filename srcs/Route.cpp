@@ -40,7 +40,8 @@ Route::Route(Route const &r) {
 	this->cgi_bin = r.cgi_bin;	
 }
 
-Route::~Route(void) {
+Route::~Route(void)
+{
 }
 
 // OPERATOR

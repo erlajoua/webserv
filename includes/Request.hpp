@@ -18,18 +18,21 @@
 # include <iostream>
 # include <cstdlib>
 
-enum HttpErrorType {
+enum HttpErrorType
+{
 	kBadRequest,
 	kVersionNotImplemented
 };
 
-enum HttpMethod {
+enum HttpMethod
+{
 	kGet,
 	kPost,
 	kDelete
 };
 
-class Request {
+class Request
+{
 private:
 	// ATTRIBUTES
 	std::string		content;
@@ -79,11 +82,13 @@ public:
 	std::string const	&getBody(void) const;
 
 	// EXCEPTIONS
-	class BadRequestException : public std::exception {
+	class BadRequestException : public std::exception
+	{
 		virtual char const* what() const throw();
 	};
 
-	class VersionNotImplementedException : public std::exception { 
+	class VersionNotImplementedException : public std::exception
+	{ 
 		virtual char const* what() const throw();
 	};
 };

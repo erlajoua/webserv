@@ -1,7 +1,5 @@
 #include "../includes/Response.hpp"
 
-# define ROOT_PATH "./"
-
 std::string const Response::server = "webserver/1.0";
 
 //constructors
@@ -15,11 +13,11 @@ Response::Response(Response const& src)
 	*this = src;
 }
 
-Response::Response(Request const& request)
+Response::Response(Request const& request, Server &server)
 {
 	if (request.getMethod() == kGet)
 	{
-		createResponse(request);
+		createResponse(request, server);
 	}
 	else
 	{
@@ -36,10 +34,10 @@ Response::~Response()
 //methods
 
 
-void		Response::createResponse(Request const &request)
+void		Response::createResponse(Request const &request, Server &server)
 {
 	this->http_version = request.getHttp_version();
-	this->setStatusCode(request);
+	this->setStatusCode(request, server);
 	this->setBody(request);
 	this->setReasonPhrase();
 	this->setContentLength();
@@ -71,29 +69,48 @@ void		Response::setBody(Request const &request)
 		this->body = this->getErrorPage();
 		return ;
 	}
-	this->body = getAllFile(ROOT_PATH + request.getUri());
+	this->body = getAllFile("." + request.getUri());
 }
 
 #define REDIRECTION_PAGE "./index.html"
 
-void		Response::setStatusCode(Request const &request)
+void		Response::setStatusCode(Request const &request, Server &server)
 {
 	std::ifstream input;
 	std::string uri;
+	int index_route;
 
-	uri = ROOT_PATH + request.getUri();
+	uri = server.getRoot() + request.getUri(); //       www    
 
-	if (request.getUri() != "./")
-		input.open(uri.c_str());
-	else
-		input.open(REDIRECTION_PAGE);
-			
-	if (access(uri.c_str(), F_OK) == 0)
+	std::cout << "uri = " << uri << "\n";
+
+	struct stat stats_path;
+
+	if (stat(uri.c_str(), &stats_path) == 0)
 	{
-		if (access(uri.c_str(), R_OK) == 0)
-			this->status_code = 200;
-		else
-			this->status_code = 403;
+		if (stats_path.st_mode & S_IFDIR)
+		{
+			if ((index_route = server.hasRoute(uri)) >= 0) //a changer pour paser selon la route 
+			{
+				std::vector<Route> *routes = server.getRoutes();
+
+				for (std::vector<Route>::iterator it = routes->begin(); it != routes->end() ; it++)
+				{
+					std::cout << it->getPath() << "\n";
+				}
+				this->status_code = 666; //auto-index
+			}
+			else
+				this->status_code = 404; //pas bon
+		}
+		else if (stats_path.st_mode & S_IFREG)
+		{
+			std::cout << "TEST = " << uri.c_str() << "\n";
+			if (access(uri.c_str(), R_OK) == 0)
+				this->status_code = 200;
+			else
+				this->status_code = 403;
+		}
 	}
 	else
 		this->status_code = 404;
