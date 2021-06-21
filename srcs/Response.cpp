@@ -36,7 +36,7 @@ Response::~Response()
 
 void		Response::createResponse(Request const &request, Server &server)
 {
-	this->http_version = request.getHttp_version();
+	this->http_version = request.getHttpVersion();
 	this->setStatusCode(request, server);
 	this->setBody(request, server);
 	this->setReasonPhrase();

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/18 12:27:12 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/21 14:05:50 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ std::size_t 		Request::parseMethod(void)
 	}
 	else if (this->content.compare(0, 4, "POST") == 0)
 	{
-		this->method = kGet;
+		this->method = kPost;
 		return (4);
 	}
 	else if (this->content.compare(0, 6, "DELETE") == 0)
@@ -76,7 +76,7 @@ void 				Request::decodeUri(void) {
 }
 
 std::size_t 		Request::parseUri(std::size_t pos) {
-	std::size_t uri_length = this->content.find(' ', pos) - pos;
+	std::size_t uri_length = this->content.find_first_of("? ", pos) - pos;
 	if (this->content[pos] != '/'
 			|| uri_length + pos == this->content.npos)
 	{
@@ -85,6 +85,22 @@ std::size_t 		Request::parseUri(std::size_t pos) {
 	this->uri = this->content.substr(pos, uri_length);
 	this->decodeUri();
 	return (pos + uri_length);
+}
+
+std::size_t 		Request::parseQueryString(std::size_t pos) {
+	this->query_string = "";
+	if (this->content[pos] == '?')
+	{
+		pos++;
+		std::size_t query_string_length = this->content.find(' ', pos) - pos;
+		if (query_string_length + pos == this->content.npos)
+		{
+			throw Request::BadRequestException();
+		}
+		this->query_string = this->content.substr(pos, query_string_length);
+		pos += query_string_length;
+	}
+	return (pos);
 }
 
 std::size_t 		Request::parseHttpVersion(std::size_t pos) {
@@ -113,6 +129,7 @@ std::size_t 		Request::parseRequestLine(void) {
 		throw Request::BadRequestException();
 	}
 	pos = this->parseUri(pos + 1);
+	pos = this->parseQueryString(pos);
 	if (this->content[pos] != ' ')
 	{
 		throw Request::BadRequestException();
@@ -213,12 +230,12 @@ std::string const	&Request::getContent(void) const
 	return (this->content);
 }
 
-bool const			&Request::getIs_bad(void) const
+bool const			&Request::getIsBad(void) const
 {
 	return (this->is_bad);
 }
 
-HttpErrorType const	&Request::getError_type(void) const
+HttpErrorType const	&Request::getErrorType(void) const
 {
 	return (this->error_type);
 }
@@ -233,7 +250,12 @@ std::string const 	&Request::getUri(void) const
 	return (this->uri);
 }
 
-double const		&Request::getHttp_version(void) const
+std::string const 	&Request::getQueryString(void) const
+{
+	return (this->query_string);
+}
+
+double const		&Request::getHttpVersion(void) const
 {
 	return (this->http_version);
 }
@@ -269,10 +291,10 @@ char const* Request::VersionNotImplementedException::what() const throw()
 
 std::ostream &operator<<(std::ostream &os, Request const &req)
 {
-	if (req.getIs_bad() == true)
+	if (req.getIsBad() == true)
 	{
 		os << "error_type : ";
-		if (req.getError_type() == kBadRequest)
+		if (req.getErrorType() == kBadRequest)
 			os << "bad request" << std::endl;
 		else
 			os << "version not implemented" << std::endl;
@@ -285,13 +307,14 @@ std::ostream &operator<<(std::ostream &os, Request const &req)
 		os << "POST" << std::endl;
 	else
 		os << "DELETE" << std::endl;
-	os << "uri : " << req.getUri() << std::endl;
-	os << "http_version : " << req.getHttp_version() << std::endl;
-	os << "host : " << req.getHost() << std::endl;
+	os << "uri : \"" << req.getUri() << "\"" << std::endl;
+	os << "query_string : \"" << req.getQueryString() << "\"" << std::endl;
+	os << "http_version : " << req.getHttpVersion() << std::endl;
+	os << "host : \"" << req.getHost() << "\"" << std::endl;
 	os << "port : " << req.getPort() << std::endl;
 
 	if (req.getMethod() == kPost)
-		os << "body : " << req.getBody() << std::endl;
+		os << "body : \"" << req.getBody() << "\"" << std::endl;
 	
 	return (os);
 }
