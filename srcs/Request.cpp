@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/18 12:27:12 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/21 13:57:17 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ std::size_t 		Request::parseMethod(void)
 	}
 	else if (this->content.compare(0, 4, "POST") == 0)
 	{
-		this->method = kGet;
+		this->method = kPost;
 		return (4);
 	}
 	else if (this->content.compare(0, 6, "DELETE") == 0)
