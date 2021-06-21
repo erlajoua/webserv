@@ -45,7 +45,6 @@ private:
 	std::string					path;
 	std::vector<std::string> 	methods;
 	std::string					redirection;
-	bool						autoindex;
 	std::string					cgi_extension;
 	std::string					cgi_bin;
 
@@ -65,7 +64,6 @@ public:
 	std::string						getPath(void) const;
 	std::vector<std::string> const&	getMethods(void) const;
 	std::string						getRedirection(void) const;
-	bool							getAutoindex(void) const;
 	std::string						getCgiExtension(void) const;
 	std::string						getCgiBin(void) const;
 
@@ -73,7 +71,6 @@ public:
 	void							setPath(std::string const &field);
 	void							setMethods(std::string const &field);
 	void							setRedirection(std::string const &root, std::string const &field);
-	void							setAutoindex(std::string const &field);
 	void							setCgiExtension(std::string const &field);
 	void							setCgiBin(std::string const &field);
 
@@ -95,10 +92,6 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		RootNoneException: public std::exception
-	{
-		virtual const char* what() const throw();
-	};
-	class 		InvalidAutoindexException: public std::exception
 	{
 		virtual const char* what() const throw();
 	};

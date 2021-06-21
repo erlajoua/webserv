@@ -27,7 +27,7 @@ bool				Route::isMethodDeclared(std::vector<std::string> methods, std::string wo
 // CONSTRUCTOR & DESTRUCTOR
 
 Route::Route(void)
-	:path(std::string("none")), redirection(std::string("none")), autoindex(false),
+	:path(std::string("none")), redirection(std::string("none")),
 	cgi_extension(std::string("none")), cgi_bin(std::string("none")) {
 }
 
@@ -35,7 +35,6 @@ Route::Route(Route const &r) {
 	this->path = r.path;
 	this->methods = r.methods;
 	this->redirection = r.redirection;
-	this->autoindex = r.autoindex;
 	this->cgi_extension = r.cgi_extension;
 	this->cgi_bin = r.cgi_bin;	
 }
@@ -50,40 +49,35 @@ Route				&Route::operator=(Route const &r) {
 	this->path = r.path;
 	this->methods = r.methods;
 	this->redirection = r.redirection;
-	this->autoindex = r.autoindex;
 	this->cgi_extension = r.cgi_extension;
 	this->cgi_bin = r.cgi_bin;
 	return (*this);
 }
 
 // GETTERS
-std::string					Route::getPath(void) const {
+std::string						Route::getPath(void) const {
 	return (this->path);
 }
 
-std::vector<std::string> const&	Route::getMethods(void) const {
+std::vector<std::string> const	&Route::getMethods(void) const {
 	return (this->methods);
 }
 
-std::string					Route::getRedirection(void) const {
+std::string						Route::getRedirection(void) const {
 	return (this->redirection);
 }
 
-bool						Route::getAutoindex(void) const {
-	return (this->autoindex);
-}
-
-std::string					Route::getCgiExtension(void) const {
+std::string						Route::getCgiExtension(void) const {
 	return (this->cgi_extension);
 }
 
-std::string					Route::getCgiBin(void) const {
+std::string						Route::getCgiBin(void) const {
 	return (this->cgi_bin);
 }
 
 // SETTERS
 
-void				Route::setPath(std::string const &field) {
+void							Route::setPath(std::string const &field) {
 	size_t 	i = 0;
 	while(field[i] != '\0' && field[i] != ';')
 		i++;
@@ -96,7 +90,7 @@ void				Route::setPath(std::string const &field) {
 		this->path = split[1];
 }
 
-void				Route::setMethods(std::string const &field) {
+void							Route::setMethods(std::string const &field) {
 	size_t 	i = 0;
 	while(field[i] != '\0' && field[i] != ';')
 		i++;
@@ -115,7 +109,7 @@ void				Route::setMethods(std::string const &field) {
 	}
 }
 
-void				Route::setRedirection(std::string const &root, std::string const &field) {
+void							Route::setRedirection(std::string const &root, std::string const &field) {
 	if (root == "none")
 		throw RootNoneException();
 	size_t 	i = 0;
@@ -132,25 +126,7 @@ void				Route::setRedirection(std::string const &root, std::string const &field)
 		this->redirection = split[1];
 }
 
-void				Route::setAutoindex(std::string const &field) {
-	size_t 	i = 0;
-	while(field[i] != '\0' && field[i] != ';')
-		i++;
-	std::string up_to_colon(field, 0, i);
-	std::istringstream iss(up_to_colon);
-	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (split[1] != "on" && split[1] != "off")
-		throw InvalidAutoindexException();
-	else
-	{
-		if (split[1] == "on")
-			this->autoindex = true;
-		else
-			this->autoindex = false;
-	}
-}
-
-void				Route::setCgiExtension(std::string const &field) {
+void							Route::setCgiExtension(std::string const &field) {
 	size_t 	i = 0;
 	while(field[i] != '\0' && field[i] != ';')
 		i++;
@@ -163,7 +139,7 @@ void				Route::setCgiExtension(std::string const &field) {
 		this->cgi_extension = split[1];
 }
 
-void				Route::setCgiBin(std::string const &field) {
+void							Route::setCgiBin(std::string const &field) {
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -192,11 +168,6 @@ const char*		Route::InvalidMethodsException::what() const throw()
 const char*		Route::InvalidRedirectionException::what() const throw()
 {
 	return "Config file is incorrect: redirection value (concatenated with root/) is not a valid path";
-}
-
-const char*		Route::InvalidAutoindexException::what() const throw()
-{
-	return "Config file is incorrect: autoindex value can only be on or off.";
 }
 
 const char*		Route::InvalidCgiExtensionException::what() const throw()

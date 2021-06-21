@@ -56,7 +56,7 @@ void    Server::handleConnection(int client_socket)
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), running(false)
+	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), autoindex(false), running(false)
 {
 		memset(&this->addr, 0, sizeof(this->addr));
 		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -75,6 +75,7 @@ Server::Server(Server const &s)
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
 	this->upload_dir = s.upload_dir;
+	this->autoindex = s.autoindex;
 	this->routes = s.routes;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
@@ -99,6 +100,7 @@ Server				&Server::operator=(Server const &s)
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
 	this->upload_dir = s.upload_dir;
+	this->autoindex = s.autoindex;
 	this->routes = s.routes;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
@@ -141,6 +143,11 @@ int							Server::getClientBodySize(void) const {
 std::string					Server::getUploadDir(void) const
 {
 	return (this->upload_dir);
+}
+
+bool						Server::getAutoindex(void) const
+{
+	return (this->autoindex);
 }
 
 std::vector<Route>			*Server::getRoutes(void)
@@ -276,6 +283,24 @@ void				Server::setUploadDir(std::string const &field)
 		this->upload_dir = split[1];
 }
 
+void				Server::setAutoindex(std::string const &field) {
+	size_t 	i = 0;
+	while(field[i] != '\0' && field[i] != ';')
+		i++;
+	std::string up_to_colon(field, 0, i);
+	std::istringstream iss(up_to_colon);
+	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+	if (split[1] != "on" && split[1] != "off")
+		throw InvalidAutoindexException();
+	else
+	{
+		if (split[1] == "on")
+			this->autoindex = true;
+		else
+			this->autoindex = false;
+	}
+}
+
 // MEMBER FUNCTIONS
 
 int				Server::hasRoute(std::string uri) const
@@ -392,6 +417,11 @@ const char*		Server::InvalidClientBodySizeException::what() const throw()
 const char*		Server::InvalidUploadDirException::what() const throw()
 {
 	return "Config file is incorrect: upload_dir value is not a valid path.";
+}
+
+const char*		Server::InvalidAutoindexException::what() const throw()
+{
+	return "Config file is incorrect: autoindex value can only be on or off.";
 }
 
 const char*		Server::BindException::what() const throw()

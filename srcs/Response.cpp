@@ -104,7 +104,7 @@ void		Response::handleFolderPath(Request const &request, Server &server)
 	int index_route;
 	std::string uri = server.getRoot() + request.getUri();
 
-
+	std::cout << RED << uri << RESET << std::endl;
 	if ((index_route = server.hasRoute(uri)) >= 0)
 	{
 		std::vector<Route> *routes = server.getRoutes();
@@ -115,6 +115,7 @@ void		Response::handleFolderPath(Request const &request, Server &server)
 				break ;
 		}
 		this->full_path = server.getRoot() + request.getUri() + it->getRedirection();
+		std::cout << RED << full_path << RESET << std::endl;
 		if (access(this->full_path.c_str(), R_OK) == 0)
 			this->status_code = 200;
 		else
@@ -141,6 +142,7 @@ void		Response::setStatusCode(Request const &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
+	std::cout << RED << uri << RESET << std::endl;
 
 	if (stat(uri.c_str(), &stats_path) == 0)
 	{

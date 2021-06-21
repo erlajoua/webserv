@@ -113,6 +113,8 @@ bool			Program::isServField(std::string const &field) const {
 		return (true);
 	else if (this->isFieldSingle(field, "upload_dir") == true)
 		return (true);
+	else if (this->isFieldSingle(field, "autoindex") == true)
+		return (true);
 	else
 		return (false);
 }
@@ -121,8 +123,6 @@ bool			Program::isRouteField(std::string const &field) const {
 	if (this->isField3(field, "methods") == true)
 		return (true);
 	else if (this->isFieldSingle(field, "redirection") == true)
-		return (true);
-	else if (this->isFieldSingle(field, "autoindex") == true)
 		return (true);
 	else if (this->isFieldSingle(field, "cgi_extension") == true)
 		return (true);
@@ -170,14 +170,14 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 			std::cout << GREEN << "*** Client Body Size single field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "upload_dir") == true)
 			std::cout << GREEN << "*** Upload Directory single field ***" << RESET << std::endl;
+		else if (this->isFieldSingle(*it, "autoindex") == true)
+			std::cout << GREEN << "*** Autoindex single field ***" << RESET << std::endl;
 		else if (this->isRouteConfig(*it) == true)
 			std::cout << GREEN << "*** Route block starts ***" << RESET << std::endl;
 		else if (this->isField3(*it, "methods") == true)
 			std::cout << GREEN << "*** Methods multiple field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "redirection") == true)
 			std::cout << GREEN << "*** Redirection single field ***" << RESET << std::endl;
-		else if (this->isFieldSingle(*it, "autoindex") == true)
-			std::cout << GREEN << "*** Auto single field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "cgi_extension") == true)
 			std::cout << GREEN << "*** CGI Extension single field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "cgi_bin") == true)
@@ -272,6 +272,10 @@ Server			Program::setServField(Server s, std::string const &field) {
 	{
 		s.setUploadDir(field);
 	}
+	else if (this->isFieldSingle(field, "autoindex") == true)
+	{
+		s.setAutoindex(field);
+	}
 	return (s);
 }
 
@@ -283,10 +287,6 @@ Route			Program::setRouteField(Server s, Route r, std::string const &field) {
 	else if (this->isFieldSingle(field, "redirection") == true)
 	{
 		r.setRedirection(s.getRoot(), field);
-	}
-	else if (this->isFieldSingle(field, "autoindex") == true)
-	{
-		r.setAutoindex(field);
 	}
 	else if (this->isFieldSingle(field, "cgi_extension") == true)
 	{
@@ -433,6 +433,12 @@ void			Program::printParsing(void) {
 		std::cout << YELLOW << "\tUpload directory = " << RESET;
 		std::cout << (*it).getUploadDir() << std::endl;
 
+		std::cout << YELLOW << "\tAutoindex = " << RESET;
+		if ((*it).getAutoindex() == true)
+			std::cout << "on" << std::endl;
+		else		
+			std::cout << "off" << std::endl;
+
 		std::cout << YELLOW << "\tNumber of routes = " << RESET;
 		std::cout << (*it).getRoutes()->size() << std::endl;
 
@@ -450,12 +456,6 @@ void			Program::printParsing(void) {
 
 			std::cout << YELLOW << "\t\t\tRedirection = " << RESET;
 			std::cout << (*it3).getRedirection() << std::endl;
-
-			std::cout << YELLOW << "\t\t\tAutoindex = " << RESET;
-			if ((*it3).getAutoindex() == true)
-				std::cout << "on" << std::endl;
-			else		
-				std::cout << "off" << std::endl;
 
 			std::cout << YELLOW << "\t\t\tCGI extension = " << RESET;
 			std::cout << (*it3).getCgiExtension() << std::endl;
@@ -488,7 +488,7 @@ void			Program::start(void) {
 	for (size_t i = 0; i < this->servers.size(); i++)
 	{
 		pthread_create(&tid[i], NULL, this->servers[i].start, &(this->servers[i]));
-		//usleep(10000);
+		usleep(10000);
 	}
 	for (size_t j = 0; j < this->servers.size(); j++)
 	{
