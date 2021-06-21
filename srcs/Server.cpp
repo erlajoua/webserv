@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 11:36:58 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/19 10:17:56 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void    Server::handleConnection(int client_socket)
 
 
 	//create the request
-	std::string request_content(request_buffer, bytesRead);
+	std::string request_content (request_buffer);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
 	
@@ -48,7 +48,7 @@ void    Server::handleConnection(int client_socket)
 	
 	if (send(client_socket, response.toString().c_str(), strlen(response.toString().c_str()), 0) == -1)
 		std::cout << "Erreur de send, stop\n";
-	std::cout << MAGENTA << RESET << "\n";
+	//std::cout << MAGENTA << response.toString() << RESET << "\n";
 	std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
 }
 
@@ -56,7 +56,7 @@ void    Server::handleConnection(int client_socket)
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0), upload_dir(std::string("none")), autoindex(false), running(false)
+	root(std::string("none")), client_body_size(0), running(false)
 {
 		memset(&this->addr, 0, sizeof(this->addr));
 		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -74,9 +74,7 @@ Server::Server(Server const &s)
 	this->root = s.root;
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
-	this->upload_dir = s.upload_dir;
-	this->autoindex = s.autoindex;
-	this->routes = s.routes;
+	this->Locations = s.Locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
@@ -90,7 +88,7 @@ Server::~Server(void)
 
 // OPERATOR
 
-Server				&Server::operator=(Server const &s)
+Server						&Server::operator=(Server const &s)
 {
 	this->default_server = s.default_server;
 	this->port = s.port;
@@ -99,9 +97,7 @@ Server				&Server::operator=(Server const &s)
 	this->root = s.root;
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
-	this->upload_dir = s.upload_dir;
-	this->autoindex = s.autoindex;
-	this->routes = s.routes;
+	this->Locations = s.Locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
@@ -112,23 +108,23 @@ Server				&Server::operator=(Server const &s)
 
 // GETTERS
 
-bool						Server::getDefaultServer(void) const {
+bool							Server::getDefaultServer(void) const {
 	return (this->default_server);
 }
 
-int							Server::getPort(void) const {
+int								Server::getPort(void) const {
 	return (this->port);
 }
 
-std::string					Server::getHost(void) const {
+std::string						Server::getHost(void) const {
 	return (this->host);
 }
 
-std::string					Server::getServerName(void) const {
+std::string						Server::getServerName(void) const {
 	return (this->server_name);
 }
 
-std::string					Server::getRoot(void) const {
+std::string						Server::getRoot(void) const {
 	return (this->root);
 }
 
@@ -136,33 +132,23 @@ std::vector<std::string> const&	Server::getErrors(void) const {
 	return (this->errors);
 }
 
-int							Server::getClientBodySize(void) const {
+int								Server::getClientBodySize(void) const {
 	return (this->client_body_size);
 }
 
-std::string					Server::getUploadDir(void) const
+std::vector<Location>				*Server::getLocations(void)
 {
-	return (this->upload_dir);
-}
-
-bool						Server::getAutoindex(void) const
-{
-	return (this->autoindex);
-}
-
-std::vector<Route>			*Server::getRoutes(void)
-{
-	return (&(this->routes));
+	return (&(this->Locations));
 }
 
 // SETTERS
 
-void				Server::setDefaultServer(void)
+void							Server::setDefaultServer(void)
 {
 	this->default_server = true;
 }
 
-void				Server::setPort(std::string const &field)
+void							Server::setPort(std::string const &field)
 {
 	size_t 	i = 0;
 	int 	ret;
@@ -183,7 +169,7 @@ void				Server::setPort(std::string const &field)
 		this->port = ret;
 }
 
-void				Server::setHost(std::string const &field)
+void							Server::setHost(std::string const &field)
 {
 	size_t 	i = 0;
 	int 	ret;
@@ -200,7 +186,7 @@ void				Server::setHost(std::string const &field)
 		this->host = split[1];
 }
 
-void				Server::setServerName(std::string const &field)
+void							Server::setServerName(std::string const &field)
 {
 	size_t 	i = 0;
 	while(field[i] != '\0' && field[i] != ';')
@@ -214,7 +200,7 @@ void				Server::setServerName(std::string const &field)
 		this->server_name = split[1];
 }
 
-void				Server::setRoot(std::string const &field)
+void							Server::setRoot(std::string const &field)
 {
 	size_t 	i = 0;
 	struct stat buffer;
@@ -229,10 +215,8 @@ void				Server::setRoot(std::string const &field)
 		this->root = split[1];
 }
 
-void				Server::setErrors(std::string const &root, std::string const &field)
+void							Server::setErrors(std::string const &root, std::string const &field)
 {
-	if (root == "none")
-		throw Route::RootNoneException();
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -252,7 +236,7 @@ void				Server::setErrors(std::string const &root, std::string const &field)
 	}
 }
 
-void				Server::setClientBodySize(std::string const &field)
+void							Server::setClientBodySize(std::string const &field)
 {
 	size_t 	i = 0;
 	int 	ret;
@@ -268,53 +252,20 @@ void				Server::setClientBodySize(std::string const &field)
 		this->client_body_size = ret;
 }
 
-void				Server::setUploadDir(std::string const &field)
-{
-	size_t 	i = 0;
-	struct stat buffer;
-	while(field[i] != '\0' && field[i] != ';')
-		i++;
-	std::string up_to_colon(field, 0, i);
-	std::istringstream iss(up_to_colon);
-	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (stat (split[1].c_str(), &buffer) != 0)
-		throw InvalidUploadDirException();
-	else
-		this->upload_dir = split[1];
-}
-
-void				Server::setAutoindex(std::string const &field) {
-	size_t 	i = 0;
-	while(field[i] != '\0' && field[i] != ';')
-		i++;
-	std::string up_to_colon(field, 0, i);
-	std::istringstream iss(up_to_colon);
-	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (split[1] != "on" && split[1] != "off")
-		throw InvalidAutoindexException();
-	else
-	{
-		if (split[1] == "on")
-			this->autoindex = true;
-		else
-			this->autoindex = false;
-	}
-}
-
 // MEMBER FUNCTIONS
 
-int				Server::hasRoute(std::string uri) const
+int								Server::hasLocation(std::string uri) const
 {
 	size_t i;
-	for (i = 0; i < routes.size(); i++)
+	for (i = 0; i < Locations.size(); i++)
 	{
-		if (this->root + routes[i].getPath() == uri)
+		if (this->root + Locations[i].getPath() == uri)
 			return (i);
 	}
 	return (-1);
 }
 
-void				Server::setup(void)
+void							Server::setup(void)
 {
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
@@ -328,7 +279,7 @@ void				Server::setup(void)
 	//usleep(10000);
 }
 
-void				*Server::start(void *server_v)
+void							*Server::start(void *server_v)
 {
 	Server	*server;
 	server = reinterpret_cast<Server *>(server_v);
@@ -414,19 +365,9 @@ const char*		Server::InvalidClientBodySizeException::what() const throw()
 	return "Config file is incorrect: client_body_size value must be 0 < int < 65535.";
 }
 
-const char*		Server::InvalidUploadDirException::what() const throw()
-{
-	return "Config file is incorrect: upload_dir value is not a valid path.";
-}
-
-const char*		Server::InvalidAutoindexException::what() const throw()
-{
-	return "Config file is incorrect: autoindex value can only be on or off.";
-}
-
 const char*		Server::BindException::what() const throw()
 {
-	return "Server setup error: can't bind (port may be already used).";
+	return "Server setup error: can't bind (can't connect to host or port may be already used).";
 }
 
 const char*		Server::ListenException::what() const throw()

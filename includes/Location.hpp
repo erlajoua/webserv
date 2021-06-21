@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Route.hpp                                          :+:      :+:    :+:   */
+/*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/15 13:32:52 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:16:43 by clbrunet         ###   ########.fr       */
+/*   Created: 2021/06/21 17:46:49 by nessayan          #+#    #+#             */
+/*   Updated: 2021/06/21 17:46:50 by nessayan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ROUTE_HPP
-# define ROUTE_HPP
+#ifndef LOCATION_HPP
+# define LOCATION_HPP
 
 # include <string>
 # include <vector>
@@ -38,41 +38,50 @@
 # define BOLDCYAN		"\033[1m\033[36m"      	/* Bold Cyan */
 # define BOLDWHITE		"\033[1m\033[37m"      	/* Bold White */
 
-class Route
+class Location
 {
 private:
 	// ATTRIBUTES
-	std::string					path;
-	std::vector<std::string> 	methods;
-	std::string					redirection;
-	std::string					cgi_extension;
-	std::string					cgi_bin;
+	std::string						path;
+	std::vector<std::string> 		methods;
+	int 							redirection;
+	std::string						index;
+	bool							autoindex;
+	std::string						cgi_extension;
+	std::string						cgi_bin;
+	std::string						upload_dir;
 
 	// PRIVATE HELPERS
 	bool							isMethodDeclared(std::vector<std::string> methods, std::string word);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
-	Route(void);
-	Route(Route const &r);
-	~Route(void);
+	Location(void);
+	Location(Location const &r);
+	~Location(void);
 
 	// OPERATOR
-	Route							&operator=(Route const &r);
+	Location						&operator=(Location const &r);
 
 	// GETTERS
 	std::string						getPath(void) const;
 	std::vector<std::string> const&	getMethods(void) const;
-	std::string						getRedirection(void) const;
+	int								getRedirection(void) const;
+	std::string						getIndex(void) const;
+	bool							getAutoindex(void) const;
 	std::string						getCgiExtension(void) const;
 	std::string						getCgiBin(void) const;
+	std::string						getUploadDir(void) const;
 
 	// SETTERS
 	void							setPath(std::string const &field);
 	void							setMethods(std::string const &field);
-	void							setRedirection(std::string const &root, std::string const &field);
+	void							setRedirection(std::string const &field);
+	void							setIndex(std::string const &root, std::string const &field);
+	void							setAutoindex(std::string const &field);
 	void							setCgiExtension(std::string const &field);
 	void							setCgiBin(std::string const &field);
+	void							setUploadDir(std::string const &field);
 
 	// EXCEPTIONS
 	class 		InvalidPathException: public std::exception
@@ -91,7 +100,11 @@ public:
 	{
 		virtual const char* what() const throw();
 	};
-	class 		RootNoneException: public std::exception
+	class 		InvalidIndexException: public std::exception
+	{
+		virtual const char* what() const throw();
+	};
+	class 		InvalidAutoindexException: public std::exception
 	{
 		virtual const char* what() const throw();
 	};
@@ -100,6 +113,10 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		InvalidCgiBinDirException: public std::exception
+	{
+		virtual const char* what() const throw();
+	};
+	class 		InvalidUploadDirException: public std::exception
 	{
 		virtual const char* what() const throw();
 	};

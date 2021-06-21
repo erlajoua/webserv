@@ -26,7 +26,7 @@
 # include <iterator> 
 # include <string.h>
 
-# include "./Route.hpp"
+# include "./Location.hpp"
 # include "./Request.hpp"
 # include "./Response.hpp"
 
@@ -43,9 +43,7 @@ private:
 	std::string					root;
 	std::vector<std::string>	errors;
 	int 						client_body_size;
-	std::string					upload_dir;
-	bool						autoindex;
-	std::vector<Route> 			routes;
+	std::vector<Location> 		Locations;
 
     sockaddr_in         		addr;
     int                 		server_socket;
@@ -67,7 +65,7 @@ public:
 	void						setup(void);
 	static void					*start(void *server_v);
 	void						stop(void);
-	int							hasRoute(std::string uri) const;
+	int							hasLocation(std::string uri) const;
 
 	// GETTERS
 	bool							getDefaultServer(void) const;
@@ -75,11 +73,9 @@ public:
 	std::string						getHost(void) const;
 	std::string						getServerName(void) const;
 	std::string						getRoot(void) const;
-	std::vector<std::string> const&	getErrors(void) const;
+	std::vector<std::string> const &getErrors(void) const;
 	int								getClientBodySize(void) const;
-	std::string						getUploadDir(void) const;
-	bool							getAutoindex(void) const;
-	std::vector<Route>				*getRoutes(void);
+	std::vector<Location>			*getLocations(void);
 
 	// SETTERS
 	void						setDefaultServer(void);
@@ -89,8 +85,6 @@ public:
 	void						setRoot(std::string const &field);
 	void						setErrors(std::string const &root, std::string const &field);
 	void						setClientBodySize(std::string const &field);
-	void						setUploadDir(std::string const &field);
-	void						setAutoindex(std::string const &field);
 
 	// OPERATOR
 	Server						&operator=(Server const &s);
@@ -115,12 +109,6 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		InvalidClientBodySizeException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidUploadDirException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		InvalidAutoindexException: public std::exception {
 		virtual const char* what() const throw();
 	};
 	class 		BindException: public std::exception {

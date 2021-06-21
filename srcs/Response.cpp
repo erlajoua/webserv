@@ -77,21 +77,21 @@ void		Response::setBody(Request const &request, Server &server)
 
 void		Response::handleUnknownPath(Request const &request, Server &server)
 {
-	std::vector<Route> *routes = server.getRoutes();
-	std::vector<Route>::iterator it;
+	std::vector<Location> *Locations = server.getLocations();
+	std::vector<Location>::iterator it;
 
-	for (it = routes->begin(); it != routes->end() ; it++)
+	for (it = Locations->begin(); it != Locations->end() ; it++)
 	{
 		if (it->getPath() == request.getUri())
 			break ;
 	}
-	if (it == routes->end())
+	if (it == Locations->end())
 		this->status_code = 404;
 	else
 	{
-		if (access(it->getRedirection().c_str(), R_OK == 0))
+		if (access(it->getIndex().c_str(), R_OK == 0))
 		{
-			this->full_path = server.getRoot() + "/" + it->getRedirection();
+			this->full_path = server.getRoot() + "/" + it->getIndex();
 			this->status_code = 200;
 		}
 		else
@@ -101,20 +101,20 @@ void		Response::handleUnknownPath(Request const &request, Server &server)
 
 void		Response::handleFolderPath(Request const &request, Server &server)
 {
-	int index_route;
+	int index_Location;
 	std::string uri = server.getRoot() + request.getUri();
 
 	std::cout << RED << uri << RESET << std::endl;
-	if ((index_route = server.hasRoute(uri)) >= 0)
+	if ((index_Location = server.hasLocation(uri)) >= 0)
 	{
-		std::vector<Route> *routes = server.getRoutes();
-		std::vector<Route>::iterator it;
-		for (it = routes->begin(); it != routes->end() ; it++)
+		std::vector<Location> *Locations = server.getLocations();
+		std::vector<Location>::iterator it;
+		for (it = Locations->begin(); it != Locations->end() ; it++)
 		{
 			if (it->getPath() == request.getUri())
 				break ;
 		}
-		this->full_path = server.getRoot() + request.getUri() + it->getRedirection();
+		this->full_path = server.getRoot() + request.getUri() + it->getIndex();
 		std::cout << RED << full_path << RESET << std::endl;
 		if (access(this->full_path.c_str(), R_OK) == 0)
 			this->status_code = 200;

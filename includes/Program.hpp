@@ -37,12 +37,12 @@ private:
 
 	// PRIVATE HELPERS
 	bool		isServConfig(std::string const &line) const;
-	bool 		isRouteConfig(std::string const &line) const;
+	bool 		isLocationConfig(std::string const &line) const;
 	bool		isFieldSingle(std::string const &line, std::string const &field) const;
 	bool		isFieldMultiple(std::string const &line, std::string const &field) const;
 	bool		isField3(std::string const &line, std::string const &field) const;
 	bool 		isServField(std::string const &line) const;
-	bool 		isRouteField(std::string const &line) const;
+	bool 		isLocationField(std::string const &line) const;
 	bool		isClosingBracket(std::string const &line) const;
 	bool		isEmptyLine(std::string const &line) const;
 
@@ -52,7 +52,7 @@ private:
 	void		checkErrorConfig(std::vector<std::string> lines);
 
 	Server		setServField(Server s, std::string const &field);
-	Route		setRouteField(Server s, Route r, std::string const &field);
+	Location	setLocationField(Server s, Location r, std::string const &field);
 	void		parseValue(std::vector<std::string> lines);
 
 	void		checkMinimumSetup(void);
@@ -82,13 +82,16 @@ public:
 	class 		InvalidServerFieldException: public std::exception {
 		virtual const char* what() const throw();
 	};
-	class 		InvalidRouteFieldException: public std::exception {
+	class 		InvalidLocationFieldException: public std::exception {
 		virtual const char* what() const throw();
 	};
 	class 		NoPortSetupException: public std::exception {
 		virtual const char* what() const throw();
 	};
 	class 		NoHostSetupException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		NoRootSetupException: public std::exception {
 		virtual const char* what() const throw();
 	};
 	class 		NoCgiBinException: public std::exception {

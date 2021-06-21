@@ -23,10 +23,10 @@ bool			Program::isServConfig(std::string const &line) const {
 		return (false);
 }
 
-bool			Program::isRouteConfig(std::string const &line) const {
+bool			Program::isLocationConfig(std::string const &line) const {
 	std::istringstream iss(line);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (split.size() == 3 && split[0] == "route" && split[2] == "{")
+	if (split.size() == 3 && split[0] == "location" && split[2] == "{")
 		return (true);
 	else
 		return (false);
@@ -111,22 +111,24 @@ bool			Program::isServField(std::string const &field) const {
 		return (true);
 	else if (this->isFieldSingle(field, "client_body_size") == true)
 		return (true);
-	else if (this->isFieldSingle(field, "upload_dir") == true)
-		return (true);
-	else if (this->isFieldSingle(field, "autoindex") == true)
-		return (true);
 	else
 		return (false);
 }
 
-bool			Program::isRouteField(std::string const &field) const {
+bool			Program::isLocationField(std::string const &field) const {
 	if (this->isField3(field, "methods") == true)
 		return (true);
 	else if (this->isFieldSingle(field, "redirection") == true)
 		return (true);
+	else if (this->isFieldSingle(field, "index") == true)
+		return (true);
 	else if (this->isFieldSingle(field, "cgi_extension") == true)
 		return (true);
 	else if (this->isFieldSingle(field, "cgi_bin") == true)
+		return (true);
+	else if (this->isFieldSingle(field, "autoindex") == true)
+		return (true);
+	else if (this->isFieldSingle(field, "upload_dir") == true)
 		return (true);
 	else
 		return (false);	
@@ -168,20 +170,22 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 			std::cout << GREEN << "*** Errors multiple field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "client_body_size") == true)
 			std::cout << GREEN << "*** Client Body Size single field ***" << RESET << std::endl;
-		else if (this->isFieldSingle(*it, "upload_dir") == true)
-			std::cout << GREEN << "*** Upload Directory single field ***" << RESET << std::endl;
-		else if (this->isFieldSingle(*it, "autoindex") == true)
-			std::cout << GREEN << "*** Autoindex single field ***" << RESET << std::endl;
-		else if (this->isRouteConfig(*it) == true)
-			std::cout << GREEN << "*** Route block starts ***" << RESET << std::endl;
+		else if (this->isLocationConfig(*it) == true)
+			std::cout << GREEN << "*** Location block starts ***" << RESET << std::endl;
 		else if (this->isField3(*it, "methods") == true)
 			std::cout << GREEN << "*** Methods multiple field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "redirection") == true)
 			std::cout << GREEN << "*** Redirection single field ***" << RESET << std::endl;
+		else if (this->isFieldSingle(*it, "index") == true)
+			std::cout << GREEN << "*** Index single field ***" << RESET << std::endl;
+		else if (this->isFieldSingle(*it, "autoindex") == true)
+			std::cout << GREEN << "*** Autoindex single field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "cgi_extension") == true)
 			std::cout << GREEN << "*** CGI Extension single field ***" << RESET << std::endl;
 		else if (this->isFieldSingle(*it, "cgi_bin") == true)
 			std::cout << GREEN << "*** CGI Directory single field ***" << RESET << std::endl;
+		else if (this->isFieldSingle(*it, "upload_dir") == true)
+			std::cout << GREEN << "*** Upload Directory single field ***" << RESET << std::endl;
 		else if (this->isClosingBracket(*it) == true)
 			std::cout << GREEN << "*** Closing bracket ***" << RESET << std::endl;
 		else if (this->isEmptyLine(*it) == true)
@@ -211,17 +215,17 @@ void			Program::checkInvalidDeclaration(std::vector<std::string> lines) {
 			it++;
 			while (this->isServField(*it) == true || this->isEmptyLine(*it) == true)
 				it++;
-			while (this->isRouteConfig(*it) == true || this->isEmptyLine(*it) == true)
+			while (this->isLocationConfig(*it) == true || this->isEmptyLine(*it) == true)
 			{
-				if (this->isRouteConfig(*it) == true)
+				if (this->isLocationConfig(*it) == true)
 				{
-					std::cout << GREEN << "\tChecking next route declaration..." << RESET << std::endl;
+					std::cout << GREEN << "\tChecking next location declaration..." << RESET << std::endl;
 					//usleep(10000);
 					it++;
-					while (this->isRouteField(*it) == true || this->isEmptyLine(*it) == true)
+					while (this->isLocationField(*it) == true || this->isEmptyLine(*it) == true)
 						it++;
 					if (this->isClosingBracket(*it) == false)
-						throw InvalidRouteFieldException();
+						throw InvalidLocationFieldException();
 					else
 						it++;
 				}
@@ -268,25 +272,25 @@ Server			Program::setServField(Server s, std::string const &field) {
 	{
 		s.setClientBodySize(field);
 	}
-	else if (this->isFieldSingle(field, "upload_dir") == true)
-	{
-		s.setUploadDir(field);
-	}
-	else if (this->isFieldSingle(field, "autoindex") == true)
-	{
-		s.setAutoindex(field);
-	}
 	return (s);
 }
 
-Route			Program::setRouteField(Server s, Route r, std::string const &field) {
+Location			Program::setLocationField(Server s, Location r, std::string const &field) {
 	if (this->isField3(field, "methods") == true)
 	{
 		r.setMethods(field);
 	}
 	else if (this->isFieldSingle(field, "redirection") == true)
 	{
-		r.setRedirection(s.getRoot(), field);
+		r.setRedirection(field);
+	}
+	else if (this->isFieldSingle(field, "index") == true)
+	{
+		r.setIndex(s.getRoot(), field);
+	}
+	else if (this->isFieldSingle(field, "autoindex") == true)
+	{
+		r.setAutoindex(field);
 	}
 	else if (this->isFieldSingle(field, "cgi_extension") == true)
 	{
@@ -295,6 +299,10 @@ Route			Program::setRouteField(Server s, Route r, std::string const &field) {
 	else if (this->isFieldSingle(field, "cgi_bin") == true)
 	{
 		r.setCgiBin(field);
+	}
+	else if (this->isFieldSingle(field, "upload_dir") == true)
+	{
+		r.setUploadDir(field);
 	}
 	return (r);
 }
@@ -320,24 +328,24 @@ void			Program::parseValue(std::vector<std::string> lines) {
 				}
 				it++;
 			}
-			while (this->isRouteConfig(*it) == true || this->isEmptyLine(*it) == true)
+			while (this->isLocationConfig(*it) == true || this->isEmptyLine(*it) == true)
 			{
-				if (this->isRouteConfig(*it) == true)
+				if (this->isLocationConfig(*it) == true)
 				{
-					std::cout << GREEN << "\tParsing next route..." << RESET << std::endl;
+					std::cout << GREEN << "\tParsing next location..." << RESET << std::endl;
 					//usleep(10000);
-					Route r;
+					Location r;
 					r.setPath(*it);
 					it++;
-					while (this->isRouteField(*it) == true || this->isEmptyLine(*it) == true)
+					while (this->isLocationField(*it) == true || this->isEmptyLine(*it) == true)
 					{
-						if (this->isRouteField(*it) == true)
+						if (this->isLocationField(*it) == true)
 						{
-							r = this->setRouteField(s, r, *it);
+							r = this->setLocationField(s, r, *it);
 						}
 						it++;
 					}
-					s.getRoutes()->push_back(r);
+					s.getLocations()->push_back(r);
 					it++;
 				}
 				else
@@ -359,7 +367,9 @@ void			Program::checkMinimumSetup(void) {
 			throw NoPortSetupException();
 		if ((*it).getHost() == "none")
 			throw NoHostSetupException();
-		for (std::vector<Route>::iterator it2 = (*it).getRoutes()->begin(); it2 != (*it).getRoutes()->end(); it2++)
+		if ((*it).getRoot() == "none")
+			throw NoRootSetupException();
+		for (std::vector<Location>::iterator it2 = (*it).getLocations()->begin(); it2 != (*it).getLocations()->end(); it2++)
 		{
 			if ((*it2).getCgiExtension() != "none" && (*it2).getCgiBin() == "none")
 				throw NoCgiBinException();
@@ -430,19 +440,10 @@ void			Program::printParsing(void) {
 		std::cout << YELLOW << "\tMaximum client body size = " << RESET;
 		std::cout << (*it).getClientBodySize() << std::endl;
 
-		std::cout << YELLOW << "\tUpload directory = " << RESET;
-		std::cout << (*it).getUploadDir() << std::endl;
+		std::cout << YELLOW << "\tNumber of locations = " << RESET;
+		std::cout << (*it).getLocations()->size() << std::endl;
 
-		std::cout << YELLOW << "\tAutoindex = " << RESET;
-		if ((*it).getAutoindex() == true)
-			std::cout << "on" << std::endl;
-		else		
-			std::cout << "off" << std::endl;
-
-		std::cout << YELLOW << "\tNumber of routes = " << RESET;
-		std::cout << (*it).getRoutes()->size() << std::endl;
-
-		for (std::vector<Route>::iterator it3 = (*it).getRoutes()->begin(); it3 != (*it).getRoutes()->end(); it3++)
+		for (std::vector<Location>::iterator it3 = (*it).getLocations()->begin(); it3 != (*it).getLocations()->end(); it3++)
 		{
 			std::cout << YELLOW << "\t\tPath = " << RESET;
 			std::cout << (*it3).getPath() << std::endl;
@@ -457,11 +458,24 @@ void			Program::printParsing(void) {
 			std::cout << YELLOW << "\t\t\tRedirection = " << RESET;
 			std::cout << (*it3).getRedirection() << std::endl;
 
+			std::cout << YELLOW << "\t\t\tIndex = " << RESET;
+			std::cout << (*it3).getIndex() << std::endl;
+
+			std::cout << YELLOW << "\t\t\tAutoindex = " << RESET;
+			if ((*it3).getAutoindex() == true)
+				std::cout << "on" << std::endl;
+			else		
+				std::cout << "off" << std::endl;
+
 			std::cout << YELLOW << "\t\t\tCGI extension = " << RESET;
 			std::cout << (*it3).getCgiExtension() << std::endl;
 
 			std::cout << YELLOW << "\t\t\tCGI executable = " << RESET;
 			std::cout << (*it3).getCgiBin() << std::endl;
+
+			std::cout << YELLOW << "\t\t\tUpload directory = " << RESET;
+			std::cout << (*it3).getUploadDir() << std::endl;
+
 		}
 		//usleep(1000000);
 		std::cout << std::endl;
@@ -530,9 +544,9 @@ const char*		Program::InvalidServerFieldException::what() const throw()
 	return "Config file is incorrect: invalid field within a server declaration or a } is missing.";
 }
 
-const char*		Program::InvalidRouteFieldException::what() const throw()
+const char*		Program::InvalidLocationFieldException::what() const throw()
 {
-	return "Config file is incorrect: invalid field within a route declaration or a } is missing.";
+	return "Config file is incorrect: invalid field within a location declaration or a } is missing.";
 }
 
 const char*		Program::NoPortSetupException::what() const throw()
@@ -545,7 +559,12 @@ const char*		Program::NoHostSetupException::what() const throw()
 	return "Config file is incorrect: a host must be declared for each server.";
 }
 
+const char*		Program::NoRootSetupException::what() const throw()
+{
+	return "Config file is incorrect: a root must be declared for each server.";
+}
+
 const char*		Program::NoCgiBinException::what() const throw()
 {
-	return "Config file is incorrect: a route is declared with a CGI extension but without CGI executable.";
+	return "Config file is incorrect: a location is declared with a CGI extension but without CGI executable.";
 }
