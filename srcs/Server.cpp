@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:17:56 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/21 11:36:58 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void    Server::handleConnection(int client_socket)
 
 
 	//create the request
-	std::string request_content (request_buffer);
+	std::string request_content(request_buffer, bytesRead);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
 	

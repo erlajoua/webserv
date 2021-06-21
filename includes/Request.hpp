@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:26:29 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:22:35 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/21 10:20:32 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ private:
 	HttpErrorType	error_type;
 	HttpMethod		method;
 	std::string		uri;
+	std::string		query_string;
 	double			http_version;
 	std::string		host;
 	int				port;
@@ -50,6 +51,7 @@ private:
 	std::size_t 		parseMethod(void);
 	void 				decodeUri(void);
 	std::size_t 		parseUri(std::size_t pos);
+	std::size_t 		parseQueryString(std::size_t pos);
 	std::size_t 		parseHttpVersion(std::size_t pos);
 	std::size_t 		parseRequestLine(void);
 	void 				parseHostFieldValue(std::string const& field_value);
@@ -72,11 +74,12 @@ public:
 
 	// GETTERS
 	std::string const	&getContent(void) const;
-	bool const			&getIs_bad(void) const;
-	HttpErrorType const	&getError_type(void) const;
+	bool const			&getIsBad(void) const;
+	HttpErrorType const	&getErrorType(void) const;
 	HttpMethod const 	&getMethod(void) const;
 	std::string const 	&getUri(void) const;
-	double const		&getHttp_version(void) const;
+	std::string const 	&getQueryString(void) const;
+	double const		&getHttpVersion(void) const;
 	std::string const 	&getHost(void) const;
 	int const			&getPort(void) const;
 	std::string const	&getBody(void) const;
