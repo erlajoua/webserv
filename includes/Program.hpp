@@ -91,6 +91,9 @@ public:
 	class 		NoHostSetupException: public std::exception {
 		virtual const char* what() const throw();
 	};
+	class 		NoCgiBinException: public std::exception {
+		virtual const char* what() const throw();
+	};
 };
 
 #endif

@@ -359,6 +359,11 @@ void			Program::checkMinimumSetup(void) {
 			throw NoPortSetupException();
 		if ((*it).getHost() == "none")
 			throw NoHostSetupException();
+		for (std::vector<Route>::iterator it2 = (*it).getRoutes()->begin(); it2 != (*it).getRoutes()->end(); it2++)
+		{
+			if ((*it2).getCgiExtension() != "none" && (*it2).getCgiBin() == "none")
+				throw NoCgiBinException();
+		}
 		//usleep(10000);
 	}
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
@@ -538,4 +543,9 @@ const char*		Program::NoPortSetupException::what() const throw()
 const char*		Program::NoHostSetupException::what() const throw()
 {
 	return "Config file is incorrect: a host must be declared for each server.";
+}
+
+const char*		Program::NoCgiBinException::what() const throw()
+{
+	return "Config file is incorrect: a route is declared with a CGI extension but without CGI executable.";
 }
