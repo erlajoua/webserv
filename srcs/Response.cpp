@@ -38,7 +38,7 @@ void		Response::createResponse(Request const &request, Server &server)
 {
 	this->http_version = request.getHttp_version();
 	this->setStatusCode(request, server);
-	this->setBody(request);
+	this->setBody(request, server);
 	this->setReasonPhrase();
 	this->setContentLength();
 	this->setContentType();
@@ -61,60 +61,99 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "";
 }
 
-void		Response::setBody(Request const &request)
+void		Response::setBody(Request const &request, Server &server)
 {
-	
+	(void)server;
+	(void)request;
 	if (this->status_code != 200)
 	{
 		this->body = this->getErrorPage();
 		return ;
 	}
-	this->body = getAllFile("." + request.getUri());
+	this->body = getAllFile(this->full_path);
 }
 
-#define REDIRECTION_PAGE "./index.html"
+/* status_code */
 
-void		Response::setStatusCode(Request const &request, Server &server)
+void		Response::handleUnknownPath(Request const &request, Server &server)
 {
-	std::ifstream input;
-	std::string uri;
-	int index_route;
+	std::vector<Route> *routes = server.getRoutes();
+	std::vector<Route>::iterator it;
 
-	uri = server.getRoot() + request.getUri(); //       www    
-
-	std::cout << "uri = " << uri << "\n";
-
-	struct stat stats_path;
-
-	if (stat(uri.c_str(), &stats_path) == 0)
+	for (it = routes->begin(); it != routes->end() ; it++)
 	{
-		if (stats_path.st_mode & S_IFDIR)
+		if (it->getPath() == request.getUri())
+			break ;
+	}
+	if (it == routes->end())
+		this->status_code = 404;
+	else
+	{
+		if (access(it->getRedirection().c_str(), R_OK == 0))
 		{
-			if ((index_route = server.hasRoute(uri)) >= 0) //a changer pour paser selon la route 
-			{
-				std::vector<Route> *routes = server.getRoutes();
+			this->full_path = server.getRoot() + "/" + it->getRedirection();
+			this->status_code = 200;
+		}
+		else
+			this->status_code = 666; //auto-index ?
+	}
+}
 
-				for (std::vector<Route>::iterator it = routes->begin(); it != routes->end() ; it++)
-				{
-					std::cout << it->getPath() << "\n";
-				}
-				this->status_code = 666; //auto-index
-			}
-			else
-				this->status_code = 404; //pas bon
-		}
-		else if (stats_path.st_mode & S_IFREG)
+void		Response::handleFolderPath(Request const &request, Server &server)
+{
+	int index_route;
+	std::string uri = server.getRoot() + request.getUri();
+
+
+	if ((index_route = server.hasRoute(uri)) >= 0)
+	{
+		std::vector<Route> *routes = server.getRoutes();
+		std::vector<Route>::iterator it;
+		for (it = routes->begin(); it != routes->end() ; it++)
 		{
-			std::cout << "TEST = " << uri.c_str() << "\n";
-			if (access(uri.c_str(), R_OK) == 0)
-				this->status_code = 200;
-			else
-				this->status_code = 403;
+			if (it->getPath() == request.getUri())
+				break ;
 		}
+		this->full_path = server.getRoot() + request.getUri() + it->getRedirection();
+		if (access(this->full_path.c_str(), R_OK) == 0)
+			this->status_code = 200;
+		else
+			this->status_code = 666;
 	}
 	else
 		this->status_code = 404;
 }
+
+void		Response::handleFilePath(Request const &request, Server &server)
+{
+	std::string uri = server.getRoot() + request.getUri();
+
+	if (access(uri.c_str(), R_OK) == 0)
+	{
+		this->full_path = uri;
+		this->status_code = 200;
+	}
+	else
+		this->status_code = 403;
+}
+
+void		Response::setStatusCode(Request const &request, Server &server)
+{
+	struct stat stats_path;
+	std::string uri = server.getRoot() + request.getUri();
+
+	if (stat(uri.c_str(), &stats_path) == 0)
+	{
+ 		if (stats_path.st_mode & S_IFDIR)
+			this->handleFolderPath(request, server);
+		else if (stats_path.st_mode & S_IFREG)
+			this->handleFilePath(request, server);
+	}
+	else
+		this->handleUnknownPath(request, server);
+}
+
+/* */
 
 void		Response::setContentLength(void)
 {

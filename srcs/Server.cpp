@@ -33,20 +33,23 @@ void    Server::handleConnection(int client_socket)
 	//get the request content from the client_socket
 	char request_buffer[4096];
 
-	int bytesRead = read(client_socket, request_buffer, 4096);
+	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
 	request_buffer[bytesRead] = 0;
 
-	std::cout << YELLOW << request_buffer << RESET << "\n";
 
 	//create the request
 	std::string request_content (request_buffer);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
 	
+	std::cout << YELLOW << request_buffer << RESET << "\n";
+
 	Response response(request, *this);
 	
-	std::cout << "Response = " << response.toString() << "\n";
-	write(client_socket, response.toString().c_str(), strlen(response.toString().c_str()));
+	if (send(client_socket, response.toString().c_str(), strlen(response.toString().c_str()), 0) == -1)
+		std::cout << "Erreur de send, stop\n";
+	std::cout << MAGENTA << RESET << "\n";
+	std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
 }
 
 // CONSTRUCTOR & DESTRUCTOR
@@ -280,7 +283,6 @@ int				Server::hasRoute(std::string uri) const
 	size_t i;
 	for (i = 0; i < routes.size(); i++)
 	{
-		std::cout << "==->" << routes[i].getPath() << "\n";
 		if (this->root + routes[i].getPath() == uri)
 			return (i);
 	}
@@ -324,6 +326,7 @@ void				*Server::start(void *server_v)
 					if (i == server->server_socket)
 					{
 						int client_socket = server->acceptNewConnection(server->server_socket);
+						server->handleConnection(client_socket);
 						FD_SET(client_socket, &server->current_sockets);
 					}
 					else
