@@ -31,23 +31,29 @@ enum HttpMethod
 	kDelete
 };
 
+enum ConnectionDirective
+{
+	kClose,
+	kKeepAlive
+};
+
 class Request
 {
 private:
 	// ATTRIBUTES
-	std::string		content;
-	bool			is_bad;
-	HttpErrorType	error_type;
-	HttpMethod		method;
-	std::string		uri;
-	std::string		query_string;
-	double			http_version;
-	std::string		host;
-	int				port;
-	std::string		body;
+	std::string			content;
+	bool				is_bad;
+	HttpErrorType		error_type;
+	HttpMethod			method;
+	std::string			uri;
+	std::string			query_string;
+	double				http_version;
+	std::string			host;
+	int					port;
+	ConnectionDirective	connection;
+	std::string			body;
 
 	// PRIVATE HELPERS
-	std::string 		receiveContent(int const& request_fd);
 	std::size_t 		parseMethod(void);
 	void 				decodeUri(void);
 	std::size_t 		parseUri(std::size_t pos);
@@ -55,6 +61,7 @@ private:
 	std::size_t 		parseHttpVersion(std::size_t pos);
 	std::size_t 		parseRequestLine(void);
 	void 				parseHostFieldValue(std::string const& field_value);
+	void 				parseConnectionFieldValue(std::string const& field_value);
 	void 				parseHeaderField(std::string const& header_field);
 	std::size_t 		parseHeaders(std::size_t pos);
 	void 				parseContent(void);
@@ -65,7 +72,6 @@ private:
 public:
 	// CONSTRUCTOR & DESTRUCTOR
 	Request(std::string const &content);
-	Request(int const &request_fd);
 	Request(Request const &r);
 	~Request(void);
 
@@ -82,6 +88,7 @@ public:
 	double const		&getHttpVersion(void) const;
 	std::string const 	&getHost(void) const;
 	int const			&getPort(void) const;
+	ConnectionDirective const &getConnection(void) const;
 	std::string const	&getBody(void) const;
 
 	// EXCEPTIONS
