@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:29:26 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 18:36:59 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 18:38:42 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,14 @@ int		main(int argc, char **argv)
 	else
 	{
 		std::cerr << BOLDRED << "0 or 1 argument (= path to config file)." << RESET << std::endl;
-		return (0);
+		return (1);
 	}
 
 	std::ifstream	file(path.c_str());
 	if (!file.is_open())
 	{
 		std::cerr << BOLDRED << "Config file at path " << path << " can't be opened." << RESET << std::endl;
-		return (0);
+		return (2);
 	}
 	file.close();
 
@@ -73,7 +73,7 @@ int		main(int argc, char **argv)
 	catch (std::exception &e)
 	{
 		std::cerr << BOLDRED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;	
-		return (0);
+		return (3);
 	}
 	signal(SIGINT, quit);
 	program.start();
