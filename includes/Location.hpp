@@ -80,8 +80,8 @@ public:
 	void							setIndex(std::string const &root, std::string const &field);
 	void							setAutoindex(std::string const &field);
 	void							setCgiExtension(std::string const &field);
-	void							setCgiBin(std::string const &field);
-	void							setUploadDir(std::string const &field);
+	void							setCgiBin(std::string const &root, std::string const &field);
+	void							setUploadDir(std::string const &root, std::string const &field);
 
 	// EXCEPTIONS
 	class 		InvalidPathException: public std::exception
@@ -100,10 +100,10 @@ public:
 	{
 		virtual const char* what() const throw();
 	};
-	class 		InvalidIndexException: public std::exception
+	/*class 		InvalidIndexException: public std::exception
 	{
 		virtual const char* what() const throw();
-	};
+	};*/
 	class 		InvalidAutoindexException: public std::exception
 	{
 		virtual const char* what() const throw();

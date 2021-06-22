@@ -145,18 +145,19 @@ void				Location::setRedirection(std::string const &field)
 }
 
 void				Location::setIndex(std::string const &root, std::string const &field) {
+	(void)root;
 	size_t 	i = 0;
-	struct stat buffer;
+	//struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
 		i++;
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	std::string concat = root + "/" + split[1];
+	/*std::string concat = root + "/" + split[1];
 	if (stat (concat.c_str(), &buffer) != 0)
 		throw InvalidIndexException();
-	else
-		this->index = split[1];
+	else*/
+	this->index = split[1];
 }
 
 void				Location::setAutoindex(std::string const &field) {
@@ -190,7 +191,7 @@ void				Location::setCgiExtension(std::string const &field) {
 		this->cgi_extension = split[1];
 }
 
-void				Location::setCgiBin(std::string const &field) {
+void				Location::setCgiBin(std::string const &root, std::string const &field) {
 	size_t 	i = 0;
 	struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')
@@ -198,13 +199,19 @@ void				Location::setCgiBin(std::string const &field) {
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (stat (split[1].c_str(), &buffer) != 0)
+	std::string concat;
+	if (this->path == "/")
+		concat = root + this->path + split[1];
+	else
+		concat = root + this->path + "/" + split[1];
+	std::cout << RED << concat << RESET << std::endl;
+	if (stat (concat.c_str(), &buffer) != 0)
 		throw InvalidCgiBinDirException();
 	else
 		this->cgi_bin = split[1];
 }
 
-void				Location::setUploadDir(std::string const &field)
+void				Location::setUploadDir(std::string const &root, std::string const &field)
 {
 	size_t 	i = 0;
 	struct stat buffer;
@@ -213,7 +220,13 @@ void				Location::setUploadDir(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (stat (split[1].c_str(), &buffer) != 0)
+	std::string concat;
+	if (this->path == "/")
+		concat = root + this->path + split[1];
+	else
+		concat = root + this->path + "/" + split[1];
+	std::cout << RED << concat << RESET << std::endl;
+	if (stat (concat.c_str(), &buffer) != 0)
 		throw InvalidUploadDirException();
 	else
 		this->upload_dir = split[1];
@@ -240,12 +253,12 @@ const char*		Location::InvalidRedirectionException::what() const throw()
 {
 	return "Config file is incorrect: redirection value must be [300; 308]";
 }
-
+/*
 const char*		Location::InvalidIndexException::what() const throw()
 {
 	return "Config file is incorrect: index value (concatenated with root/) is not a valid path";
 }
-
+*/
 const char*		Location::InvalidAutoindexException::what() const throw()
 {
 	return "Config file is incorrect: autoindex value can only be on or off.";
@@ -258,10 +271,10 @@ const char*		Location::InvalidCgiExtensionException::what() const throw()
 
 const char*		Location::InvalidCgiBinDirException::what() const throw()
 {
-	return "Config file is incorrect: cgi_bin value is not a valid executable.";
+	return "Config file is incorrect: cgi_bin value (concatenated with root/location/) is not a valid executable.";
 }
 
 const char*		Location::InvalidUploadDirException::what() const throw()
 {
-	return "Config file is incorrect: upload_dir value is not a valid path.";
+	return "Config file is incorrect: upload_dir value (concatenated with root/location/) is not a valid path.";
 }

@@ -115,7 +115,6 @@ void		Response::handleFolderPath(Request const &request, Server &server)
 				break ;
 		}
 		this->full_path = server.getRoot() + request.getUri() + it->getIndex();
-		std::cout << RED << full_path << RESET << std::endl;
 		if (access(this->full_path.c_str(), R_OK) == 0)
 			this->status_code = 200;
 		else

@@ -298,11 +298,11 @@ Location			Program::setLocationField(Server s, Location r, std::string const &fi
 	}
 	else if (this->isFieldSingle(field, "cgi_bin") == true)
 	{
-		r.setCgiBin(field);
+		r.setCgiBin(s.getRoot(), field);
 	}
 	else if (this->isFieldSingle(field, "upload_dir") == true)
 	{
-		r.setUploadDir(field);
+		r.setUploadDir(s.getRoot(), field);
 	}
 	return (r);
 }

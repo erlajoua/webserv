@@ -209,7 +209,7 @@ void							Server::setRoot(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if (stat (split[1].c_str(), &buffer) != 0)
+	if ((stat (split[1].c_str(), &buffer) != 0) || (split[1].back()) == '/')
 		throw InvalidRootException();
 	else
 		this->root = split[1];
@@ -352,7 +352,7 @@ const char*		Server::InvalidServerNameException::what() const throw()
 
 const char*		Server::InvalidRootException::what() const throw()
 {
-	return "Config file is incorrect: root value is not a valid path.";
+	return "Config file is incorrect: root value is not a valid path or end with /.";
 }
 
 const char*		Server::InvalidErrorsException::what() const throw()
