@@ -78,7 +78,7 @@ int		main(int argc, char **argv)
 	signal(SIGINT, quit);
 	program.start();
 	//AutoIndex a("./www", "/even_pages");
-	//a.createIndex();
-	//std::cout << CYAN << a.getIndex() << RESET << std::endl;
+	//a.buildAutoIndex();
+	//std::cout << CYAN << a.getPageContent() << RESET << std::endl;
 	return (0);
 }

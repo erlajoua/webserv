@@ -22,19 +22,19 @@ class AutoIndex
 		// ATTRIBUTES
 		std::string						location_path;
 		std::string						root;
-		std::vector<std::string>		filenames;
-		std::vector<std::string>		entries;
-		std::string						index;
+		std::vector<std::string>		files;
+		std::vector<std::string>		adj_files;
+		std::string						page_content;
 
 		// PRIVATE HELPERS
 
-		void				getFilenames(void);
-		static bool			compareFilenames(std::string const &entry_a, std::string const &entry_b);
-		bool 				isDirectory(std::string const &name);
-		void				processFilenames(void);
-		void				createEntries(void);
+		void				parseFiles(void);
+		static bool			sortHelper(std::string const &file1, std::string const &file2);
+		bool 				isDir(std::string const &name);
+		void				processFiles(void);
+		void				adjustFiles(void);
 		std::string			getLastModified(std::string const &path);
-		void				addIndexLine(int line);
+		void				addContentLine(int line);
 
 		// NOT USED
 		AutoIndex(void);
@@ -47,10 +47,10 @@ class AutoIndex
 		~AutoIndex(void);
 
 		// MEMBER FUNCTIONS
-		void				createIndex(void);
+		void				buildAutoIndex(void);
 
 		// GETTERS
-		std::string	const 	&getIndex(void) const;
+		std::string	const 	&getPageContent(void) const;
 };
 
 #endif
