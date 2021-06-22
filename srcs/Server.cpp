@@ -212,7 +212,7 @@ void							Server::setRoot(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	if ((stat (split[1].c_str(), &buffer) != 0) || (split[1].back()) == '/')
+	if ((stat (split[1].c_str(), &buffer) != 0) || split[1][split[1].size() - 1] == '/')
 		throw InvalidRootException();
 	else
 		this->root = split[1];
