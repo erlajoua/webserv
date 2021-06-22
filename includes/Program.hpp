@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 18:25:22 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:02:12 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,10 @@ private:
 	void		parseValue(std::vector<std::string> lines);
 
 	void		checkMinimumSetup(void);
+
+	void		httpServerIO(void);
+	void		acceptNewServerConnection(int server_socket);
+	void		handleRequest(int client_socket);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR

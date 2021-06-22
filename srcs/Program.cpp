@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 17:16:42 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:09:06 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,69 @@ void			Program::checkMinimumSetup(void) {
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
 
+void			Program::acceptNewServerConnection(int server_socket) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+	{
+		if (server_socket == it->getServerSocket())
+		{
+			int client_socket = it->acceptNewConnection();
+			FD_SET(client_socket, &this->readfds);
+			FD_SET(client_socket, &this->writefds);
+			break;
+		}
+	}
+}
+
+void			Program::handleRequest(int client_socket) {
+	char request_buffer[4096];
+	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
+	std::string request_content(request_buffer, bytesRead);
+	Request request(request_content);
+
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+	{
+		if (request.getPort() == it->getPort())
+		{
+			std::cout << CYAN << std::endl << it->getServerName() << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
+			std::cout << YELLOW << request_content << RESET << "\n";
+
+			Response response(request, *it);
+			std::string response_content(response.toString());
+			if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
+				std::cout << "Erreur de send, stop\n";
+			std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
+			break;
+		}
+	}
+	if (request.getConnection() == kClose)
+	{
+		close(client_socket);
+		FD_CLR(client_socket, &this->readfds);
+		FD_CLR(client_socket, &this->writefds);
+	}
+}
+
+void			Program::httpServerIO(void) {
+	fd_set ready_readfds = this->readfds;
+	fd_set ready_writefds = this->writefds;
+
+	if (select(FD_SETSIZE, &ready_readfds, &ready_writefds, NULL, NULL) < 0)
+		throw SelectException();
+	for (int i = 0; i < FD_SETSIZE; i++)
+	{
+		if (FD_ISSET(i, &ready_readfds))
+		{
+			if (!FD_ISSET(i, &this->writefds))
+			{
+				this->acceptNewServerConnection(i);
+			}
+			else if (FD_ISSET(i, &ready_writefds))
+			{
+				this->handleRequest(i);
+			}
+		}
+	}
+}
 
 // CONSTRUCTOR & DESTRUCTOR
 
@@ -521,64 +584,7 @@ void			Program::start(void) {
 	{
 		try
 		{
-		    fd_set ready_readfds = this->readfds;
-		    fd_set ready_writefds = this->writefds;
-
-			if (select(FD_SETSIZE, &ready_readfds, &ready_writefds, NULL, NULL) < 0)
-				throw SelectException();
-			for (int i = 0; i < FD_SETSIZE; i++)
-			{
-				if (FD_ISSET(i, &ready_readfds))
-				{
-					if (!FD_ISSET(i, &this->writefds))
-					{
-						for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
-						{
-							if (i == it->getServerSocket())
-							{
-								int client_socket = it->acceptNewConnection();
-								FD_SET(client_socket, &this->readfds);
-								FD_SET(client_socket, &this->writefds);
-								break;
-							}
-						}
-					}
-					else if (FD_ISSET(i, &ready_writefds))
-					{
-						// get the request content from the client_socket
-						char request_buffer[4096];
-
-						// TODO check recv return
-						int bytesRead = recv(i, request_buffer, 4096, 0);
-
-						// create the request
-						std::string request_content(request_buffer, bytesRead);
-						Request request(request_content);
-						for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
-						{
-							// TODO check server_names
-							if (request.getPort() == it->getPort())
-							{
-								std::cout << CYAN << std::endl << it->getServerName() << " received a request from client_socket " << i << ":" RESET << std::endl;
-								std::cout << YELLOW << request_content << RESET << "\n";
-
-								Response response(request, *it);
-								std::string response_content(response.toString());
-								if (send(i, response_content.c_str(), response_content.length(), 0) == -1)
-									std::cout << "Erreur de send, stop\n"; // TODO: better error
-								std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
-								break;
-							}
-						}
-						if (request.getConnection() == kClose)
-						{
-							close(i);
-							FD_CLR(i, &this->readfds);
-							FD_CLR(i, &this->writefds);
-						}
-					}
-				}
-			}
+			this->httpServerIO();
 		}
 		catch (std::exception &e)
 		{
