@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/22 11:31:27 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 11:31:30 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:34:09 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "./Response.hpp"
 # include <dirent.h>
+# include <algorithm>
 
 class AutoIndex
 {

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/22 11:31:55 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 11:31:56 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:33:41 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void				AutoIndex::processFiles(void) {
 			first++;
 		}
 	}
-	sort(this->files.begin(), this->files.end(), sortHelper);
+	std::sort(this->files.begin(), this->files.end(), sortHelper);
 }
 
 void				AutoIndex::adjustFiles(void) {

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:17:56 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:33:32 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void							Server::setPort(std::string const &field)
 		if (isdigit(split[1][j]) == false)
 			throw InvalidPortException();
 	}
-	ret = atoi(split[1].c_str());
+	ret = std::atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
 		throw InvalidPortException();
 	else
@@ -248,7 +248,7 @@ void							Server::setClientBodySize(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	ret = atoi(split[1].c_str());
+	ret = std::atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
 		throw InvalidClientBodySizeException();
 	else

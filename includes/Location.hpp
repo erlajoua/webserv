@@ -6,13 +6,14 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 17:46:49 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 17:46:50 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:33:06 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 # define LOCATION_HPP
 
+# include <cstdlib>
 # include <string>
 # include <vector>
 # include <sstream>

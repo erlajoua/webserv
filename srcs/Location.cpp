@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 17:47:12 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 17:47:14 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:33:16 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ void				Location::setRedirection(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	ret = atoi(split[1].c_str());
+	ret = std::atoi(split[1].c_str());
 	if (ret < 300 || ret > 308)
 		throw InvalidRedirectionException();
 	else
