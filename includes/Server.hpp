@@ -73,7 +73,7 @@ public:
 	std::string						getHost(void) const;
 	std::string						getServerName(void) const;
 	std::string						getRoot(void) const;
-	std::vector<std::string> const &getErrors(void) const;
+	std::vector<std::string>		&getErrors(void);
 	int								getClientBodySize(void) const;
 	std::vector<Location>			*getLocations(void);
 

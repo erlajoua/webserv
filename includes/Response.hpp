@@ -15,6 +15,8 @@ std::string	getAllFile(std::string filename);
 
 class Server;
 
+# define DEFAULT_PATH_ERROR "./www/error_pages/"
+
 class Response
 {
 private:
@@ -28,6 +30,7 @@ private:
 	bool						auto_index;
 
 	std::string					full_path;
+	std::string					redirection_path;
 
 	Response();
 	Response(Response const& src);
@@ -36,17 +39,17 @@ private:
 
 	void		createResponse(Request &request, Server &server);
 	void		setStatusCode(Request &request, Server &server);
-	void		setBody(Request const &request, Server &server);
+	void		setBody(Server &server);
 	void		setReasonPhrase(void);
 	void		setContentLength(void);
 	void		setContentType(void);
 
-	std::string	getErrorPage(void);
+	std::string	getErrorPage(Server &server);
 
 	std::string readUri(std::string const& uri);
-	void		handleUnknownPath(Request const &request, Server &server);
 	void		handleFolderPath(Request &request, Server &server);
-	void		handleFilePath(Request &request, Server &server);
+	void		handleFilePath(Request &request);
+	std::string	findCustomErrorPage(Server &server, int status_code);
 
 	int			getPositionLastChar(char *str, char c) const;
 	Location&	getLocation(Server &server, std::string uri);

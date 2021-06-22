@@ -190,7 +190,8 @@ std::size_t 		Request::parseHeaders(std::size_t pos) {
 	return (crlf_pos + 2);
 }
 
-void 				Request::parseContent(void) {
+void 				Request::parseContent(void)
+{
 	try
 	{
 		std::size_t pos = this->parseRequestLine();

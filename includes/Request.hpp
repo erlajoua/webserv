@@ -46,6 +46,8 @@ private:
 	int				port;
 	std::string		body;
 
+	std::string		root;
+
 	// PRIVATE HELPERS
 	std::string 		receiveContent(int const& request_fd);
 	std::size_t 		parseMethod(void);

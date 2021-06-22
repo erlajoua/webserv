@@ -36,19 +36,16 @@ void    Server::handleConnection(int client_socket)
 	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
 	request_buffer[bytesRead] = 0;
 
-
 	//create the request
 	std::string request_content (request_buffer);
 	Request request(request_content);
 	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
-	
 	std::cout << YELLOW << request_buffer << RESET << "\n";
 
 	Response response(request, *this);
-	
 	if (send(client_socket, response.toString().c_str(), strlen(response.toString().c_str()), 0) == -1)
-		std::cout << "Erreur de send, stop\n";
-	//std::cout << MAGENTA << response.toString() << RESET << "\n";
+		std::cout << "Erreur de send, stop\n"; //DEBUG si crash, a retirer
+	//std::cout << MAGENTA << response.toString() << RESET << "\n"; //DEBUG afficher réponse
 	std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
 }
 
@@ -58,14 +55,14 @@ Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
 	root(std::string("none")), client_body_size(0), running(false)
 {
-		Location	l;
-		l.setPath("location / {");
-		this->locations.push_back(l);
-		memset(&this->addr, 0, sizeof(this->addr));
-		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-			throw SocketInitializationException();
-		FD_ZERO(&this->current_sockets);
-		FD_ZERO(&this->ready_sockets); //check;
+	Location	l;
+	l.setPath("location / {");
+	this->locations.push_back(l);
+	memset(&this->addr, 0, sizeof(this->addr));
+	if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		throw SocketInitializationException();
+	FD_ZERO(&this->current_sockets);
+	FD_ZERO(&this->ready_sockets); //check;
 }
 
 Server::Server(Server const &s)
@@ -111,31 +108,38 @@ Server						&Server::operator=(Server const &s)
 
 // GETTERS
 
-bool							Server::getDefaultServer(void) const {
+bool							Server::getDefaultServer(void) const
+{
 	return (this->default_server);
 }
 
-int								Server::getPort(void) const {
+int								Server::getPort(void) const
+{
 	return (this->port);
 }
 
-std::string						Server::getHost(void) const {
+std::string						Server::getHost(void) const
+{
 	return (this->host);
 }
 
-std::string						Server::getServerName(void) const {
+std::string						Server::getServerName(void) const
+{
 	return (this->server_name);
 }
 
-std::string						Server::getRoot(void) const {
+std::string						Server::getRoot(void) const
+{
 	return (this->root);
 }
 
-std::vector<std::string> const&	Server::getErrors(void) const {
+std::vector<std::string>&		Server::getErrors(void)
+{
 	return (this->errors);
 }
 
-int								Server::getClientBodySize(void) const {
+int								Server::getClientBodySize(void) const
+{
 	return (this->client_body_size);
 }
 

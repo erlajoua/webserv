@@ -38,7 +38,7 @@ void		Response::createResponse(Request &request, Server &server)
 {
 	this->http_version = request.getHttpVersion();
 	this->setStatusCode(request, server);
-	this->setBody(request, server);
+	this->setBody(server);
 	this->setReasonPhrase();
 	this->setContentLength();
 	this->setContentType();
@@ -57,17 +57,21 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "Forbidden";
 	else if (this->status_code == 404)
 		this->reason_phrase = "Not Found";
+	else if (this->status_code == 301)
+		this->reason_phrase = "Move Permanently";
+	else if (this->status_code == 505)
+		this->reason_phrase = "Version Not Supported";
+	else if (this->status_code == 400)
+		this->reason_phrase = "Bad Request";
 	else
 		this->reason_phrase = "";
 }
 
-void		Response::setBody(Request const &request, Server &server)
+void		Response::setBody(Server &server)
 {
-	(void)server;
-	(void)request;
 	if (this->status_code != 200)
 	{
-		this->body = this->getErrorPage();
+		this->body = this->getErrorPage(server);
 		return ;
 	}
 	this->body = getAllFile(this->full_path);
@@ -75,68 +79,33 @@ void		Response::setBody(Request const &request, Server &server)
 
 /* status_code */
 
-/*void		Response::handleUnknownPath(Request const &request, Server &server)
-{
-	std::vector<Location> *Locations = server.getLocations();
-	std::vector<Location>::iterator it;
-
-	for (it = Locations->begin(); it != Locations->end() ; it++)
-	{
-		if (it->getPath() == request.getUri())
-			break ;
-	}
-	if (it == Locations->end())
-		this->status_code = 404;
-	else
-	{
-		if (access(it->getIndex().c_str(), R_OK == 0))
-		{
-			this->full_path = server.getRoot() + "/" + it->getIndex();
-			this->status_code = 200;
-		}
-		else
-			this->status_code = 666; //auto-index ?
-	}
-}*/
-
 void		Response::handleFolderPath(Request &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	std::cout << RED << "FOLDER" << RESET << std::endl;
 	try
 	{
 		Location location = this->getLocation(server, request.getUri());
 		if (location.getIndex() != "none") //il y a un index
 		{
-			std::cout << RED << "Old uri = " << request.getUri() << RESET << "\n";
 			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
-			std::cout << RED << "Index exist, new uri = " << request.getUri() << RESET << std::endl;
-
 			if (stat(request.getUri().c_str(), &stats_path) == 0)
 			{
 				if (stats_path.st_mode & S_IFREG) //file
-				{
-					std::cout << RED << "New uri is a file = " << RESET << std::endl;
-					std::cout << RED << "Handle File path with uri = " << request.getUri() << RESET << "\n";
-					this->handleFilePath(request, server);
-				}
+					this->handleFilePath(request);
 				else if (stats_path.st_mode & S_IFDIR) //folder
 				{
-					std::cout << RED << "New uri is a folder = " << RESET << std::endl;
-					std::cout << YELLOW << "Implementation 301" << RESET << "\n";
+					this->redirection_path = location.getIndex();
 					this->status_code = 301;
 				}
 			}
 			else
 			{
 				if (location.getAutoindex() == true)
-				{
-					std::cout << YELLOW << "Implementation auto index" << RESET << "\n";
-				}
+					this->status_code = 666;
 				else
-					status_code = 403;
+					this->status_code = 403;
 			}
 		}
 	}
@@ -146,21 +115,15 @@ void		Response::handleFolderPath(Request &request, Server &server)
 	}
 }
 
-void		Response::handleFilePath(Request &request, Server &server)
+void		Response::handleFilePath(Request &request)
 {
-	(void)server;
-	std::cout << RED << "FILE" << RESET << std::endl;
 	if (access(request.getUri().c_str(), R_OK) == 0)
 	{
-		std::cout << RED << "FILE -> OK" << RESET << std::endl;
 		this->full_path = request.getUri();
 		this->status_code = 200;
 	}
 	else
-	{
-		std::cout << RED << "FILE -> Forbidden" << RESET << std::endl;
 		this->status_code = 403;
-	}
 }
 
 void		Response::setStatusCode(Request &request, Server &server)
@@ -169,21 +132,25 @@ void		Response::setStatusCode(Request &request, Server &server)
 	std::string uri = server.getRoot() + request.getUri();
 	std::cout << RED << uri << RESET << std::endl;
 
-	if (stat(uri.c_str(), &stats_path) == 0)
+	if (request.getIsBad() == true)
+	{
+		if (request.getErrorType() == kBadRequest)
+			this->status_code = 400;
+		else if (request.getErrorType() == kVersionNotImplemented)
+			this->status_code = 505;
+	}
+	else if (stat(uri.c_str(), &stats_path) == 0)
 	{
  		if (stats_path.st_mode & S_IFDIR)
 			this->handleFolderPath(request, server);
 		else if (stats_path.st_mode & S_IFREG)
 		{
 			request.setUri(server.getRoot() + request.getUri());
-			this->handleFilePath(request, server);
+			this->handleFilePath(request);
 		}
 	}
 	else
-	{
-		std::cout << RED << "Unknow path" << RESET << std::endl;
 		this->status_code = 404;
-	}
 }
 
 /* */
@@ -198,17 +165,44 @@ std::string Response::toString() const
 	std::stringstream ss;
 	ss << "HTTP/" << this->http_version << " " << this->status_code << " "
 		<< this->reason_phrase << "\r\nServer: " << this->server
-		<< "\r\nContent-Type: " << this->content_type
-		<< "\r\nContent-Length: " << this->content_length << "\r\n\r\n" << this->body;
+		<< "\r\nContent-Type: " << this->content_type;
+	if (this->status_code == 301)
+		ss << "\r\nLocation: " << this->redirection_path;
+	ss << "\r\nContent-Length: " << this->content_length << "\r\n\r\n" << this->body;
 	return (ss.str());
 }
 
-std::string	Response::getErrorPage(void)
+std::string	Response::findCustomErrorPage(Server &server, int status_code)
 {
+	std::vector<std::string> erros_pages = server.getErrors();
+	std::stringstream str_code;
+	str_code << status_code;
+
+	std::cout << BLUE << "Find Custom Erro Pages" << RESET << "\n";
+
+	for (std::vector<std::string>::iterator it = erros_pages.begin(); it != erros_pages.end(); it++)
+	{
+		char *path = (char *)(*it).c_str();
+		std::stringstream str_path;
+		path = strrchr(path, '/');
+		path++;
+		str_path << path;
+
+		if (str_path.str() == str_code.str() + ".html")
+			return (server.getRoot() + "/" + *it);
+	}
+	return (DEFAULT_PATH_ERROR + str_code.str() + ".html");
+}
+
+std::string	Response::getErrorPage(Server &server)
+{
+	//refacto en 1 ligne, des que toutes les erreurs sont gérées // return (getAllFile(this->findCustomErrorPage(server, this->status_code)));
+	if (this->status_code == 400)
+		return (getAllFile(this->findCustomErrorPage(server, 400))); 
 	if (this->status_code == 403)
-		return (getAllFile("./www/error_pages/403.html"));
+		return (getAllFile(this->findCustomErrorPage(server, 403)));
 	if (this->status_code == 404)
-		return (getAllFile("./www/error_pages/404.html"));
+		return (getAllFile(this->findCustomErrorPage(server, 404)));
 	return (getAllFile("./www/error_pages/not_handled.html"));
 }
 
