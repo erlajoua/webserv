@@ -6,7 +6,7 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/21 17:45:51 by nessayan         ###   ########.fr        #
+#    Updated: 2021/06/22 11:51:56 by nessayan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,8 @@ SRCS =	srcs/main.cpp \
 		srcs/Server.cpp \
 		srcs/Location.cpp \
 		srcs/Request.cpp \
-		srcs/Response.cpp
+		srcs/Response.cpp \
+		srcs/AutoIndex.cpp
 
 INCLUDES =	-I ./includes
 

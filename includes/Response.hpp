@@ -10,6 +10,7 @@
 
 # include "./Server.hpp"
 # include "./Request.hpp"
+# include "./AutoIndex.hpp"
 
 std::string	getAllFile(std::string filename);
 
