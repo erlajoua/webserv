@@ -6,11 +6,11 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 17:47:12 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 19:33:16 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 20:47:54 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Location.hpp"
+#include "Location.hpp"
 
 // PRIVATE HELPERS
 

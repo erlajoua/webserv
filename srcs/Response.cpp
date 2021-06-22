@@ -1,4 +1,4 @@
-#include "../includes/Response.hpp"
+#include "Response.hpp"
 
 std::string const Response::server = "webserver/1.0";
 

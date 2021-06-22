@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/AutoIndex.hpp"
+#include "AutoIndex.hpp"
 
 // CONSTRUCTOR & DESTRUCTOR
 

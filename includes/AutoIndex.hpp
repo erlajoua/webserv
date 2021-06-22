@@ -13,7 +13,7 @@
 #ifndef AUTOINDEX_HPP
 # define AUTOINDEX_HPP
 
-# include "./Response.hpp"
+# include "Response.hpp"
 # include <dirent.h>
 # include <algorithm>
 
