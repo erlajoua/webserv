@@ -47,7 +47,8 @@ void		Response::createResponse(Request const &request, Server &server)
 void		Response::setContentType()
 {
 	std::size_t dot_pos = this->full_path.rfind('.');
-	if (this->full_path.find(".html", dot_pos) != std::string::npos)
+	if (this->status_code != 200
+			|| this->full_path.find(".html", dot_pos) != std::string::npos)
 	{
 		this->content_type = "text/html";
 	}
