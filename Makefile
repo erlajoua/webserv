@@ -32,7 +32,7 @@ COMPILER = clang++
 	$(COMPILER) ${FLAGS} ${INCLUDES} -c $< -o ${<:.cpp=.o}
 
 $(NAME): $(OBJS)
-	${COMPILER} $(FLAGS) $(OBJS) -o $(NAME) -lpthread
+	${COMPILER} $(FLAGS) $(OBJS) -o $(NAME)
 
 all: $(NAME)
 

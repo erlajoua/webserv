@@ -388,6 +388,8 @@ void			Program::checkMinimumSetup(void) {
 // CONSTRUCTOR & DESTRUCTOR
 
 Program::Program(void) {
+	FD_ZERO(&this->readfds);
+	FD_ZERO(&this->writefds);
 }
 
 Program::~Program(void) {
@@ -498,7 +500,8 @@ void			Program::setup(void) {
 	//usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
-		(*it).setup();
+		it->setup();
+		FD_SET(it->getServerSocket(), &this->readfds);
 		//usleep(10000);
 	}
 	std::cout << std::endl;
@@ -507,29 +510,94 @@ void			Program::setup(void) {
 void			Program::start(void) {
 
 	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " server(s)..." << RESET << std::endl;
-	//usleep(1000000);
-	pthread_t	tid[this->servers.size()];
-	for (size_t i = 0; i < this->servers.size(); i++)
+
+	this->is_running = true;
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		pthread_create(&tid[i], NULL, this->servers[i].start, &(this->servers[i]));
-		usleep(10000);
+		std::cout << GREEN << it->getServerName() << " is now listening on " << it->getHost() << ":" << it->getPort() << "..." << RESET << std::endl;
 	}
-	for (size_t j = 0; j < this->servers.size(); j++)
+	//usleep(10000);
+	while (this->is_running == true)
 	{
-		pthread_join(tid[j], NULL);
-		pthread_detach(tid[j]);
+		try
+		{
+		    fd_set ready_readfds = this->readfds;
+		    fd_set ready_writefds = this->writefds;
+
+			if (select(FD_SETSIZE, &ready_readfds, &ready_writefds, NULL, NULL) < 0)
+				throw SelectException();
+			for (int i = 0; i < FD_SETSIZE; i++)
+			{
+				if (FD_ISSET(i, &ready_readfds))
+				{
+					if (!FD_ISSET(i, &this->writefds))
+					{
+						for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+						{
+							if (i == it->getServerSocket())
+							{
+								int client_socket = it->acceptNewConnection();
+								FD_SET(client_socket, &this->readfds);
+								FD_SET(client_socket, &this->writefds);
+								break;
+							}
+						}
+					}
+					else if (FD_ISSET(i, &ready_writefds))
+					{
+						// get the request content from the client_socket
+						char request_buffer[4096];
+
+						// TODO check recv return
+						int bytesRead = recv(i, request_buffer, 4096, 0);
+
+						// create the request
+						std::string request_content(request_buffer, bytesRead);
+						Request request(request_content);
+						for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+						{
+							// TODO check server_names
+							if (request.getPort() == it->getPort())
+							{
+								std::cout << CYAN << std::endl << it->getServerName() << " received a request from client_socket " << i << ":" RESET << std::endl;
+								std::cout << YELLOW << request_content << RESET << "\n";
+
+								Response response(request, *it);
+								std::string response_content(response.toString());
+								if (send(i, response_content.c_str(), response_content.length(), 0) == -1)
+									std::cout << "Erreur de send, stop\n"; // TODO: better error
+								std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
+								break;
+							}
+						}
+						if (request.getConnection() == kClose)
+						{
+							close(i);
+							FD_CLR(i, &this->readfds);
+							FD_CLR(i, &this->writefds);
+						}
+					}
+				}
+			}
+		}
+		catch (std::exception &e)
+		{
+			std::cerr << RED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;
+		}
 	}
-	std::cout << std::endl;
 }
 
 void			Program::stop(void) {
 	std::cout << BOLDYELLOW << "Stopping " << this->servers.size() << " server(s)..." << RESET << std::endl;
-	//usleep(1000000);
-	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	this->is_running = false;
+	FD_ZERO(&this->readfds);
+	FD_ZERO(&this->writefds);
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		(*it).stop();
-		//usleep(10000);
+		close(it->getServerSocket());
+		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
+	//usleep(1000000);
 }
 
 // EXCEPTIONS
@@ -577,4 +645,9 @@ const char*		Program::NoRootSetupException::what() const throw()
 const char*		Program::NoCgiBinException::what() const throw()
 {
 	return "Config file is incorrect: a location is declared with a CGI extension but without CGI executable.";
+}
+
+const char*		Program::SelectException::what() const throw()
+{
+	return "Server runtime error: select error.";
 }

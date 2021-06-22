@@ -22,14 +22,17 @@
 # include <signal.h>
 # include <iterator>
 # include <unistd.h>
-# include <pthread.h>
+# include <sys/select.h>
 
 # include "Server.hpp"
 
 class Program {
 private:
 	// ATTRIBUTES
-	std::vector<Server> servers;
+	std::vector<Server>	servers;
+	fd_set				readfds;
+	fd_set				writefds;
+	bool				is_running;
 
 	// UNUSED NORMALIZED FUNCTIONS
 	Program(Program const &p);
@@ -95,6 +98,9 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		NoCgiBinException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		SelectException: public std::exception {
 		virtual const char* what() const throw();
 	};
 };
