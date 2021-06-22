@@ -34,8 +34,8 @@ private:
 
 	Response& operator =(Response const& rhs);
 
-	void		createResponse(Request const &request, Server &server);
-	void		setStatusCode(Request const &request, Server &server);
+	void		createResponse(Request &request, Server &server);
+	void		setStatusCode(Request &request, Server &server);
 	void		setBody(Request const &request, Server &server);
 	void		setReasonPhrase(void);
 	void		setContentLength(void);
@@ -45,14 +45,27 @@ private:
 
 	std::string readUri(std::string const& uri);
 	void		handleUnknownPath(Request const &request, Server &server);
-	void		handleFolderPath(Request const &request, Server &server);
-	void		handleFilePath(Request const &request, Server &server);
+	void		handleFolderPath(Request &request, Server &server);
+	void		handleFilePath(Request &request, Server &server);
+
+	int			getPositionLastChar(char *str, char c) const;
+	Location&	getLocation(Server &server, std::string uri);
+
 
 public:
-	Response(Request const& request, Server &server);
+	Response(Request & request, Server &server);
 	~Response();
 
 	std::string toString() const;
+
+	class 		defaultLocationNotFound: public std::exception
+	{
+		virtual const char* what() const throw();
+	};
+	class 		IndexLocationNotFile: public std::exception
+	{
+		virtual const char* what() const throw();
+	};
 };
 
 #endif

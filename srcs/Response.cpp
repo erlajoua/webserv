@@ -13,7 +13,7 @@ Response::Response(Response const& src)
 	*this = src;
 }
 
-Response::Response(Request const& request, Server &server)
+Response::Response(Request & request, Server &server)
 {
 	if (request.getMethod() == kGet)
 	{
@@ -34,7 +34,7 @@ Response::~Response()
 //methods
 
 
-void		Response::createResponse(Request const &request, Server &server)
+void		Response::createResponse(Request &request, Server &server)
 {
 	this->http_version = request.getHttpVersion();
 	this->setStatusCode(request, server);
@@ -75,7 +75,7 @@ void		Response::setBody(Request const &request, Server &server)
 
 /* status_code */
 
-void		Response::handleUnknownPath(Request const &request, Server &server)
+/*void		Response::handleUnknownPath(Request const &request, Server &server)
 {
 	std::vector<Location> *Locations = server.getLocations();
 	std::vector<Location>::iterator it;
@@ -97,47 +97,73 @@ void		Response::handleUnknownPath(Request const &request, Server &server)
 		else
 			this->status_code = 666; //auto-index ?
 	}
-}
+}*/
 
-void		Response::handleFolderPath(Request const &request, Server &server)
+void		Response::handleFolderPath(Request &request, Server &server)
 {
-	int index_Location;
+	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	std::cout << RED << uri << RESET << std::endl;
-	if ((index_Location = server.hasLocation(uri)) >= 0)
+	std::cout << RED << "FOLDER" << RESET << std::endl;
+	try
 	{
-		std::vector<Location> *Locations = server.getLocations();
-		std::vector<Location>::iterator it;
-		for (it = Locations->begin(); it != Locations->end() ; it++)
+		Location location = this->getLocation(server, request.getUri());
+		if (location.getIndex() != "none") //il y a un index
 		{
-			if (it->getPath() == request.getUri())
-				break ;
+			std::cout << RED << "Old uri = " << request.getUri() << RESET << "\n";
+			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
+			std::cout << RED << "Index exist, new uri = " << request.getUri() << RESET << std::endl;
+
+			if (stat(request.getUri().c_str(), &stats_path) == 0)
+			{
+				if (stats_path.st_mode & S_IFREG) //file
+				{
+					std::cout << RED << "New uri is a file = " << RESET << std::endl;
+					std::cout << RED << "Handle File path with uri = " << request.getUri() << RESET << "\n";
+					this->handleFilePath(request, server);
+				}
+				else if (stats_path.st_mode & S_IFDIR) //folder
+				{
+					std::cout << RED << "New uri is a folder = " << RESET << std::endl;
+					std::cout << YELLOW << "Implementation 301" << RESET << "\n";
+					this->status_code = 301;
+				}
+			}
+			else
+			{
+				if (location.getAutoindex() == true)
+				{
+					std::cout << YELLOW << "Implementation auto index" << RESET << "\n";
+				}
+				else
+					status_code = 403;
+			}
 		}
-		this->full_path = server.getRoot() + request.getUri() + it->getIndex();
-		if (access(this->full_path.c_str(), R_OK) == 0)
-			this->status_code = 200;
-		else
-			this->status_code = 666;
 	}
-	else
-		this->status_code = 404;
+	catch (std::exception &e)
+	{
+		std::cout << e.what();
+	}
 }
 
-void		Response::handleFilePath(Request const &request, Server &server)
+void		Response::handleFilePath(Request &request, Server &server)
 {
-	std::string uri = server.getRoot() + request.getUri();
-
-	if (access(uri.c_str(), R_OK) == 0)
+	(void)server;
+	std::cout << RED << "FILE" << RESET << std::endl;
+	if (access(request.getUri().c_str(), R_OK) == 0)
 	{
-		this->full_path = uri;
+		std::cout << RED << "FILE -> OK" << RESET << std::endl;
+		this->full_path = request.getUri();
 		this->status_code = 200;
 	}
 	else
+	{
+		std::cout << RED << "FILE -> Forbidden" << RESET << std::endl;
 		this->status_code = 403;
+	}
 }
 
-void		Response::setStatusCode(Request const &request, Server &server)
+void		Response::setStatusCode(Request &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
@@ -148,10 +174,16 @@ void		Response::setStatusCode(Request const &request, Server &server)
  		if (stats_path.st_mode & S_IFDIR)
 			this->handleFolderPath(request, server);
 		else if (stats_path.st_mode & S_IFREG)
+		{
+			request.setUri(server.getRoot() + request.getUri());
 			this->handleFilePath(request, server);
+		}
 	}
 	else
-		this->handleUnknownPath(request, server);
+	{
+		std::cout << RED << "Unknow path" << RESET << std::endl;
+		this->status_code = 404;
+	}
 }
 
 /* */
@@ -180,6 +212,42 @@ std::string	Response::getErrorPage(void)
 	return (getAllFile("./www/error_pages/not_handled.html"));
 }
 
+//utils
+
+int		Response::getPositionLastChar(char *str, char c) const
+{
+	int i = strlen(str);
+
+	while (str[i] != c && i >= 0)
+		i--;
+	return (i);
+}
+
+Location&	Response::getLocation(Server &server, std::string uri)
+{
+	std::vector<Location> *locations = server.getLocations();
+	char *ref = (char *)uri.c_str();
+	int pos = 0;
+
+	while (pos != -1)
+	{
+		pos = this->getPositionLastChar(ref, '/');
+		for (std::vector<Location>::iterator it = locations->begin(); it != locations->end(); it++)
+		{
+			if (it->getPath() == ref)
+				return (*it);
+		}
+		ref[pos] = 0;
+	}
+	for (std::vector<Location>::iterator it = locations->begin(); it != locations->end(); it++)
+	{
+		if (it->getPath() == "/")
+			return (*it);
+	}
+	throw defaultLocationNotFound();
+}
+
+
 //overloads
 
 Response	&Response::operator=(Response const& rhs)
@@ -191,4 +259,16 @@ Response	&Response::operator=(Response const& rhs)
 	this->content_length = rhs.content_length;
 	this->body = rhs.body;
 	return (*this);
+}
+
+//exceptions
+
+const char*		Response::IndexLocationNotFile::what() const throw()
+{
+	return "The index location is not a file, parsing??.\n";
+}
+
+const char*		Response::defaultLocationNotFound::what() const throw()
+{
+	return "The default location / is not found.\n";
 }

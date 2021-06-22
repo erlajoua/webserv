@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 17:46:49 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 17:46:50 by nessayan         ###   ########.fr       */
+/*   Updated: 2021/06/22 11:11:32 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <iostream>
 # include <sys/stat.h>
 # include <iterator>
+# include <cstdlib>
 
 # define RESET   		"\033[0m"
 # define BLACK   		"\033[30m"      		/* Black */
