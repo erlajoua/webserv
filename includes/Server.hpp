@@ -43,7 +43,7 @@ private:
 	std::string					root;
 	std::vector<std::string>	errors;
 	int 						client_body_size;
-	std::vector<Location> 		Locations;
+	std::vector<Location> 		locations;
 
     sockaddr_in         		addr;
     int                 		server_socket;

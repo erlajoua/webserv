@@ -204,7 +204,6 @@ void				Location::setCgiBin(std::string const &root, std::string const &field) {
 		concat = root + this->path + split[1];
 	else
 		concat = root + this->path + "/" + split[1];
-	std::cout << RED << concat << RESET << std::endl;
 	if (stat (concat.c_str(), &buffer) != 0)
 		throw InvalidCgiBinDirException();
 	else
@@ -225,7 +224,6 @@ void				Location::setUploadDir(std::string const &root, std::string const &field
 		concat = root + this->path + split[1];
 	else
 		concat = root + this->path + "/" + split[1];
-	std::cout << RED << concat << RESET << std::endl;
 	if (stat (concat.c_str(), &buffer) != 0)
 		throw InvalidUploadDirException();
 	else

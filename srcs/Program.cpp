@@ -334,6 +334,8 @@ void			Program::parseValue(std::vector<std::string> lines) {
 				{
 					std::cout << GREEN << "\tParsing next location..." << RESET << std::endl;
 					//usleep(10000);
+					std::istringstream iss(*it);
+					std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 					Location r;
 					r.setPath(*it);
 					it++;
@@ -345,7 +347,10 @@ void			Program::parseValue(std::vector<std::string> lines) {
 						}
 						it++;
 					}
-					s.getLocations()->push_back(r);
+					if (split[1] != "/")
+						s.getLocations()->push_back(r);
+					else
+						(*s.getLocations())[0] = r;
 					it++;
 				}
 				else
@@ -449,9 +454,14 @@ void			Program::printParsing(void) {
 			std::cout << (*it3).getPath() << std::endl;
 
 			std::cout << YELLOW << "\t\t\tMethods = " << RESET;
-			for (std::vector<std::string>::const_iterator it4 = (*it3).getMethods().begin(); it4 != (*it3).getMethods().end(); it4++)
+			if ((*it3).getMethods().size() == 0)
+				std::cout << "none";
+			else
 			{
-				std::cout << (*it4) << " ";
+				for (std::vector<std::string>::const_iterator it4 = (*it3).getMethods().begin(); it4 != (*it3).getMethods().end(); it4++)
+				{
+					std::cout << (*it4) << " ";
+				}
 			}
 			std::cout << std::endl;
 

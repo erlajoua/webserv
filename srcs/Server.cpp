@@ -58,6 +58,9 @@ Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
 	root(std::string("none")), client_body_size(0), running(false)
 {
+		Location	l;
+		l.setPath("location / {");
+		this->locations.push_back(l);
 		memset(&this->addr, 0, sizeof(this->addr));
 		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw SocketInitializationException();
@@ -74,7 +77,7 @@ Server::Server(Server const &s)
 	this->root = s.root;
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
-	this->Locations = s.Locations;
+	this->locations = s.locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
@@ -97,7 +100,7 @@ Server						&Server::operator=(Server const &s)
 	this->root = s.root;
 	this->errors = s.errors;
 	this->client_body_size = s.client_body_size;
-	this->Locations = s.Locations;
+	this->locations = s.locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
 	this->current_sockets = s.current_sockets;
@@ -138,7 +141,7 @@ int								Server::getClientBodySize(void) const {
 
 std::vector<Location>				*Server::getLocations(void)
 {
-	return (&(this->Locations));
+	return (&(this->locations));
 }
 
 // SETTERS
@@ -257,9 +260,9 @@ void							Server::setClientBodySize(std::string const &field)
 int								Server::hasLocation(std::string uri) const
 {
 	size_t i;
-	for (i = 0; i < Locations.size(); i++)
+	for (i = 0; i < locations.size(); i++)
 	{
-		if (this->root + Locations[i].getPath() == uri)
+		if (this->root + locations[i].getPath() == uri)
 			return (i);
 	}
 	return (-1);
