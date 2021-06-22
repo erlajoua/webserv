@@ -6,11 +6,11 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:29:26 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 11:17:45 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 18:36:59 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/main.hpp"
+#include "main.hpp"
 
 Program			program;
 

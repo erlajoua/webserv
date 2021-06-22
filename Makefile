@@ -6,7 +6,7 @@
 #    By: erlajoua <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/09 12:10:40 by erlajoua          #+#    #+#              #
-#    Updated: 2021/06/22 11:51:56 by nessayan         ###   ########.fr        #
+#    Updated: 2021/06/22 19:16:29 by clbrunet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,5 +45,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-

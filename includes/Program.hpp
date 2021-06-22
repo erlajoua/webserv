@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:21:31 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/22 18:25:22 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <unistd.h>
 # include <pthread.h>
 
-# include "./Server.hpp"
+# include "Server.hpp"
 
 class Program {
 private:

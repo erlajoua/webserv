@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:17:48 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 13:43:33 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@
 # include <iterator> 
 # include <string.h>
 
-# include "./Location.hpp"
-# include "./Request.hpp"
-# include "./Response.hpp"
+# include "Location.hpp"
+# include "Request.hpp"
+# include "Response.hpp"
 
 # define NB_CLIENT_MAX 500
 

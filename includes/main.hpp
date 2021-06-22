@@ -6,13 +6,13 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:31:41 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:20:37 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/22 08:13:26 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MAIN_HPP
 # define MAIN_HPP
 
-# include "../includes/Program.hpp"
+# include "Program.hpp"
 
 #endif

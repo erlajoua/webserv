@@ -8,9 +8,9 @@
 # include <sys/stat.h>
 # include <unistd.h>
 
-# include "./Server.hpp"
-# include "./Request.hpp"
-# include "./AutoIndex.hpp"
+# include "Server.hpp"
+# include "Request.hpp"
+# include "AutoIndex.hpp"
 
 std::string	getAllFile(std::string filename);
 
