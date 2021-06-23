@@ -1,4 +1,4 @@
-#include "../includes/Response.hpp"
+#include "Response.hpp"
 
 std::string const Response::server = "webserver/1.0";
 
@@ -37,9 +37,22 @@ void		Response::createResponse(Request &request, Server &server)
 	this->setContentType();
 }
 
-void		Response::setContentType(void)
+void		Response::setContentType()
 {
-	this->content_type = "text/html";
+	std::size_t dot_pos = this->full_path.rfind('.');
+	if (this->status_code != 200
+			|| this->full_path.find(".html", dot_pos) != std::string::npos)
+	{
+		this->content_type = "text/html";
+	}
+	else if (this->full_path.find(".css", dot_pos) != std::string::npos)
+	{
+		this->content_type = "text/css";
+	}
+	else
+	{
+		this->content_type = "text/plain";
+	}
 }
 
 void		Response::setReasonPhrase(void)
@@ -88,7 +101,7 @@ void		Response::handleFolderPath(Request &request, Server &server)
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	try
+	if ((index_Location = server.hasLocation(uri)) >= 0)
 	{
 		Location location = this->getLocation(server, request.getUri());
 		if (location.getIndex() != "none") //il y a un index

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 09:21:31 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/22 19:02:12 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,17 @@
 # include <signal.h>
 # include <iterator>
 # include <unistd.h>
-# include <pthread.h>
+# include <sys/select.h>
 
-# include "./Server.hpp"
+# include "Server.hpp"
 
 class Program {
 private:
 	// ATTRIBUTES
-	std::vector<Server> servers;
+	std::vector<Server>	servers;
+	fd_set				readfds;
+	fd_set				writefds;
+	bool				is_running;
 
 	// UNUSED NORMALIZED FUNCTIONS
 	Program(Program const &p);
@@ -56,6 +59,10 @@ private:
 	void		parseValue(std::vector<std::string> lines);
 
 	void		checkMinimumSetup(void);
+
+	void		httpServerIO(void);
+	void		acceptNewServerConnection(int server_socket);
+	void		handleRequest(int client_socket);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -95,6 +102,9 @@ public:
 		virtual const char* what() const throw();
 	};
 	class 		NoCgiBinException: public std::exception {
+		virtual const char* what() const throw();
+	};
+	class 		SelectException: public std::exception {
 		virtual const char* what() const throw();
 	};
 };

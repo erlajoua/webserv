@@ -13,6 +13,7 @@
 #ifndef LOCATION_HPP
 # define LOCATION_HPP
 
+# include <cstdlib>
 # include <string>
 # include <vector>
 # include <sstream>

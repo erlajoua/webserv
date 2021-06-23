@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:17:48 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:21:26 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@
 # include <iterator> 
 # include <string.h>
 
-# include "./Location.hpp"
-# include "./Request.hpp"
-# include "./Response.hpp"
+# include "Location.hpp"
+# include "Request.hpp"
+# include "Response.hpp"
 
 # define NB_CLIENT_MAX 500
 
@@ -47,13 +47,6 @@ private:
 
     sockaddr_in         		addr;
     int                 		server_socket;
-    fd_set              		current_sockets;
-    fd_set              		ready_sockets;
-    bool						running;
-
-	// PRIVATE HELPERS
-    int     					acceptNewConnection(int server_socket) const;
-    void    					handleConnection(int client_socket);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -62,9 +55,8 @@ public:
 	~Server(void);
 
 	// MEMBER FUNCTIONS
+	int							acceptNewConnection() const;
 	void						setup(void);
-	static void					*start(void *server_v);
-	void						stop(void);
 	int							hasLocation(std::string uri) const;
 
 	// GETTERS
@@ -76,6 +68,8 @@ public:
 	std::vector<std::string>		&getErrors(void);
 	size_t							getClientBodySize(void) const;
 	std::vector<Location>			*getLocations(void);
+
+	int								getServerSocket(void) const;
 
 	// SETTERS
 	void						setDefaultServer(void);
@@ -117,10 +111,7 @@ public:
 	class 		ListenException: public std::exception {
 		virtual const char* what() const throw();
 	};
-	class 		AcceptNewConectionException: public std::exception {
-		virtual const char* what() const throw();
-	};
-	class 		SelectException: public std::exception {
+	class 		AcceptNewConnectionException: public std::exception {
 		virtual const char* what() const throw();
 	};
 };

@@ -6,20 +6,16 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/21 14:05:50 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 17:17:35 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Request.hpp"
+#include "Request.hpp"
 
 // constructors
 
-Request::Request(std::string const &content): content(content), is_bad(false) {
-	this->parseContent();
-}
-
-Request::Request(int const &request_fd): content(""), is_bad(false) {
-	this->content = this->receiveContent(request_fd);
+Request::Request(std::string const &content): content(content), is_bad(false),
+	connection(kClose) {
 	this->parseContent();
 }
 
@@ -33,12 +29,6 @@ Request::~Request(void) {
 }
 
 // PRIVATE HELPERS
-
-std::string 		Request::receiveContent(int const& request_fd)
-{
-	static_cast<void>(request_fd);
-	return ("");
-}
 
 std::size_t 		Request::parseMethod(void)
 {
@@ -151,6 +141,13 @@ void 				Request::parseHostFieldValue(std::string const& field_value) {
 		this->port = std::atoi(field_value.substr(colon_pos + 1).c_str());
 }
 
+void 				Request::parseConnectionFieldValue(std::string const& field_value) {
+	if (field_value == "keep-alive")
+	{
+		this->connection = kKeepAlive;
+	}
+}
+
 void 				Request::parseHeaderField(std::string const& header_field) {
 	std::size_t colon_pos = header_field.find(':');
 	std::string field_name = header_field.substr(0, colon_pos);
@@ -166,6 +163,10 @@ void 				Request::parseHeaderField(std::string const& header_field) {
 	if (field_name == "Host")
 	{
 		this->parseHostFieldValue(field_value);
+	}
+	else if (field_name == "Connection")
+	{
+		this->parseConnectionFieldValue(field_value);
 	}
 }
 
@@ -269,6 +270,11 @@ std::string const 	&Request::getHost(void) const
 int const			&Request::getPort(void) const
 {
 	return (this->port);
+}
+
+ConnectionDirective const			&Request::getConnection(void) const
+{
+	return (this->connection);
 }
 
 std::string const	&Request::getBody(void) const

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/19 10:17:56 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/22 20:33:24 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,16 +53,14 @@ void    Server::handleConnection(int client_socket)
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0), running(false)
+	root(std::string("none")), client_body_size(0)
 {
-	Location	l;
-	l.setPath("location / {");
-	this->locations.push_back(l);
-	memset(&this->addr, 0, sizeof(this->addr));
-	if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		throw SocketInitializationException();
-	FD_ZERO(&this->current_sockets);
-	FD_ZERO(&this->ready_sockets); //check;
+		Location	l;
+		l.setPath("location / {");
+		this->locations.push_back(l);
+		memset(&this->addr, 0, sizeof(this->addr));
+		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+			throw SocketInitializationException();
 }
 
 Server::Server(Server const &s)
@@ -77,9 +75,6 @@ Server::Server(Server const &s)
 	this->locations = s.locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
-	this->current_sockets = s.current_sockets;
-	this->ready_sockets = s.ready_sockets;
-	this->running = s.running;	
 }
 
 Server::~Server(void)
@@ -100,9 +95,6 @@ Server						&Server::operator=(Server const &s)
 	this->locations = s.locations;
 	this->addr = s.addr;
 	this->server_socket = s.server_socket;
-	this->current_sockets = s.current_sockets;
-	this->ready_sockets = s.ready_sockets;
-	this->running = s.running;
 	return (*this);
 }
 
@@ -148,6 +140,11 @@ std::vector<Location>				*Server::getLocations(void)
 	return (&(this->locations));
 }
 
+int							Server::getServerSocket(void) const
+{
+	return (this->server_socket);
+}
+
 // SETTERS
 
 void							Server::setDefaultServer(void)
@@ -169,7 +166,7 @@ void							Server::setPort(std::string const &field)
 		if (isdigit(split[1][j]) == false)
 			throw InvalidPortException();
 	}
-	ret = atoi(split[1].c_str());
+	ret = std::atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
 		throw InvalidPortException();
 	else
@@ -252,7 +249,7 @@ void							Server::setClientBodySize(std::string const &field)
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	ret = atoi(split[1].c_str());
+	ret = std::atoi(split[1].c_str());
 	if (ret < 1 || ret > 65535)
 		throw InvalidClientBodySizeException();
 	else
@@ -261,7 +258,21 @@ void							Server::setClientBodySize(std::string const &field)
 
 // MEMBER FUNCTIONS
 
-int								Server::hasLocation(std::string uri) const
+int     Server::acceptNewConnection() const
+{
+	int addr_size = sizeof(sockaddr_in);
+	int client_socket;
+
+	sockaddr_in client_addr;
+	client_socket = accept(this->server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addr_size);
+
+	if (client_socket == -1)
+		throw AcceptNewConnectionException();
+
+	return (client_socket);
+}
+
+int				Server::hasLocation(std::string uri) const
 {
 	size_t i;
 	for (i = 0; i < locations.size(); i++)
@@ -277,7 +288,6 @@ void							Server::setup(void)
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	this->addr.sin_port = htons(this->port);
-    FD_SET(this->server_socket, &this->current_sockets);
 	if (bind(this->server_socket, (struct sockaddr *)&this->addr, sizeof(this->addr)) < 0)
 		throw BindException();
 	if (listen(this->server_socket, NB_CLIENT_MAX) < 0)
@@ -382,12 +392,7 @@ const char*		Server::ListenException::what() const throw()
 	return "Server setup error: can't listen.";
 }
 
-const char*		Server::AcceptNewConectionException::what() const throw()
+const char*		Server::AcceptNewConnectionException::what() const throw()
 {
 	return "Server runtime error: can't accept new connection.";
-}
-
-const char*		Server::SelectException::what() const throw()
-{
-	return "Server runtime error: select error.";
 }
