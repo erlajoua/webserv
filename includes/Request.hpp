@@ -91,6 +91,9 @@ public:
 	ConnectionDirective const &getConnection(void) const;
 	std::string const	&getBody(void) const;
 
+	//SETTERS
+	void				setUri(std::string uri);
+
 	// EXCEPTIONS
 	class BadRequestException : public std::exception
 	{

@@ -407,18 +407,18 @@ void			Program::handleRequest(int client_socket) {
 	{
 		if (request.getPort() == it->getPort())
 		{
-			std::cout << CYAN << std::endl << it->getServerName() << " received a request from socket " << client_socket << ":" RESET << std::endl;
-			std::cout << WHITE << request_content << RESET;
+			std::cout << BOLDBLUE << "===[" << it->getServerName() << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
+			std::cout << BLUE << request_content << RESET;
 
 			Response response(request, *it);
 			std::string response_content(response.toString());
 			if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
 				std::cout << "Erreur de send, stop\n";
-			std::cout << MAGENTA << std::endl << it->getServerName() << " sent a response to socket " << client_socket << ":" RESET << std::endl;
-			std::cout << WHITE << response_content.substr(0, 300);
+			std::cout << BOLDGREEN << "===[" << it->getServerName() << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;
+			std::cout << GREEN << response_content.substr(0, 300);
 			if (response_content.size() > 300)
 				std::cout << std::endl << "[TRUNCATED]";
-			std::cout << std::endl;
+			std::cout << RESET << std::endl;
 			break;
 		}
 	}

@@ -281,6 +281,13 @@ std::string const	&Request::getBody(void) const
 	return (this->body);
 }
 
+// SETTERS
+
+void		Request::setUri(std::string uri)
+{
+	this->uri = uri;
+}
+
 // EXCEPTIONS
 
 char const* Request::BadRequestException::what() const throw()

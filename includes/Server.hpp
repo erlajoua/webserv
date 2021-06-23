@@ -66,7 +66,7 @@ public:
 	std::string						getServerName(void) const;
 	std::string						getRoot(void) const;
 	std::vector<std::string> const &getErrors(void) const;
-	int								getClientBodySize(void) const;
+	size_t							getClientBodySize(void) const;
 	std::vector<Location>			*getLocations(void);
 
 	int								getServerSocket(void) const;

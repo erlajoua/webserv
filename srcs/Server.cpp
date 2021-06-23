@@ -87,7 +87,7 @@ std::vector<std::string> const&	Server::getErrors(void) const {
 	return (this->errors);
 }
 
-int								Server::getClientBodySize(void) const {
+size_t							Server::getClientBodySize(void) const {
 	return (this->client_body_size);
 }
 
