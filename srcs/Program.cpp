@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 19:09:06 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/23 15:22:52 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,30 @@ void			Program::checkMinimumSetup(void) {
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
 
+void			Program::setupEnvp(char **main_envp)
+{
+	char **main_envp_it = main_envp;
+	while (*main_envp_it)
+	{
+		main_envp_it++;
+	}
+	this->envp = new char *[main_envp_it - main_envp + 6 + 1];
+	main_envp_it = main_envp;
+	char **envp_it = this->envp;
+	while (envp_it - this->envp < 6)
+	{
+		*envp_it = NULL;
+		envp_it++;
+	}
+	while (*main_envp_it)
+	{
+		*envp_it = *main_envp_it;
+		envp_it++;
+		main_envp_it++;
+	}
+	*envp_it = NULL;
+}
+
 void			Program::acceptNewServerConnection(int server_socket) {
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
@@ -455,8 +479,6 @@ void			Program::httpServerIO(void) {
 // CONSTRUCTOR & DESTRUCTOR
 
 Program::Program(void) {
-	FD_ZERO(&this->readfds);
-	FD_ZERO(&this->writefds);
 }
 
 Program::~Program(void) {
@@ -561,8 +583,9 @@ void			Program::printParsing(void) {
 	}
 }
 
-void			Program::setup(void) {
-
+void			Program::setup(char **envp) {
+	FD_ZERO(&this->readfds);
+	FD_ZERO(&this->writefds);
 	std::cout << BOLDYELLOW << "Setting up " << this->servers.size() << " servers..." << RESET << std::endl;
 	//usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
@@ -571,6 +594,7 @@ void			Program::setup(void) {
 		FD_SET(it->getServerSocket(), &this->readfds);
 		//usleep(10000);
 	}
+	this->setupEnvp(envp);
 	std::cout << std::endl;
 }
 
@@ -607,6 +631,7 @@ void			Program::stop(void) {
 		close(it->getServerSocket());
 		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
+	delete [] this->envp;
 	//usleep(1000000);
 }
 

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 19:02:12 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/23 15:26:14 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,20 @@
 
 # include "Server.hpp"
 
+enum EnvpIndexes {
+	kScriptFilename = 0,
+	kRedirectStatus,
+	kRequestMethod,
+	kQueryString,
+	kContentType,
+	kContentLength
+};
+
 class Program {
 private:
 	// ATTRIBUTES
 	std::vector<Server>	servers;
+	char				**envp;
 	fd_set				readfds;
 	fd_set				writefds;
 	bool				is_running;
@@ -60,9 +70,11 @@ private:
 
 	void		checkMinimumSetup(void);
 
-	void		httpServerIO(void);
+	void		setupEnvp(char **envp);
+
 	void		acceptNewServerConnection(int server_socket);
 	void		handleRequest(int client_socket);
+	void		httpServerIO(void);
 
 public:
 	// CONSTRUCTOR & DESTRUCTOR
@@ -72,7 +84,7 @@ public:
 	// MEMBER FUNCTIONS
 	void		parseConfig(std::string path);
 	void 		printParsing(void);
-	void		setup(void);
+	void		setup(char **envp);
 	void		start(void);
 	void		stop(void);
 

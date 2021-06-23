@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:29:26 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 18:38:42 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/23 15:20:09 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	quit(int arg)
 	exit(0);
 }
 
-int		main(int argc, char **argv)
+int		main(int argc, char **argv, char **envp)
 {
 	std::string		path;
 
@@ -68,7 +68,7 @@ int		main(int argc, char **argv)
 	{	
 		program.parseConfig(path);
 		program.printParsing();
-		program.setup();
+		program.setup(envp);
 	}
 	catch (std::exception &e)
 	{
