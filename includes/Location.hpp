@@ -101,10 +101,6 @@ public:
 	{
 		virtual const char* what() const throw();
 	};
-	/*class 		InvalidIndexException: public std::exception
-	{
-		virtual const char* what() const throw();
-	};*/
 	class 		InvalidAutoindexException: public std::exception
 	{
 		virtual const char* what() const throw();

@@ -63,6 +63,10 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "Version Not Supported";
 	else if (this->status_code == 400)
 		this->reason_phrase = "Bad Request";
+	else if (this->status_code == 405)
+		this->reason_phrase = "Method Not Allowed";
+	else if (this->status_code == 413)
+		this->reason_phrase = "Payload Too Large";
 	else
 		this->reason_phrase = "";
 }
@@ -74,7 +78,14 @@ void		Response::setBody(Server &server)
 		this->body = this->getErrorPage(server);
 		return ;
 	}
+	
 	this->body = getAllFile(this->full_path);
+
+	if (this->body.length() > server.getClientBodySize())
+	{
+		this->status_code = 413;
+		this->setBody(server);
+	}
 }
 
 /* status_code */
@@ -130,9 +141,10 @@ void		Response::setStatusCode(Request &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
-	std::cout << RED << uri << RESET << std::endl;
 
-	if (request.getIsBad() == true)
+	if (this->checkMethodsAllowed(server, request) == 0)
+		this->status_code = 405;
+	else if (request.getIsBad() == true)
 	{
 		if (request.getErrorType() == kBadRequest)
 			this->status_code = 400;
@@ -178,8 +190,6 @@ std::string	Response::findCustomErrorPage(Server &server, int status_code)
 	std::stringstream str_code;
 	str_code << status_code;
 
-	std::cout << BLUE << "Find Custom Erro Pages" << RESET << "\n";
-
 	for (std::vector<std::string>::iterator it = erros_pages.begin(); it != erros_pages.end(); it++)
 	{
 		char *path = (char *)(*it).c_str();
@@ -203,10 +213,32 @@ std::string	Response::getErrorPage(Server &server)
 		return (getAllFile(this->findCustomErrorPage(server, 403)));
 	if (this->status_code == 404)
 		return (getAllFile(this->findCustomErrorPage(server, 404)));
+	if (this->status_code == 505)
+		return (getAllFile(this->findCustomErrorPage(server, 505)));
+	if (this->status_code == 413)
+		return (getAllFile(this->findCustomErrorPage(server, 413)));
+	if (this->status_code == 405)
+		return (getAllFile(this->findCustomErrorPage(server, 405)));
 	return (getAllFile("./www/error_pages/not_handled.html"));
 }
 
 //utils
+
+int		Response::checkMethodsAllowed(Server &server, Request &request)
+{
+	Location location = this->getLocation(server, request.getUri());
+	std::vector<std::string> methods = location.getMethods();
+	for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); it++)
+	{
+		if (*it == "get" && request.getMethod() == kGet)
+			return (1);
+		if (*it == "post" && request.getMethod() == kPost)
+			return (1);
+		if (*it == "delete" && request.getMethod() == kDelete)
+			return (1);
+	}
+	return (0);
+}
 
 int		Response::getPositionLastChar(char *str, char c) const
 {

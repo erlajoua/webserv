@@ -153,10 +153,6 @@ void				Location::setIndex(std::string const &root, std::string const &field) {
 	std::string up_to_colon(field, 0, i);
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	/*std::string concat = root + "/" + split[1];
-	if (stat (concat.c_str(), &buffer) != 0)
-		throw InvalidIndexException();
-	else*/
 	this->index = split[1];
 }
 
@@ -251,12 +247,7 @@ const char*		Location::InvalidRedirectionException::what() const throw()
 {
 	return "Config file is incorrect: redirection value must be [300; 308]";
 }
-/*
-const char*		Location::InvalidIndexException::what() const throw()
-{
-	return "Config file is incorrect: index value (concatenated with root/) is not a valid path";
-}
-*/
+
 const char*		Location::InvalidAutoindexException::what() const throw()
 {
 	return "Config file is incorrect: autoindex value can only be on or off.";

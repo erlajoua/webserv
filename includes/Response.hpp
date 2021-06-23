@@ -53,6 +53,7 @@ private:
 
 	int			getPositionLastChar(char *str, char c) const;
 	Location&	getLocation(Server &server, std::string uri);
+	int			checkMethodsAllowed(Server &server, Request &request);
 
 
 public:
