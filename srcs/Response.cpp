@@ -15,14 +15,7 @@ Response::Response(Response const& src)
 
 Response::Response(Request & request, Server &server)
 {
-	if (request.getMethod() == kGet)
-	{
-		createResponse(request, server);
-	}
-	else
-	{
-		std::cout << "Method POST and DELETE not implemented yet\n";
-	}
+	createResponse(request, server);
 }
 
 //destructors
