@@ -144,8 +144,7 @@ void				Location::setRedirection(std::string const &field)
 		this->redirection = ret;
 }
 
-void				Location::setIndex(std::string const &root, std::string const &field) {
-	(void)root;
+void				Location::setIndex(std::string const &field) {
 	size_t 	i = 0;
 	//struct stat buffer;
 	while(field[i] != '\0' && field[i] != ';')

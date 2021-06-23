@@ -78,7 +78,7 @@ public:
 	void							setPath(std::string const &field);
 	void							setMethods(std::string const &field);
 	void							setRedirection(std::string const &field);
-	void							setIndex(std::string const &root, std::string const &field);
+	void							setIndex(std::string const &field);
 	void							setAutoindex(std::string const &field);
 	void							setCgiExtension(std::string const &field);
 	void							setCgiBin(std::string const &root, std::string const &field);
