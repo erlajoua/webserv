@@ -51,7 +51,6 @@ private:
 	void		handleFilePath(Request &request);
 	std::string	findCustomErrorPage(Server &server, int status_code);
 
-	int			getPositionLastChar(std::string str, char c) const;
 	Location&	getLocation(Server &server, std::string uri);
 	int			checkMethodsAllowed(Server &server, Request &request);
 
