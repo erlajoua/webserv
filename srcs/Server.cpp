@@ -10,44 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Server.hpp"
-
-// PRIVATE HELPERS
-
-int     Server::acceptNewConnection(int server_socket) const
-{
-	int addr_size = sizeof(sockaddr_in);
-	int client_socket;
-
-	sockaddr_in client_addr;
-	client_socket = accept(server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addr_size);
-
-	if (client_socket == -1)
-		throw AcceptNewConectionException();
-
-	return (client_socket);
-}
-
-void    Server::handleConnection(int client_socket)
-{
-	//get the request content from the client_socket
-	char request_buffer[4096];
-
-	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
-	request_buffer[bytesRead] = 0;
-
-	//create the request
-	std::string request_content (request_buffer);
-	Request request(request_content);
-	std::cout << CYAN << std::endl << this->server_name << " received a request from client_socket " << client_socket << ":" RESET << std::endl;
-	std::cout << YELLOW << request_buffer << RESET << "\n";
-
-	Response response(request, *this);
-	if (send(client_socket, response.toString().c_str(), strlen(response.toString().c_str()), 0) == -1)
-		std::cout << "Erreur de send, stop\n"; //DEBUG si crash, a retirer
-	//std::cout << MAGENTA << response.toString() << RESET << "\n"; //DEBUG afficher réponse
-	std::cout << GREEN << "Response sent to the server" << RESET << "\n"; 
-}
+#include "Server.hpp"
 
 // CONSTRUCTOR & DESTRUCTOR
 
@@ -100,38 +63,31 @@ Server						&Server::operator=(Server const &s)
 
 // GETTERS
 
-bool							Server::getDefaultServer(void) const
-{
+bool							Server::getDefaultServer(void) const {
 	return (this->default_server);
 }
 
-int								Server::getPort(void) const
-{
+int								Server::getPort(void) const {
 	return (this->port);
 }
 
-std::string						Server::getHost(void) const
-{
+std::string						Server::getHost(void) const {
 	return (this->host);
 }
 
-std::string						Server::getServerName(void) const
-{
+std::string						Server::getServerName(void) const {
 	return (this->server_name);
 }
 
-std::string						Server::getRoot(void) const
-{
+std::string						Server::getRoot(void) const {
 	return (this->root);
 }
 
-std::vector<std::string>&		Server::getErrors(void)
-{
+std::vector<std::string> const&	Server::getErrors(void) const {
 	return (this->errors);
 }
 
-size_t								Server::getClientBodySize(void) const
-{
+int								Server::getClientBodySize(void) const {
 	return (this->client_body_size);
 }
 
@@ -293,56 +249,7 @@ void							Server::setup(void)
 	if (listen(this->server_socket, NB_CLIENT_MAX) < 0)
 		throw ListenException();
 	std::cout << GREEN << this->getServerName() << " is setup on socket " << this->server_socket << "." << RESET << std::endl;
-	usleep(10000);
-}
-
-void							*Server::start(void *server_v)
-{
-	Server	*server;
-	server = reinterpret_cast<Server *>(server_v);
-
-	server->running = true;
-	std::cout << GREEN << server->getServerName() << " is now listening on " << server->getHost() << ":" << server->getPort() << "..." << RESET << std::endl;
-	usleep(10000);
-	while (server->running == true)
-	{
-		try
-		{
-		    server->ready_sockets = server->current_sockets;
-
-			if (select(FD_SETSIZE, &server->ready_sockets, NULL, NULL, NULL) < 0)
-				throw SelectException();
-			for (int i = 0; i < FD_SETSIZE; i++)
-			{
-				if (FD_ISSET(i, &server->ready_sockets))
-				{
-					if (i == server->server_socket)
-					{
-						int client_socket = server->acceptNewConnection(server->server_socket);
-						server->handleConnection(client_socket);
-						FD_SET(client_socket, &server->current_sockets);
-					}
-					else
-					{
-						server->handleConnection(i);
-						FD_CLR(i, &server->current_sockets);
-					}
-				}
-			}
-		}
-		catch (std::exception &e)
-		{
-			std::cerr << RED << std::endl << "=> " << e.what() << RESET << std::endl << std::endl;
-		}
-	}
-	return (NULL);
-}
-
-void				Server::stop(void)
-{
-	this->running = false;
-	std::cout << GREEN << this->getServerName() << " has stopped." << RESET << std::endl;
-	usleep(10000);
+	//usleep(10000);
 }
 
 // EXCEPTIONS

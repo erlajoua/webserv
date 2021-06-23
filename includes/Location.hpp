@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 17:46:49 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 11:11:32 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/22 20:37:05 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <iostream>
 # include <sys/stat.h>
 # include <iterator>
-# include <cstdlib>
 
 # define RESET   		"\033[0m"
 # define BLACK   		"\033[30m"      		/* Black */
@@ -79,7 +78,7 @@ public:
 	void							setPath(std::string const &field);
 	void							setMethods(std::string const &field);
 	void							setRedirection(std::string const &field);
-	void							setIndex(std::string const &field);
+	void							setIndex(std::string const &root, std::string const &field);
 	void							setAutoindex(std::string const &field);
 	void							setCgiExtension(std::string const &field);
 	void							setCgiBin(std::string const &root, std::string const &field);
@@ -102,6 +101,10 @@ public:
 	{
 		virtual const char* what() const throw();
 	};
+	/*class 		InvalidIndexException: public std::exception
+	{
+		virtual const char* what() const throw();
+	};*/
 	class 		InvalidAutoindexException: public std::exception
 	{
 		virtual const char* what() const throw();
