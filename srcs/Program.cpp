@@ -136,7 +136,7 @@ bool			Program::isLocationField(std::string const &field) const {
 
 void			Program::checkNoServer(std::vector<std::string> lines) {
 	std::cout << BOLDYELLOW << "Checking at least one server is declared..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
 		if (this->isServConfig(*it) == true)
@@ -152,7 +152,7 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 	bool	test = true;
 
 	std::cout << BOLDYELLOW << "Checking for any invalid instruction..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++) {
 		std::cout << "---------------" << std::endl;
 		std::cout << *it << std::endl;
@@ -195,7 +195,7 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 			std::cout << RED << "*** Unrecognized line ***" << RESET << std::endl;
 			test = false;
 		}
-		//usleep(10000);
+		usleep(10000);
 	}
 	if (test == true)
 		std::cout << BOLDGREEN << "\n=> OK! Continuing parsing...\n" << RESET << std::endl;
@@ -205,13 +205,13 @@ void			Program::checkInvalidInstruction(std::vector<std::string> lines) {
 
 void			Program::checkInvalidDeclaration(std::vector<std::string> lines) {
 	std::cout << BOLDYELLOW << "Checking for any invalid declaration..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
 		if (this->isServConfig(*it) == true)
 		{
 			std::cout << GREEN << "Checking next server declaration..." << RESET << std::endl;
-			//usleep(10000);
+			usleep(10000);
 			it++;
 			while (this->isServField(*it) == true || this->isEmptyLine(*it) == true)
 				it++;
@@ -220,7 +220,7 @@ void			Program::checkInvalidDeclaration(std::vector<std::string> lines) {
 				if (this->isLocationConfig(*it) == true)
 				{
 					std::cout << GREEN << "\tChecking next location declaration..." << RESET << std::endl;
-					//usleep(10000);
+					usleep(10000);
 					it++;
 					while (this->isLocationField(*it) == true || this->isEmptyLine(*it) == true)
 						it++;
@@ -286,7 +286,7 @@ Location			Program::setLocationField(Server s, Location r, std::string const &fi
 	}
 	else if (this->isFieldSingle(field, "index") == true)
 	{
-		r.setIndex(s.getRoot(), field);
+		r.setIndex(field);
 	}
 	else if (this->isFieldSingle(field, "autoindex") == true)
 	{
@@ -309,13 +309,13 @@ Location			Program::setLocationField(Server s, Location r, std::string const &fi
 
 void			Program::parseValue(std::vector<std::string> lines) {
 	std::cout << BOLDYELLOW << "Parsing valid values..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
 		if (this->isServConfig(*it) == true)
 		{
 			std::cout << GREEN << "Parsing next server..." << RESET << std::endl;
-			//usleep(10000);
+			usleep(10000);
 			Server s;
 			if (this->servers.size() == 0)
 				s.setDefaultServer();
@@ -333,7 +333,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 				if (this->isLocationConfig(*it) == true)
 				{
 					std::cout << GREEN << "\tParsing next location..." << RESET << std::endl;
-					//usleep(10000);
+					usleep(10000);
 					std::istringstream iss(*it);
 					std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 					Location r;
@@ -364,7 +364,7 @@ void			Program::parseValue(std::vector<std::string> lines) {
 
 void			Program::checkMinimumSetup(void) {
 	std::cout << BOLDYELLOW << "Checking minimum setup..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		std::cout << GREEN << "Checking next server..." << RESET << std::endl;
@@ -379,7 +379,7 @@ void			Program::checkMinimumSetup(void) {
 			if ((*it2).getCgiExtension() != "none" && (*it2).getCgiBin() == "none")
 				throw NoCgiBinException();
 		}
-		//usleep(10000);
+		usleep(10000);
 	}
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
@@ -473,7 +473,7 @@ void			Program::parseConfig(std::string path) {
 	while (std::getline(file, line))
 		lines.push_back(line);
 	file.close();
-	//usleep(1000000);
+	usleep(1000000);
 	this->checkErrorConfig(lines);
 	this->parseValue(lines);
 	this->checkMinimumSetup();
@@ -481,7 +481,7 @@ void			Program::parseConfig(std::string path) {
 
 void			Program::printParsing(void) {
 	std::cout << BOLDYELLOW << "Printing parsed server(s)..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		std::cout << YELLOW << "Server name = " << RESET;
@@ -556,7 +556,7 @@ void			Program::printParsing(void) {
 			std::cout << (*it3).getUploadDir() << std::endl;
 
 		}
-		//usleep(1000000);
+		usleep(1000000);
 		std::cout << std::endl;
 	}
 }
@@ -564,12 +564,12 @@ void			Program::printParsing(void) {
 void			Program::setup(void) {
 
 	std::cout << BOLDYELLOW << "Setting up " << this->servers.size() << " servers..." << RESET << std::endl;
-	//usleep(1000000);
+	usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
 		it->setup();
 		FD_SET(it->getServerSocket(), &this->readfds);
-		//usleep(10000);
+		usleep(10000);
 	}
 	std::cout << std::endl;
 }
@@ -577,7 +577,6 @@ void			Program::setup(void) {
 void			Program::start(void) {
 
 	std::cout << BOLDYELLOW << "Starting " << this->servers.size() << " server(s)..." << RESET << std::endl;
-
 	this->is_running = true;
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
@@ -607,7 +606,7 @@ void			Program::stop(void) {
 		close(it->getServerSocket());
 		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
-	//usleep(1000000);
+	usleep(1000000);
 }
 
 // EXCEPTIONS

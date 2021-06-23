@@ -42,7 +42,7 @@ private:
 	std::string 				server_name;
 	std::string					root;
 	std::vector<std::string>	errors;
-	int 						client_body_size;
+	size_t 						client_body_size;
 	std::vector<Location> 		locations;
 
     sockaddr_in         		addr;
@@ -65,8 +65,8 @@ public:
 	std::string						getHost(void) const;
 	std::string						getServerName(void) const;
 	std::string						getRoot(void) const;
-	std::vector<std::string> const &getErrors(void) const;
-	int								getClientBodySize(void) const;
+	std::vector<std::string>		&getErrors(void);
+	size_t							getClientBodySize(void) const;
 	std::vector<Location>			*getLocations(void);
 
 	int								getServerSocket(void) const;

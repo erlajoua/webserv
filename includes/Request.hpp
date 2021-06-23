@@ -53,6 +53,8 @@ private:
 	ConnectionDirective	connection;
 	std::string			body;
 
+	std::string		root;
+
 	// PRIVATE HELPERS
 	std::size_t 		parseMethod(void);
 	void 				decodeUri(void);
@@ -90,6 +92,10 @@ public:
 	int const			&getPort(void) const;
 	ConnectionDirective const &getConnection(void) const;
 	std::string const	&getBody(void) const;
+
+	// SETTERS
+
+	void				setUri(std::string uri);
 
 	// EXCEPTIONS
 	class BadRequestException : public std::exception

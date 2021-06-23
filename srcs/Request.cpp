@@ -191,7 +191,8 @@ std::size_t 		Request::parseHeaders(std::size_t pos) {
 	return (crlf_pos + 2);
 }
 
-void 				Request::parseContent(void) {
+void 				Request::parseContent(void)
+{
 	try
 	{
 		std::size_t pos = this->parseRequestLine();
@@ -279,6 +280,13 @@ ConnectionDirective const			&Request::getConnection(void) const
 std::string const	&Request::getBody(void) const
 {
 	return (this->body);
+}
+
+// SETTERS
+
+void		Request::setUri(std::string uri)
+{
+	this->uri = uri;
 }
 
 // EXCEPTIONS
