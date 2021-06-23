@@ -244,9 +244,9 @@ int		Response::checkMethodsAllowed(Server &server, Request &request)
 	return (0);
 }
 
-int		Response::getPositionLastChar(char *str, char c) const
+int		Response::getPositionLastChar(std::string str, char c) const
 {
-	int i = strlen(str);
+	int i = str.length();
 
 	while (str[i] != c && i >= 0)
 		i--;
@@ -256,7 +256,8 @@ int		Response::getPositionLastChar(char *str, char c) const
 Location&	Response::getLocation(Server &server, std::string uri)
 {
 	std::vector<Location> *locations = server.getLocations();
-	char *ref = (char *)uri.c_str();
+	//char *ref = (char *)uri.c_str();
+	std::string ref(uri);
 	int pos = 0;
 
 	while (pos != -1)
