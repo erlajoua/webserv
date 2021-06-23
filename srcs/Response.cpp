@@ -117,7 +117,6 @@ void		Response::handleFolderPath(Request const &request, Server &server)
 	int index_Location;
 	std::string uri = server.getRoot() + request.getUri();
 
-	std::cout << RED << uri << RESET << std::endl;
 	if ((index_Location = server.hasLocation(uri)) >= 0)
 	{
 		std::vector<Location> *Locations = server.getLocations();
@@ -154,7 +153,6 @@ void		Response::setStatusCode(Request const &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
-	std::cout << RED << uri << RESET << std::endl;
 
 	if (stat(uri.c_str(), &stats_path) == 0)
 	{
