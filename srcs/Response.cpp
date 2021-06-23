@@ -98,7 +98,6 @@ void		Response::handleFolderPath(Request &request, Server &server)
 	try
 	{
 		Location location = this->getLocation(server, request.getUri());
-		std::cout << "location path = " << location.getPath() << "\n";
 		if (location.getIndex() != "none") //il y a un index
 		{
 			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
@@ -232,7 +231,6 @@ std::string	Response::getErrorPage(Server &server)
 int		Response::checkMethodsAllowed(Server &server, Request &request)
 {
 	Location location = this->getLocation(server, request.getUri());
-	std::cout << "location path = " << location.getPath() << "\n";
 	std::vector<std::string> methods = location.getMethods();
 	for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); it++)
 	{
