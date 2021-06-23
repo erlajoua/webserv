@@ -39,7 +39,20 @@ void		Response::createResponse(Request &request, Server &server)
 
 void		Response::setContentType(void)
 {
-	this->content_type = "text/html";
+	std::size_t dot_pos = this->full_path.rfind('.');
+	if (this->status_code != 200
+			|| this->full_path.find(".html", dot_pos) != std::string::npos)
+	{
+		this->content_type = "text/html";
+	}
+	else if (this->full_path.find(".css", dot_pos) != std::string::npos)
+	{
+		this->content_type = "text/css";
+	}
+	else
+	{
+		this->content_type = "text/plain";
+	}
 }
 
 void		Response::setReasonPhrase(void)
