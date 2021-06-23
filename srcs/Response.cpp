@@ -86,12 +86,6 @@ void		Response::setBody(Server &server)
 	}
 	
 	this->body = getAllFile(this->full_path);
-
-	if (this->body.length() > server.getClientBodySize())
-	{
-		this->status_code = 413;
-		this->setBody(server);
-	}
 }
 
 /* status_code */
@@ -156,6 +150,10 @@ void		Response::setStatusCode(Request &request, Server &server)
 			this->status_code = 400;
 		else if (request.getErrorType() == kVersionNotImplemented)
 			this->status_code = 505;
+	}
+	else if (request.getBody().length() > server.getClientBodySize())
+	{
+		this->status_code = 413;
 	}
 	else if (stat(uri.c_str(), &stats_path) == 0)
 	{
