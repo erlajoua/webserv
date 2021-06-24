@@ -1,4 +1,4 @@
-#include "../includes/Response.hpp"
+#include "Response.hpp"
 
 std::string const Response::server = "webserver/1.0";
 
@@ -13,9 +13,10 @@ Response::Response(Response const& src)
 	*this = src;
 }
 
-Response::Response(Request & request, Server &server)
+Response::Response(char **envp, Request & request, Server &server) :
+	cgi_content_type("")
 {
-	createResponse(request, server);
+	createResponse(envp, request, server);
 }
 
 //destructors
@@ -27,11 +28,12 @@ Response::~Response()
 //methods
 
 
-void		Response::createResponse(Request &request, Server &server)
+void		Response::createResponse(char **envp, Request &request, Server &server)
 {
+	std::string uri = request.getUri();
 	this->http_version = request.getHttpVersion();
 	this->setStatusCode(request, server);
-	this->setBody(server);
+	this->setBody(envp, uri, request, server);
 	this->setReasonPhrase();
 	this->setContentLength();
 	this->setContentType();
@@ -40,8 +42,15 @@ void		Response::createResponse(Request &request, Server &server)
 void		Response::setContentType(void)
 {
 	std::size_t dot_pos = this->full_path.rfind('.');
-	if (this->status_code != 200
-			|| this->full_path.find(".html", dot_pos) != std::string::npos)
+	if (this->status_code != 200)
+	{
+		this->content_type = "text/html";
+	}
+	else if (this->cgi_content_type != "")
+	{
+		this->content_type = this->cgi_content_type;
+	}
+	else if (this->full_path.find(".html", dot_pos) != std::string::npos)
 	{
 		this->content_type = "text/html";
 	}
@@ -77,7 +86,205 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "";
 }
 
-void		Response::setBody(Server &server)
+void		Response::setCgiEnvVar(char **envp, Request const &request,
+		std::string const& script_filename)
+{
+	envp[kScriptFilename] =
+		new char[("SCRIPT_FILENAME=" + script_filename).length() + 1];
+	std::strcpy(envp[kScriptFilename],
+			("SCRIPT_FILENAME=" + script_filename).c_str());
+	envp[kRedirectStatus] = new char[std::strlen("REDIRECT_STATUS=200") + 1];
+	std::strcpy(envp[kRedirectStatus], "REDIRECT_STATUS=200");
+	if (request.getMethod() == kGet)
+	{
+		envp[kRequestMethod] = new char[std::strlen("REQUEST_METHOD=GET") + 1];
+		std::strcpy(envp[kRequestMethod], "REQUEST_METHOD=GET");
+	}
+	else if (request.getMethod() == kPost)
+	{
+		envp[kRequestMethod] = new char[std::strlen("REQUEST_METHOD=POST") + 1];
+		std::strcpy(envp[kRequestMethod], "REQUEST_METHOD=POST");
+	}
+	envp[kQueryString] =
+			new char[("QUERY_STRING=" + request.getQueryString()).length() + 1];
+	std::strcpy(envp[kQueryString],
+			("QUERY_STRING=" + request.getQueryString()).c_str());
+	envp[kContentType] =
+		new char[std::strlen("CONTENT_TYPE=application/x-www-form-urlencoded") + 1];
+	std::strcpy(envp[kContentType],
+			"CONTENT_TYPE=application/x-www-form-urlencoded");
+	std::stringstream content_length;
+	content_length << "CONTENT_LENGTH=" << request.getBody().length();
+	envp[kContentLength] =
+		new char[content_length.str().length() + 1];
+	std::strcpy(envp[kContentLength], content_length.str().c_str());
+}
+
+void		Response::deleteCgiEnvVar(char **envp)
+{
+	delete[] envp[kScriptFilename];
+	envp[kScriptFilename] = NULL;
+	delete[] envp[kRedirectStatus];
+	envp[kRedirectStatus] = NULL;
+	delete[] envp[kRequestMethod];
+	envp[kRequestMethod] = NULL;
+	delete[] envp[kQueryString];
+	envp[kQueryString] = NULL;
+	delete[] envp[kContentLength];
+	envp[kContentLength] = NULL;
+	delete[] envp[kContentType];
+	envp[kContentType] = NULL;
+}
+
+void		Response::closeCgiPipes(int pipes_fds[2][2])
+{
+	if (pipes_fds[0][0] != -1)
+	{
+		close(pipes_fds[0][0]);
+		pipes_fds[0][0] = -1;
+	}
+	if (pipes_fds[0][1] != -1)
+	{
+		close(pipes_fds[0][1]);
+		pipes_fds[0][1] = -1;
+	}
+	if (pipes_fds[1][0] != -1)
+	{
+		close(pipes_fds[1][0]);
+		pipes_fds[1][0] = -1;
+	}
+	if (pipes_fds[1][1] != -1)
+	{
+		close(pipes_fds[1][1]);
+		pipes_fds[1][1] = -1;
+	}
+}
+
+void		Response::setCgiPipes(int pipes_fds[2][2])
+{
+	if (pipe(pipes_fds[0]) == -1)
+	{
+		this->closeCgiPipes(pipes_fds);
+		throw std::exception();
+	}
+	else if (pipe(pipes_fds[1]) == -1)
+	{
+		this->closeCgiPipes(pipes_fds);
+		throw std::exception();
+	}
+}
+
+void		Response::dupCgiProcessStreams(std::string const &request_body,
+		int pipes_fds[2][2])
+{
+	write(pipes_fds[0][1], request_body.c_str(), request_body.length());
+	if (dup2(pipes_fds[0][0], STDIN_FILENO) == -1)
+	{
+		throw std::exception();
+	}
+	if (dup2(pipes_fds[1][1], STDOUT_FILENO) == -1)
+	{
+		throw std::exception();
+	}
+	this->closeCgiPipes(pipes_fds);
+}
+
+void		Response::cgiProcess(char **envp, std::string const &request_body,
+		std::string const &cgi_bin, int pipes_fds[2][2])
+{
+	char *pathname = NULL;
+	char *argv[2] = {NULL, NULL};
+	try
+	{
+		this->dupCgiProcessStreams(request_body, pipes_fds);
+		pathname = new char[cgi_bin.length() + 1];
+		std::strcpy(pathname, cgi_bin.c_str());
+		argv[0] = new char[cgi_bin.length() + 1];
+		std::strcpy(argv[0], cgi_bin.c_str());
+		execve(pathname, argv, envp);
+		throw std::exception();
+	}
+	catch (...)
+	{
+		this->deleteCgiEnvVar(envp);
+		this->closeCgiPipes(pipes_fds);
+		delete[] pathname;
+		delete[] argv[0];
+	}
+}
+
+std::string Response::readCgiOutput(int pipes_fds[2][2])
+{
+	std::string output = "";
+	char buf[1024];
+	size_t bytes_read = read(pipes_fds[1][0], buf, 1024);
+	while (bytes_read > 0)
+	{
+		output += std::string(buf, bytes_read);
+		bytes_read = read(pipes_fds[1][0], buf, 1024);
+	}
+	return (output);
+}
+
+void		Response::callCgi(char **envp, Request const &request,
+		std::string const& cgi_bin, int pipes_fds[2][2])
+{
+	int pid = fork();
+	if (pid == -1)
+	{
+		this->closeCgiPipes(pipes_fds);
+		throw std::exception();
+	}
+	else if (pid == 0)
+	{
+		this->cgiProcess(envp, request.getBody(), cgi_bin, pipes_fds);
+		exit(1);
+	}
+	else
+	{
+		close(pipes_fds[0][0]);
+		pipes_fds[0][0] = -1;
+		close(pipes_fds[0][1]);
+		pipes_fds[0][1] = -1;
+		close(pipes_fds[1][1]);
+		pipes_fds[1][1] = -1;
+		if (wait(NULL) == -1)
+		{
+			this->closeCgiPipes(pipes_fds);
+			throw std::exception();
+		}
+	}
+}
+
+std::string Response::getCgiOutputBody(char **envp, Request const &request,
+		std::string const& script_filename, std::string const& cgi_bin)
+{
+	this->setCgiEnvVar(envp, request, script_filename);
+	int pipes_fds[2][2] = { {-1, -1}, {-1, -1} };
+	this->setCgiPipes(pipes_fds);
+	this->callCgi(envp, request, cgi_bin, pipes_fds);
+	std::string output = this->readCgiOutput(pipes_fds);
+	this->closeCgiPipes(pipes_fds);
+	std::size_t content_type_value_pos = output.find(' ') + 1;
+	std::size_t semicolon_pos = output.find(';', content_type_value_pos);
+	if (content_type_value_pos - 1 == output.npos
+			|| semicolon_pos == output.npos)
+	{
+		throw std::exception();
+	}
+	this->cgi_content_type = output.substr(content_type_value_pos,
+			semicolon_pos - content_type_value_pos);
+	std::size_t body_pos = output.find("\n\r\n", semicolon_pos) + 3;
+	if (body_pos - 3 == output.npos)
+	{
+		throw std::exception();
+	}
+	this->deleteCgiEnvVar(envp);
+	return output.substr(body_pos);
+}
+
+void		Response::setBody(char **envp, std::string const &uri,
+		Request const &request, Server &server)
 {
 	if (this->status_code != 200)
 	{
@@ -85,7 +292,26 @@ void		Response::setBody(Server &server)
 		return ;
 	}
 	
-	this->body = getAllFile(this->full_path);
+	Location const &location = getLocation(server, uri);
+	std::string cgi_extension = location.getCgiExtension();
+	if (uri.substr(uri.length() - cgi_extension.length())
+			== cgi_extension)
+	{
+		try
+		{
+			this->body = this->getCgiOutputBody(envp, request, this->full_path,
+					server.getRoot() + location.getPath() + location.getCgiBin());
+		}
+		catch (...)
+		{
+			this->deleteCgiEnvVar(envp);
+			// TODO: 500 response
+		}
+	}
+	else
+	{
+		this->body = getAllFile(this->full_path);
+	}
 }
 
 /* status_code */

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/23 15:26:14 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/23 20:13:35 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 # include <sys/select.h>
 
 # include "Server.hpp"
+
+class Server;
 
 enum EnvpIndexes {
 	kScriptFilename = 0,
