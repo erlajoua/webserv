@@ -605,7 +605,7 @@ void			Program::start(void) {
 	this->is_running = true;
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		std::cout << GREEN << it->getServerName() << " is now listening on " << it->getHost() << ":" << it->getPort() << "..." << RESET << std::endl;
+		std::cout << GREEN << it->getServerName() << " is now listening on " << it->getHost() << ":" << it->getPort() << "..." << RESET << std::endl << std::endl;
 	}
 	//usleep(10000);
 	while (this->is_running == true)
