@@ -294,8 +294,9 @@ void		Response::setBody(char **envp, std::string const &uri,
 	
 	Location const &location = getLocation(server, uri);
 	std::string cgi_extension = location.getCgiExtension();
-	if (uri.substr(uri.length() - cgi_extension.length())
-			== cgi_extension)
+	if (this->full_path.length() >= cgi_extension.length()
+			&& this->full_path.substr(this->full_path.length()
+				- cgi_extension.length()) == cgi_extension)
 	{
 		try
 		{
