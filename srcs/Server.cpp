@@ -228,17 +228,6 @@ int     Server::acceptNewConnection() const
 	return (client_socket);
 }
 
-int				Server::hasLocation(std::string uri) const
-{
-	size_t i;
-	for (i = 0; i < locations.size(); i++)
-	{
-		if (this->root + locations[i].getPath() == uri)
-			return (i);
-	}
-	return (-1);
-}
-
 void							Server::setup(void)
 {
 	this->addr.sin_family = AF_INET;
