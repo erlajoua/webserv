@@ -193,16 +193,16 @@ std::string	Response::findCustomErrorPage(Server &server, int status_code)
 	std::vector<std::string> erros_pages = server.getErrors();
 	std::stringstream str_code;
 	str_code << status_code;
+	int pos;
 
 	for (std::vector<std::string>::iterator it = erros_pages.begin(); it != erros_pages.end(); it++)
 	{
-		char *path = (char *)(*it).c_str();
-		std::stringstream str_path;
-		path = strrchr(path, '/');
-		path++;
-		str_path << path;
-
-		if (str_path.str() == str_code.str() + ".html")
+		std::string path(*it);
+		pos = path.rfind('/');
+		if (pos == -1)
+			break ;
+		path.assign(path.begin() + pos + 1, path.end());
+		if (path == str_code.str() + ".html")
 			return (server.getRoot() + "/" + *it);
 	}
 	return (DEFAULT_PATH_ERROR + str_code.str() + ".html");
