@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 20:33:24 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 07:54:43 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,22 @@ void							Server::setClientBodySize(std::string const &field)
 }
 
 // MEMBER FUNCTIONS
+
+void	Server::handleRequest(int client_socket,
+		std::string const &request_content, Request &request, char **envp) {
+	std::cout << BOLDBLUE << "===[" << this->server_name << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
+	std::cout << BLUE << request_content << RESET << std::endl;
+
+	Response response(envp, request, *this);
+	std::string response_content(response.toString());
+	if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
+		std::cout << "Erreur de send, stop\n";
+	std::cout << BOLDGREEN << "===[" << this->server_name << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;
+	std::cout << GREEN << response_content.substr(0, 300);
+	if (response_content.size() > 300)
+		std::cout << std::endl << "[TRUNCATED]";
+	std::cout << RESET << std::endl;
+}
 
 int     Server::acceptNewConnection() const
 {

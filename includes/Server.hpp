@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:32:01 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 19:21:26 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 07:54:33 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ public:
 	~Server(void);
 
 	// MEMBER FUNCTIONS
+	void	handleRequest(int client_socket, std::string const &request_content,
+			Request &request, char **envp);
 	int							acceptNewConnection() const;
 	void						setup(void);
 	int							hasLocation(std::string uri) const;

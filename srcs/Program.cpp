@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/24 10:17:19 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 07:58:35 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,24 +444,25 @@ void			Program::handleRequest(int client_socket) {
 	std::string request_content(request_buffer, bytesRead);
 	Request request(request_content);
 
+	bool should_use_default_server = true;
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		if (request.getPort() == it->getPort())
+		if (request.getPort() == it->getPort() && request.getHost() == it->getServerName())
 		{
-			std::cout << BOLDBLUE << "===[" << it->getServerName() << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-			std::cout << BLUE << request_content << RESET << std::endl;
-			std::cout << CYAN << request << std::endl;
-
-			Response response(this->envp, request, *it);
-			std::string response_content(response.toString());
-			if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
-				std::cout << "Erreur de send, stop\n";
-			std::cout << BOLDGREEN << "===[" << it->getServerName() << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-			std::cout << GREEN << response_content.substr(0, 300);
-			if (response_content.size() > 300)
-				std::cout << std::endl << "[TRUNCATED]";
-			std::cout << RESET << std::endl;
+			it->handleRequest(client_socket, request_content, request, this->envp);
+			should_use_default_server = false;
 			break;
+		}
+	}
+	if (should_use_default_server == true)
+	{
+		for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+		{
+			if (request.getPort() == it->getPort() && it->getDefaultServer() == true)
+			{
+				it->handleRequest(client_socket, request_content, request, this->envp);
+				break;
+			}
 		}
 	}
 	if (request.getConnection() == kClose)
