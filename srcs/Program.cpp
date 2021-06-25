@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/25 14:54:35 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 15:03:24 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -644,7 +644,6 @@ void			Program::stop(void) {
 	std::cout << BOLDYELLOW << "Stopping " << this->servers.size() << " server(s)..." << RESET << std::endl;
 	this->is_running = false;
 	FD_ZERO(&this->readfds);
-	FD_ZERO(&this->writefds);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
 		if (it->getDefaultServer() == true)
@@ -653,6 +652,14 @@ void			Program::stop(void) {
 		}
 		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
+	for (int i = 0; i < FD_SETSIZE; i++)
+	{
+		if (FD_ISSET(i, &this->writefds))
+		{
+			close(i);
+		}
+	}
+	FD_ZERO(&this->writefds);
 	delete [] this->envp;
 	//usleep(1000000);
 }
