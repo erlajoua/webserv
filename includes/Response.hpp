@@ -14,6 +14,7 @@
 # include "Program.hpp"
 # include "Server.hpp"
 # include "Request.hpp"
+# include "AutoIndex.hpp"
 
 std::string	getAllFile(std::string filename);
 
@@ -31,6 +32,7 @@ private:
 	std::string 				content_type;
 	std::size_t 				content_length;
 	std::string 				body;
+	bool						is_autoindex;
 
 	std::string					full_path;
 	std::string					redirection_path;
@@ -65,14 +67,15 @@ private:
 	std::string getCgiOutputBody(char **envp, Request const &request,
 			std::string const& script_filename, std::string const& cgi_bin);
 
-	std::string	getErrorPage(Server &server);
-
 	void		handleFolderPath(Request &request, Server &server);
 	void		handleFilePath(Request &request);
+	void		handleAutoIndex(Location &location);
 	std::string	findCustomErrorPage(Server &server, int status_code);
+	std::string buildStandardErrorPage(int status_code);
 
 	Location&	getLocation(Server &server, std::string uri);
 	int			checkMethodsAllowed(Server &server, Request &request);
+
 
 
 public:

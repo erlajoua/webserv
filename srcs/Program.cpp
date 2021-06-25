@@ -433,6 +433,7 @@ void			Program::handleRequest(int client_socket) {
 		{
 			std::cout << BOLDBLUE << "===[" << it->getServerName() << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
 			std::cout << BLUE << request_content << RESET << std::endl;
+			std::cout << CYAN << request << std::endl;
 
 			Response response(this->envp, request, *it);
 			std::string response_content(response.toString());

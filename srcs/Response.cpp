@@ -14,7 +14,7 @@ Response::Response(Response const& src)
 }
 
 Response::Response(char **envp, Request & request, Server &server) :
-	cgi_content_type("")
+	is_autoindex(false), cgi_content_type("")
 {
 	createResponse(envp, request, server);
 }
@@ -42,7 +42,11 @@ void		Response::createResponse(char **envp, Request &request, Server &server)
 void		Response::setContentType(void)
 {
 	std::size_t dot_pos = this->full_path.rfind('.');
-	if (this->status_code != 200)
+	if (this->status_code == 200 && this->is_autoindex == true)
+	{
+		this->content_type = "text/html";
+	}
+	else if (this->status_code != 200)
 	{
 		this->content_type = "text/html";
 	}
@@ -286,12 +290,18 @@ std::string Response::getCgiOutputBody(char **envp, Request const &request,
 void		Response::setBody(char **envp, std::string const &uri,
 		Request const &request, Server &server)
 {
-	if (this->status_code != 200)
+	if (this->status_code == 200 && this->is_autoindex == true)
 	{
-		this->body = this->getErrorPage(server);
+		AutoIndex a(server.getRoot(), request.getUri());
+		a.buildAutoIndex();
+		this->body = a.getPageContent();
 		return ;
 	}
-	
+	if (this->status_code != 200)
+	{
+		this->body = this->findCustomErrorPage(server, this->status_code);
+		return ;
+	}
 	Location const &location = getLocation(server, uri);
 	std::string cgi_extension = location.getCgiExtension();
 	if (this->full_path.length() >= cgi_extension.length()
@@ -323,6 +333,17 @@ void		Response::setBody(char **envp, std::string const &uri,
 
 /* status_code */
 
+void		Response::handleAutoIndex(Location &location)
+{
+	if (location.getAutoindex() == true)
+	{
+		this->status_code = 200;
+		this->is_autoindex = true;
+	}
+	else
+		this->status_code = 403;
+}
+
 void		Response::handleFolderPath(Request &request, Server &server)
 {
 	struct stat stats_path;
@@ -345,13 +366,11 @@ void		Response::handleFolderPath(Request &request, Server &server)
 				}
 			}
 			else
-			{
-				if (location.getAutoindex() == true)
-					this->status_code = 666;
-				else
-					this->status_code = 403;
-			}
+				this->handleAutoIndex(location);
 		}
+		else
+			this->handleAutoIndex(location);
+
 	}
 	catch (std::exception &e)
 	{
@@ -421,6 +440,31 @@ std::string Response::toString() const
 	return (ss.str());
 }
 
+std::string Response::buildStandardErrorPage(int status_code)
+{
+	std::string content_page;
+	(void) status_code;
+	content_page = "<!DOCTYPE html><html><head><title>42 Webserv</title><meta charset=\"utf-8\" name=\"Webserv\" content=\"Webserv\"></head><body>";
+	if (this->status_code == 403)
+		content_page += "<h1>403 Forbidden</h1><p>Permission denied.</p>";
+	else if (this->status_code == 404)
+		content_page += "<h1>404 Not Found</h1><p>File not found.</p>";
+	else if (this->status_code == 301)
+		content_page += "<h1>301 Moved Permanently</h1>This and all future requests should be directed to the given URI.</p>";
+	else if (this->status_code == 505)
+		content_page += "<h1>505 HTTP Version Not Supported</h1><p>The server does not support the HTTP protocol version used in the request.</p>";
+	else if (this->status_code == 400)
+		content_page += "<h1>400 Bad Request</h1><p>Malformed or illegal request.</p>";
+	else if (this->status_code == 405)
+		content_page += "<h1>405 Method Not Allowed</h1><p>A request method is not supported for the requested resource.</p>";
+	else if (this->status_code == 413)
+		content_page += "<h1>413 Payload Too Large</h1><p>The request is larger than the server is willing or able to process.</p>";
+	else
+		content_page += "<h1>666 Error not handled</h1><p>Work in progress...</p>";
+	content_page += "</body></html>";
+	return (content_page);
+}
+
 std::string	Response::findCustomErrorPage(Server &server, int status_code)
 {
 	std::vector<std::string> erros_pages = server.getErrors();
@@ -436,27 +480,9 @@ std::string	Response::findCustomErrorPage(Server &server, int status_code)
 			break ;
 		path.assign(path.begin() + pos + 1, path.end());
 		if (path == str_code.str() + ".html")
-			return (server.getRoot() + "/" + *it);
+			return (getAllFile(server.getRoot() + "/" + *it));
 	}
-	return (DEFAULT_PATH_ERROR + str_code.str() + ".html");
-}
-
-std::string	Response::getErrorPage(Server &server)
-{
-	//refacto en 1 ligne, des que toutes les erreurs sont gérées // return (getAllFile(this->findCustomErrorPage(server, this->status_code)));
-	if (this->status_code == 400)
-		return (getAllFile(this->findCustomErrorPage(server, 400))); 
-	if (this->status_code == 403)
-		return (getAllFile(this->findCustomErrorPage(server, 403)));
-	if (this->status_code == 404)
-		return (getAllFile(this->findCustomErrorPage(server, 404)));
-	if (this->status_code == 505)
-		return (getAllFile(this->findCustomErrorPage(server, 505)));
-	if (this->status_code == 413)
-		return (getAllFile(this->findCustomErrorPage(server, 413)));
-	if (this->status_code == 405)
-		return (getAllFile(this->findCustomErrorPage(server, 405)));
-	return (getAllFile("./www/error_pages/not_handled.html"));
+	return (buildStandardErrorPage(status_code));
 }
 
 //utils
@@ -513,6 +539,7 @@ Response	&Response::operator=(Response const& rhs)
 	this->content_type = rhs.content_type;
 	this->content_length = rhs.content_length;
 	this->body = rhs.body;
+	this->is_autoindex = rhs.is_autoindex;
 	return (*this);
 }
 
