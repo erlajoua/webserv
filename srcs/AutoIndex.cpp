@@ -15,7 +15,7 @@
 // CONSTRUCTOR & DESTRUCTOR
 
 AutoIndex::AutoIndex(std::string const &root, std::string const &location_path): location_path(location_path), root(root){
-	page_content = "<!DOCTYPE html><html><body><h1>Index of " + location_path + "</h1><br/><hr><br/><table><td><h3>Path</h3></td><td style=\"padding-left: 250px;\"><h3>Last Modified</h3>";
+	page_content = "<!DOCTYPE html><html><head><title>42 Webserv</title><meta charset=\"utf-8\" name=\"Webserv\" content=\"Webserv\"></head><body><h1>Index of " + location_path + "</h1><br/><hr><br/><table><td><h3>Path</h3></td><td style=\"padding-left: 250px;\"><h3>Last Modified</h3>";
 }
 
 AutoIndex::~AutoIndex(void){
@@ -29,11 +29,7 @@ void				AutoIndex::buildAutoIndex(void)
 	int		n;
 
 	this->parseFiles();
-	//for (std::vector<std::string>::iterator it = this->filenames.begin(); it != this->files.end(); it++)
-	//	std::cout << YELLOW << *it << RESET << std::endl; 
 	this->adjustFiles();
-	//for (std::vector<std::string>::iterator it = this->adj_files.begin(); it != this->adj_files.end(); it++)
-	//	std::cout << GREEN << *it << RESET << std::endl; 
 	n = this->files.size();
 
 	i = 0;
@@ -62,7 +58,6 @@ void				AutoIndex::parseFiles(void) {
 	file = readdir(dir);
 	while (file)
 	{
-		//std::cout << RED << file->d_name << RESET << std::endl; 
 		this->files.push_back(file->d_name);
 		file = readdir(dir);
 	}
@@ -103,7 +98,6 @@ void				AutoIndex::processFiles(void) {
 		}
 		else
 		{
-			//std::cout << BLUE << concat + *first << RESET << std::endl;
 			if (this->isDir(concat + *first))
 				*first = ((*first)[(*first).size() - 1] == '/') ? *first : *first = *first + "/";
 			first++;
@@ -132,9 +126,7 @@ std::string			AutoIndex::getLastModified(std::string const &path) {
 
 void				AutoIndex::addContentLine(int i) {
 	std::string concat;
-	//std::cout << RED << this->root + this->adj_files[i] << RESET << std::endl;
 	concat = "<tr><td><a href=\"" + this->adj_files[i] + "\">" + this->files[i] + "</a></td><td style=\"padding-left: 250px;\">" + this->getLastModified(this->root + this->adj_files[i]) + "</td></tr>";
-	//std::cout << YELLOW << concat << RESET << std::endl; 
 	this->page_content += concat; 
 }
 
