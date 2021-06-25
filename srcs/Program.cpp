@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/24 10:17:19 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 15:03:24 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,23 @@ void			Program::checkMinimumSetup(void) {
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
 
+bool			Program::hasAlreadyDefaultServer(std::vector<Server>::iterator iter) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != iter; it++)
+	{
+		if ((*it).getHost() == (*iter).getHost() && (*it).getPort() == (*iter).getPort())
+			return true;
+	}
+	return false;
+}
+
+void			Program::setDefaultServer(void) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		if (hasAlreadyDefaultServer(it) == false)
+			(*it).setDefaultServer();
+	}
+}
+
 void			Program::setupEnvp(char **main_envp)
 {
 	char **main_envp_it = main_envp;
@@ -427,26 +444,23 @@ void			Program::handleRequest(int client_socket) {
 	std::string request_content(request_buffer, bytesRead);
 	Request request(request_content);
 
-	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+	std::vector<Server>::iterator request_server_it = this->servers.begin();
+	for (std::vector<Server>::iterator it = ++this->servers.begin(); it != this->servers.end(); ++it)
 	{
 		if (request.getPort() == it->getPort())
 		{
-			std::cout << BOLDBLUE << "===[" << it->getServerName() << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-			std::cout << BLUE << request_content << RESET << std::endl;
-			std::cout << CYAN << request << std::endl;
-
-			Response response(this->envp, request, *it);
-			std::string response_content(response.toString());
-			if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
-				std::cout << "Erreur de send, stop\n";
-			std::cout << BOLDGREEN << "===[" << it->getServerName() << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-			std::cout << GREEN << response_content.substr(0, 300);
-			if (response_content.size() > 300)
-				std::cout << std::endl << "[TRUNCATED]";
-			std::cout << RESET << std::endl;
-			break;
+			if (request.getHost() == it->getServerName())
+			{
+				request_server_it = it;
+				break;
+			}
+			else if (it->getDefaultServer() == true)
+			{
+				request_server_it = it;
+			}
 		}
 	}
+	request_server_it->handleRequest(client_socket, request_content, request, this->envp);
 	if (request.getConnection() == kClose)
 	{
 		close(client_socket);
@@ -500,6 +514,7 @@ void			Program::parseConfig(std::string path) {
 	this->checkErrorConfig(lines);
 	this->parseValue(lines);
 	this->checkMinimumSetup();
+	this->setDefaultServer();
 }
 
 void			Program::printParsing(void) {
@@ -510,17 +525,17 @@ void			Program::printParsing(void) {
 		std::cout << YELLOW << "Server name = " << RESET;
 		std::cout << (*it).getServerName() << std::endl;
 
-		std::cout << YELLOW << "\tDefault server = " << RESET;
-		if ((*it).getDefaultServer() == true)
-			std::cout << "yes" << std::endl;
-		else	
-			std::cout << "no" << std::endl;
-
 		std::cout << YELLOW << "\tPort = " << RESET;
 		std::cout << (*it).getPort() << std::endl;		
 
 		std::cout << YELLOW << "\tHost = " << RESET;
 		std::cout << (*it).getHost() << std::endl;
+
+		std::cout << YELLOW << "\tDefault server = " << RESET;
+		if ((*it).getDefaultServer() == true)
+			std::cout << "yes" << std::endl;
+		else	
+			std::cout << "no" << std::endl;
 
 		std::cout << YELLOW << "\tRoot = " << RESET;
 		std::cout << (*it).getRoot() << std::endl;
@@ -591,8 +606,11 @@ void			Program::setup(char **envp) {
 	//usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
-		it->setup();
-		FD_SET(it->getServerSocket(), &this->readfds);
+		if (it->getDefaultServer() == true)
+		{
+			it->setup();
+			FD_SET(it->getServerSocket(), &this->readfds);
+		}
 		//usleep(10000);
 	}
 	this->setupEnvp(envp);
@@ -626,12 +644,22 @@ void			Program::stop(void) {
 	std::cout << BOLDYELLOW << "Stopping " << this->servers.size() << " server(s)..." << RESET << std::endl;
 	this->is_running = false;
 	FD_ZERO(&this->readfds);
-	FD_ZERO(&this->writefds);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		close(it->getServerSocket());
+		if (it->getDefaultServer() == true)
+		{
+			close(it->getServerSocket());
+		}
 		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
+	for (int i = 0; i < FD_SETSIZE; i++)
+	{
+		if (FD_ISSET(i, &this->writefds))
+		{
+			close(i);
+		}
+	}
+	FD_ZERO(&this->writefds);
 	delete [] this->envp;
 	//usleep(1000000);
 }
