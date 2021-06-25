@@ -341,12 +341,9 @@ void		Response::handleFolderPath(Request &request, Server &server)
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	std::cout << "FOLDER !\n";
-
 	try
 	{
 		Location location = this->getLocation(server, request.getUri());
-		std::cout << "location found = " << location.getPath() << "\n";
 		if (location.getIndex() != "none") //il y a un index
 		{
 			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
