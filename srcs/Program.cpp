@@ -384,6 +384,23 @@ void			Program::checkMinimumSetup(void) {
 	std::cout << BOLDGREEN << "\n=> OK! " << this->servers.size() << " server(s) have been successfully parsed!\n" << RESET << std::endl;
 }
 
+bool			Program::hasAlreadyDefaultServer(std::vector<Server>::iterator iter) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != iter; it++)
+	{
+		if ((*it).getHost() == (*iter).getHost() && (*it).getPort() == (*iter).getPort())
+			return true;
+	}
+	return false;
+}
+
+void			Program::setDefaultServer(void) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		if (hasAlreadyDefaultServer(it) == false)
+			(*it).setDefaultServer();
+	}
+}
+
 void			Program::setupEnvp(char **main_envp)
 {
 	char **main_envp_it = main_envp;
@@ -500,6 +517,7 @@ void			Program::parseConfig(std::string path) {
 	this->checkErrorConfig(lines);
 	this->parseValue(lines);
 	this->checkMinimumSetup();
+	this->setDefaultServer();
 }
 
 void			Program::printParsing(void) {
@@ -510,17 +528,17 @@ void			Program::printParsing(void) {
 		std::cout << YELLOW << "Server name = " << RESET;
 		std::cout << (*it).getServerName() << std::endl;
 
-		std::cout << YELLOW << "\tDefault server = " << RESET;
-		if ((*it).getDefaultServer() == true)
-			std::cout << "yes" << std::endl;
-		else	
-			std::cout << "no" << std::endl;
-
 		std::cout << YELLOW << "\tPort = " << RESET;
 		std::cout << (*it).getPort() << std::endl;		
 
 		std::cout << YELLOW << "\tHost = " << RESET;
 		std::cout << (*it).getHost() << std::endl;
+
+		std::cout << YELLOW << "\tDefault server = " << RESET;
+		if ((*it).getDefaultServer() == true)
+			std::cout << "yes" << std::endl;
+		else	
+			std::cout << "no" << std::endl;
 
 		std::cout << YELLOW << "\tRoot = " << RESET;
 		std::cout << (*it).getRoot() << std::endl;

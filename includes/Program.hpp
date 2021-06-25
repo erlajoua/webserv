@@ -71,6 +71,8 @@ private:
 	void		parseValue(std::vector<std::string> lines);
 
 	void		checkMinimumSetup(void);
+	bool		hasAlreadyDefaultServer(std::vector<Server>::iterator iter);
+	void		setDefaultServer(void);
 
 	void		setupEnvp(char **envp);
 
