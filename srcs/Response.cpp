@@ -298,10 +298,16 @@ void		Response::setBody(char **envp, std::string const &uri,
 			&& this->full_path.substr(this->full_path.length()
 				- cgi_extension.length()) == cgi_extension)
 	{
+		std::string cgi_bin = server.getRoot() + location.getPath();
+		if (location.getPath() != "/")
+		{
+			cgi_bin += "/";
+		}
+		cgi_bin += location.getCgiBin();
 		try
 		{
 			this->body = this->getCgiOutputBody(envp, request, this->full_path,
-					server.getRoot() + location.getPath() + location.getCgiBin());
+					cgi_bin);
 		}
 		catch (...)
 		{
