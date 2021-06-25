@@ -1,4 +1,7 @@
 <?php
+var_dump($_POST);
+echo '<pre>';
+var_dump($_FILES);
 $uploaddir = '/upload/';
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
 
