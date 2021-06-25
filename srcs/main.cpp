@@ -38,8 +38,6 @@ void	quit(int arg)
 	(void)arg;
 	std::cout << "\b\b  " << std::endl;
 	program.stop();
-	std::cout << std::endl << BOLDGREEN << "The user has stopped the program. 👋👋👋" << RESET << std::endl;
-	exit(0);
 }
 
 int		main(int argc, char **argv, char **envp)
@@ -77,8 +75,6 @@ int		main(int argc, char **argv, char **envp)
 	}
 	signal(SIGINT, quit);
 	program.start();
-	//AutoIndex a("./www", "/even_pages");
-	//a.buildAutoIndex();
-	//std::cout << CYAN << a.getPageContent() << RESET << std::endl;
+	std::cout << std::endl << BOLDGREEN << "The user has stopped the program. 👋👋👋" << RESET << std::endl;
 	return (0);
 }
