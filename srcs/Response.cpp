@@ -329,11 +329,16 @@ void		Response::setBody(char **envp, std::string const &uri,
 
 /* status_code */
 
-void		Response::handleAutoIndex()
+void		Response::handleAutoIndex(Location &location)
 {
-	this->status_code = 666;
-	//this->status_code = 200;
-	//this->is_autoindex = true;
+	if (location.getAutoindex() == true)
+	{
+		this->status_code = 666;
+		//this->status_code = 200;
+		//this->is_autoindex = true;
+	}
+	else
+		this->status_code = 403;
 }
 
 void		Response::handleFolderPath(Request &request, Server &server)
@@ -358,15 +363,10 @@ void		Response::handleFolderPath(Request &request, Server &server)
 				}
 			}
 			else
-			{
-				if (location.getAutoindex() == true)
-					this->handleAutoIndex();
-				else
-					this->status_code = 403;
-			}
+				this->handleAutoIndex(location);
 		}
 		else
-			this->handleAutoIndex();
+			this->handleAutoIndex(location);
 
 	}
 	catch (std::exception &e)
