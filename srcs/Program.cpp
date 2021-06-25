@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/25 07:58:35 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/25 14:54:35 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,27 +444,23 @@ void			Program::handleRequest(int client_socket) {
 	std::string request_content(request_buffer, bytesRead);
 	Request request(request_content);
 
-	bool should_use_default_server = true;
-	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
+	std::vector<Server>::iterator request_server_it = this->servers.begin();
+	for (std::vector<Server>::iterator it = ++this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		if (request.getPort() == it->getPort() && request.getHost() == it->getServerName())
+		if (request.getPort() == it->getPort())
 		{
-			it->handleRequest(client_socket, request_content, request, this->envp);
-			should_use_default_server = false;
-			break;
-		}
-	}
-	if (should_use_default_server == true)
-	{
-		for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
-		{
-			if (request.getPort() == it->getPort() && it->getDefaultServer() == true)
+			if (request.getHost() == it->getServerName())
 			{
-				it->handleRequest(client_socket, request_content, request, this->envp);
+				request_server_it = it;
 				break;
+			}
+			else if (it->getDefaultServer() == true)
+			{
+				request_server_it = it;
 			}
 		}
 	}
+	request_server_it->handleRequest(client_socket, request_content, request, this->envp);
 	if (request.getConnection() == kClose)
 	{
 		close(client_socket);
@@ -610,8 +606,11 @@ void			Program::setup(char **envp) {
 	//usleep(1000000);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
 	{
-		it->setup();
-		FD_SET(it->getServerSocket(), &this->readfds);
+		if (it->getDefaultServer() == true)
+		{
+			it->setup();
+			FD_SET(it->getServerSocket(), &this->readfds);
+		}
 		//usleep(10000);
 	}
 	this->setupEnvp(envp);
@@ -648,7 +647,10 @@ void			Program::stop(void) {
 	FD_ZERO(&this->writefds);
 	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); ++it)
 	{
-		close(it->getServerSocket());
+		if (it->getDefaultServer() == true)
+		{
+			close(it->getServerSocket());
+		}
 		std::cout << GREEN << it->getServerName() << " has stopped." << RESET << std::endl;
 	}
 	delete [] this->envp;
