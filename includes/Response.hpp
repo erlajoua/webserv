@@ -14,6 +14,7 @@
 # include "Program.hpp"
 # include "Server.hpp"
 # include "Request.hpp"
+# include "AutoIndex.hpp"
 
 std::string	getAllFile(std::string filename);
 
@@ -31,6 +32,7 @@ private:
 	std::string 				content_type;
 	std::size_t 				content_length;
 	std::string 				body;
+	bool						is_autoindex;
 
 	std::string					full_path;
 	std::string					redirection_path;

@@ -14,7 +14,7 @@ Response::Response(Response const& src)
 }
 
 Response::Response(char **envp, Request & request, Server &server) :
-	cgi_content_type("")
+	is_autoindex(false), cgi_content_type("")
 {
 	createResponse(envp, request, server);
 }
@@ -286,12 +286,18 @@ std::string Response::getCgiOutputBody(char **envp, Request const &request,
 void		Response::setBody(char **envp, std::string const &uri,
 		Request const &request, Server &server)
 {
+	/*if (this->status_code == 200 && this->is_autoindex == true)
+	{
+		AutoIndex a("./www", "/even_pages");
+		a.buildAutoIndex();
+		this->body = a.getPageContent();
+		return ;
+	}*/
 	if (this->status_code != 200)
 	{
 		this->body = this->getErrorPage(server);
 		return ;
 	}
-	
 	Location const &location = getLocation(server, uri);
 	std::string cgi_extension = location.getCgiExtension();
 	if (this->full_path.length() >= cgi_extension.length()
@@ -347,7 +353,11 @@ void		Response::handleFolderPath(Request &request, Server &server)
 			else
 			{
 				if (location.getAutoindex() == true)
+				{
 					this->status_code = 666;
+					//this->status_code = 200;
+					//this->is_autoindex = true;
+				}
 				else
 					this->status_code = 403;
 			}
@@ -513,6 +523,7 @@ Response	&Response::operator=(Response const& rhs)
 	this->content_type = rhs.content_type;
 	this->content_length = rhs.content_length;
 	this->body = rhs.body;
+	this->is_autoindex = rhs.is_autoindex;
 	return (*this);
 }
 
