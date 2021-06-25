@@ -329,14 +329,24 @@ void		Response::setBody(char **envp, std::string const &uri,
 
 /* status_code */
 
+void		Response::handleAutoIndex()
+{
+	this->status_code = 666;
+	//this->status_code = 200;
+	//this->is_autoindex = true;
+}
+
 void		Response::handleFolderPath(Request &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
+	std::cout << "FOLDER !\n";
+
 	try
 	{
 		Location location = this->getLocation(server, request.getUri());
+		std::cout << "location found = " << location.getPath() << "\n";
 		if (location.getIndex() != "none") //il y a un index
 		{
 			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
@@ -353,15 +363,14 @@ void		Response::handleFolderPath(Request &request, Server &server)
 			else
 			{
 				if (location.getAutoindex() == true)
-				{
-					this->status_code = 666;
-					//this->status_code = 200;
-					//this->is_autoindex = true;
-				}
+					this->handleAutoIndex();
 				else
 					this->status_code = 403;
 			}
 		}
+		else
+			this->handleAutoIndex();
+
 	}
 	catch (std::exception &e)
 	{
