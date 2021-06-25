@@ -71,10 +71,12 @@ private:
 
 	void		handleFolderPath(Request &request, Server &server);
 	void		handleFilePath(Request &request);
+	void		handleAutoIndex(Location &location);
 	std::string	findCustomErrorPage(Server &server, int status_code);
 
 	Location&	getLocation(Server &server, std::string uri);
 	int			checkMethodsAllowed(Server &server, Request &request);
+
 
 
 public:

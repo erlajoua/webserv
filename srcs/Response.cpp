@@ -42,7 +42,11 @@ void		Response::createResponse(char **envp, Request &request, Server &server)
 void		Response::setContentType(void)
 {
 	std::size_t dot_pos = this->full_path.rfind('.');
-	if (this->status_code != 200)
+	if (this->status_code == 200 && this->is_autoindex == true)
+	{
+		this->content_type = "text/html";
+	}
+	else if (this->status_code != 200)
 	{
 		this->content_type = "text/html";
 	}
@@ -286,13 +290,13 @@ std::string Response::getCgiOutputBody(char **envp, Request const &request,
 void		Response::setBody(char **envp, std::string const &uri,
 		Request const &request, Server &server)
 {
-	/*if (this->status_code == 200 && this->is_autoindex == true)
+	if (this->status_code == 200 && this->is_autoindex == true)
 	{
-		AutoIndex a("./www", "/even_pages");
+		AutoIndex a(server.getRoot(), request.getUri());
 		a.buildAutoIndex();
 		this->body = a.getPageContent();
 		return ;
-	}*/
+	}
 	if (this->status_code != 200)
 	{
 		this->body = this->getErrorPage(server);
@@ -329,6 +333,17 @@ void		Response::setBody(char **envp, std::string const &uri,
 
 /* status_code */
 
+void		Response::handleAutoIndex(Location &location)
+{
+	if (location.getAutoindex() == true)
+	{
+		this->status_code = 200;
+		this->is_autoindex = true;
+	}
+	else
+		this->status_code = 403;
+}
+
 void		Response::handleFolderPath(Request &request, Server &server)
 {
 	struct stat stats_path;
@@ -351,17 +366,11 @@ void		Response::handleFolderPath(Request &request, Server &server)
 				}
 			}
 			else
-			{
-				if (location.getAutoindex() == true)
-				{
-					this->status_code = 666;
-					//this->status_code = 200;
-					//this->is_autoindex = true;
-				}
-				else
-					this->status_code = 403;
-			}
+				this->handleAutoIndex(location);
 		}
+		else
+			this->handleAutoIndex(location);
+
 	}
 	catch (std::exception &e)
 	{
