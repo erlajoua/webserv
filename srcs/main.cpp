@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:29:26 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/25 15:04:32 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/26 15:26:13 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	quit(int arg)
 {
 	(void)arg;
 	std::cout << "\b\b  " << std::endl;
-	program.stop();
+	program.setIsRunning(false);
 }
 
 int		main(int argc, char **argv, char **envp)
@@ -75,6 +75,7 @@ int		main(int argc, char **argv, char **envp)
 	}
 	signal(SIGINT, quit);
 	program.start();
+	program.stop();
 	std::cout << std::endl << BOLDGREEN << "The user has stopped the program. 👋👋👋" << RESET << std::endl;
 	return (0);
 }

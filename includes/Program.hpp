@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/23 20:13:35 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/26 15:27:10 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ public:
 	void		setup(char **envp);
 	void		start(void);
 	void		stop(void);
+
+	void		setIsRunning(bool is_running_value);
 
 	// EXCEPTIONS
 	class 		NoServerException: public std::exception {

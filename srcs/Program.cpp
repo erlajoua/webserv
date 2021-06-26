@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/25 15:03:24 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/26 15:27:51 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -473,8 +473,17 @@ void			Program::httpServerIO(void) {
 	fd_set ready_readfds = this->readfds;
 	fd_set ready_writefds = this->writefds;
 
-	if (select(FD_SETSIZE, &ready_readfds, &ready_writefds, NULL, NULL) < 0)
-		throw SelectException();
+	if (select(FD_SETSIZE, &ready_readfds, &ready_writefds, NULL, NULL) == -1)
+	{
+		if (errno == EINTR)
+		{
+			return;
+		}
+		else
+		{
+			throw SelectException();
+		}
+	}
 	for (int i = 0; i < FD_SETSIZE; i++)
 	{
 		if (FD_ISSET(i, &ready_readfds))
@@ -662,6 +671,10 @@ void			Program::stop(void) {
 	FD_ZERO(&this->writefds);
 	delete [] this->envp;
 	//usleep(1000000);
+}
+
+void			Program::setIsRunning(bool is_running_value) {
+	this->is_running = is_running_value;
 }
 
 // EXCEPTIONS
