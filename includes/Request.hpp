@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:26:29 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 11:28:55 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 15:30:13 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ private:
 	int					port;
 	ConnectionDirective	connection;
 	std::size_t			content_length;
+	std::string			content_type;
 	std::string			body;
 
 	// PRIVATE HELPERS
@@ -66,6 +67,7 @@ private:
 	void 				parseHostFieldValue(std::string const& field_value);
 	void 				parseConnectionFieldValue(std::string const& field_value);
 	void 				parseContentLengthFieldValue(std::string const& field_value);
+	void 				parseContentTypeFieldValue(std::string const& field_value);
 	void 				parseHeaderField(std::string const& header_field);
 	std::size_t 		parseHeaders(std::size_t pos);
 	void 				parseContent(void);
@@ -94,6 +96,8 @@ public:
 	std::string const 	&getHost(void) const;
 	int const			&getPort(void) const;
 	ConnectionDirective const &getConnection(void) const;
+	std::size_t const 	&getContentLength(void) const;
+	std::string const 	&getContentType(void) const;
 	std::string const	&getBody(void) const;
 
 	//SETTERS
