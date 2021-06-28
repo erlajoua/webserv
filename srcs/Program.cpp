@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 11:49:59 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 17:46:00 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -456,9 +456,9 @@ void			Program::acceptNewServerConnection(int server_socket) {
 }
 
 void			Program::handleRequest(int client_socket) {
-	char request_buffer[20];
+	char request_buffer[4096];
 	std::string request_content = this->pending_requests_content[client_socket];
-	int bytesRead = recv(client_socket, request_buffer, 20, 0);
+	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
 	if (bytesRead == -1)
 	{
 		close(client_socket);

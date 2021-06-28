@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/25 14:37:41 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 18:06:13 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,8 +217,8 @@ void							Server::setClientBodySize(std::string const &field)
 void	Server::handleRequest(int client_socket,
 		std::string const &request_content, Request &request, char **envp) {
 	std::cout << BOLDBLUE << "===[" << this->server_name << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-	std::cout << BLUE << request_content.substr(0, 500);
-	if (request_content.size() > 500)
+	std::cout << BLUE << request_content.substr(0, 1000);
+	if (request_content.size() > 1000)
 		std::cout << std::endl << "[TRUNCATED]";
 	std::cout << RESET << std::endl;
 
