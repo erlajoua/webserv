@@ -220,7 +220,7 @@ void	Server::handleRequest(int client_socket,
 	std::cout << BLUE << request_content << RESET << std::endl;
 
 	Response response(envp, request, *this);
-	std::string response_content(response.toString());
+	std::string response_content(response.toString(request));
 	if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
 		std::cout << "Erreur de send, stop\n";
 	std::cout << BOLDGREEN << "===[" << this->server_name << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;

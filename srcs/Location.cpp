@@ -119,7 +119,7 @@ void				Location::setMethods(std::string const &field) {
 	size_t 	l = split.size();
 	for (size_t j = 1; j < l; j++)
 	{
-		if (split[j] != "get" && split[j] != "post" && split[j] != "delete")
+		if (split[j] != "get" && split[j] != "post" && split[j] != "delete" && split[j] != "head")
 			throw InvalidMethodsException();
 		else if (this->isMethodDeclared(this->methods, split[j]))
 			throw SameMethodException();
