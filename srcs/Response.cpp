@@ -86,6 +86,8 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "Method Not Allowed";
 	else if (this->status_code == 413)
 		this->reason_phrase = "Payload Too Large";
+	else if (this->status_code == 204)
+		this->reason_phrase = "No Content";
 	else
 		this->reason_phrase = "";
 }
@@ -297,7 +299,7 @@ void		Response::setBody(char **envp, std::string const &uri,
 		this->body = a.getPageContent();
 		return ;
 	}
-	if (this->status_code != 200)
+	if (this->status_code != 200 || request.getMethod() == kDelete)
 	{
 		this->body = this->findCustomErrorPage(server, this->status_code);
 		return ;
@@ -394,6 +396,15 @@ void		Response::setStatusCode(Request &request, Server &server)
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
+	if (request.getMethod() == kDelete)
+	{
+		if (remove(uri.c_str()) == 0)
+			this->status_code = 200;
+		else
+			this->status_code = 204;
+		return ;
+		
+	}
 	if (this->checkMethodsAllowed(server, request) == 0)
 		this->status_code = 405;
 	else if (request.getIsBad() == true)
@@ -459,6 +470,10 @@ std::string Response::buildStandardErrorPage(int status_code)
 		content_page += "<h1>405 Method Not Allowed</h1><p>A request method is not supported for the requested resource.</p>";
 	else if (this->status_code == 413)
 		content_page += "<h1>413 Payload Too Large</h1><p>The request is larger than the server is willing or able to process.</p>";
+	else if (this->status_code == 204)
+		content_page += "<h1>204 No Content</h1><p>The server has nothing to delete.</p>";
+	else if (this->status_code == 200)
+		content_page += "<h1>200 Delete</h1><p>File deleted.</p>";
 	else
 		content_page += "<h1>666 Error not handled</h1><p>Work in progress...</p>";
 	content_page += "</body></html>";
@@ -472,15 +487,18 @@ std::string	Response::findCustomErrorPage(Server &server, int status_code)
 	str_code << status_code;
 	int pos;
 
-	for (std::vector<std::string>::iterator it = erros_pages.begin(); it != erros_pages.end(); it++)
+	if (this->status_code != 200)
 	{
-		std::string path(*it);
-		pos = path.rfind('/');
-		if (pos == -1)
-			break ;
-		path.assign(path.begin() + pos + 1, path.end());
-		if (path == str_code.str() + ".html")
-			return (getAllFile(server.getRoot() + "/" + *it));
+		for (std::vector<std::string>::iterator it = erros_pages.begin(); it != erros_pages.end(); it++)
+		{
+			std::string path(*it);
+			pos = path.rfind('/');
+			if (pos == -1)
+				break ;
+			path.assign(path.begin() + pos + 1, path.end());
+			if (path == str_code.str() + ".html")
+				return (getAllFile(server.getRoot() + "/" + *it));
+		}
 	}
 	return (buildStandardErrorPage(status_code));
 }
