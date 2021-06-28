@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 11:30:40 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 13:49:27 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <unistd.h>
 # include <sys/select.h>
 # include <fcntl.h>
+# include <errno.h>
 
 # include "Server.hpp"
 
