@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:26:29 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 10:21:39 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 11:28:55 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Request
 private:
 	// ATTRIBUTES
 	std::string			content;
+	bool				is_finished;
 	bool				is_bad;
 	HttpErrorType		error_type;
 	HttpMethod			method;
@@ -51,6 +52,7 @@ private:
 	std::string			host;
 	int					port;
 	ConnectionDirective	connection;
+	std::size_t			content_length;
 	std::string			body;
 
 	// PRIVATE HELPERS
@@ -62,6 +64,7 @@ private:
 	std::size_t 		parseRequestLine(void);
 	void 				parseHostFieldValue(std::string const& field_value);
 	void 				parseConnectionFieldValue(std::string const& field_value);
+	void 				parseContentLengthFieldValue(std::string const& field_value);
 	void 				parseHeaderField(std::string const& header_field);
 	std::size_t 		parseHeaders(std::size_t pos);
 	void 				parseContent(void);
@@ -80,6 +83,7 @@ public:
 
 	// GETTERS
 	std::string const	&getContent(void) const;
+	bool const			&getIsFinished(void) const;
 	bool const			&getIsBad(void) const;
 	HttpErrorType const	&getErrorType(void) const;
 	HttpMethod const 	&getMethod(void) const;

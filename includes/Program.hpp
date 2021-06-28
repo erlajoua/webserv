@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/26 15:27:10 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 11:30:40 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,13 @@
 # include <sstream>
 # include <string>
 # include <vector>
+# include <map>
 # include <stdexcept>
 # include <signal.h>
 # include <iterator>
 # include <unistd.h>
 # include <sys/select.h>
+# include <fcntl.h>
 
 # include "Server.hpp"
 
@@ -45,6 +47,8 @@ private:
 	fd_set				readfds;
 	fd_set				writefds;
 	bool				is_running;
+
+	std::map<int, std::string>	pending_requests_content;
 
 	// UNUSED NORMALIZED FUNCTIONS
 	Program(Program const &p);

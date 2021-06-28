@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/22 17:17:35 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 11:40:41 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 // constructors
 
-Request::Request(std::string const &content): content(content), is_bad(false),
-	connection(kClose) {
+Request::Request(std::string const &content): content(content), is_finished(true),
+	is_bad(false), connection(kClose), content_length(0) {
 	this->parseContent();
 }
 
@@ -148,6 +148,10 @@ void 				Request::parseConnectionFieldValue(std::string const& field_value) {
 	}
 }
 
+void 				Request::parseContentLengthFieldValue(std::string const& field_value) {
+	this->content_length = std::atoi(field_value.c_str());
+}
+
 void 				Request::parseHeaderField(std::string const& header_field) {
 	std::size_t colon_pos = header_field.find(':');
 	std::string field_name = header_field.substr(0, colon_pos);
@@ -167,6 +171,10 @@ void 				Request::parseHeaderField(std::string const& header_field) {
 	else if (field_name == "Connection")
 	{
 		this->parseConnectionFieldValue(field_value);
+	}
+	else if (field_name == "Content-Length")
+	{
+		this->parseContentLengthFieldValue(field_value);
 	}
 }
 
@@ -194,9 +202,18 @@ std::size_t 		Request::parseHeaders(std::size_t pos) {
 void 				Request::parseContent(void) {
 	try
 	{
+		if (this->content.find("\n\r\n") == this->content.npos)
+		{
+			this->is_finished = false;
+			return;
+		}
 		std::size_t pos = this->parseRequestLine();
 		pos = this->parseHeaders(pos);
-		this->body = this->content.substr(pos);
+		this->body = this->content.substr(pos, this->content_length);
+		if (this->body.length() < this->content_length)
+		{
+			this->is_finished = false;
+		}
 	}
 	catch (Request::BadRequestException const& e)
 	{
@@ -229,6 +246,11 @@ Request				&Request::operator=(Request const &rhs) {
 std::string const	&Request::getContent(void) const
 {
 	return (this->content);
+}
+
+bool const			&Request::getIsFinished(void) const
+{
+	return (this->is_finished);
 }
 
 bool const			&Request::getIsBad(void) const

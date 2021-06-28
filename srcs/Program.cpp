@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/26 15:27:51 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 11:49:59 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -431,6 +431,7 @@ void			Program::acceptNewServerConnection(int server_socket) {
 		if (server_socket == it->getServerSocket())
 		{
 			int client_socket = it->acceptNewConnection();
+			fcntl(client_socket, F_SETFL, O_NONBLOCK);
 			FD_SET(client_socket, &this->readfds);
 			FD_SET(client_socket, &this->writefds);
 			break;
@@ -439,10 +440,25 @@ void			Program::acceptNewServerConnection(int server_socket) {
 }
 
 void			Program::handleRequest(int client_socket) {
-	char request_buffer[4096];
-	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
-	std::string request_content(request_buffer, bytesRead);
+	char request_buffer[20];
+	std::string request_content = this->pending_requests_content[client_socket];
+	int bytesRead = recv(client_socket, request_buffer, 20, 0);
+	if (bytesRead == -1)
+	{
+		close(client_socket);
+		FD_CLR(client_socket, &this->readfds);
+		FD_CLR(client_socket, &this->writefds);
+		this->pending_requests_content.erase(client_socket);
+		return;
+	}
+	request_content += std::string(request_buffer, bytesRead);
 	Request request(request_content);
+	if (request.getIsFinished() == false)
+	{
+		this->pending_requests_content[client_socket] = request_content;
+		return;
+	}
+	this->pending_requests_content.erase(client_socket);
 
 	std::vector<Server>::iterator request_server_it = this->servers.begin();
 	for (std::vector<Server>::iterator it = ++this->servers.begin(); it != this->servers.end(); ++it)
@@ -618,6 +634,7 @@ void			Program::setup(char **envp) {
 		if (it->getDefaultServer() == true)
 		{
 			it->setup();
+			fcntl(it->getServerSocket(), F_SETFL, O_NONBLOCK);
 			FD_SET(it->getServerSocket(), &this->readfds);
 		}
 		//usleep(10000);
