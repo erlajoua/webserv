@@ -138,7 +138,7 @@ void				Location::setRedirection(std::string const &field)
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	ret = std::atoi(split[1].c_str());
-	if (ret < 300 || ret > 308)
+	if (ret != 301 && ret != 302 && ret != 303 && ret != 304 && ret != 307 && ret != 308)
 		throw InvalidRedirectionException();
 	else
 		this->redirection = ret;
@@ -249,7 +249,7 @@ const char*		Location::SameMethodException::what() const throw()
 
 const char*		Location::InvalidRedirectionException::what() const throw()
 {
-	return "Config file is incorrect: redirection value must be [300; 308]";
+	return "Config file is incorrect: redirection value must be 301, 302, 303, 304, 307 or 308";
 }
 /*
 const char*		Location::InvalidIndexException::what() const throw()
