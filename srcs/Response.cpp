@@ -396,15 +396,6 @@ void		Response::setStatusCode(Request &request, Server &server)
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	if (request.getMethod() == kDelete)
-	{
-		if (remove(uri.c_str()) == 0)
-			this->status_code = 200;
-		else
-			this->status_code = 204;
-		return ;
-		
-	}
 	if (this->checkMethodsAllowed(server, request) == 0)
 		this->status_code = 405;
 	else if (request.getIsBad() == true)
@@ -413,6 +404,14 @@ void		Response::setStatusCode(Request &request, Server &server)
 			this->status_code = 400;
 		else if (request.getErrorType() == kVersionNotImplemented)
 			this->status_code = 505;
+	}
+	else if (request.getMethod() == kDelete)
+	{
+		if (remove(uri.c_str()) == 0)
+			this->status_code = 200;
+		else
+			this->status_code = 204;
+		return ;
 	}
 	else if (request.getBody().length() > server.getClientBodySize())
 	{
