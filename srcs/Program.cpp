@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 17:46:00 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 21:55:20 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -461,6 +461,7 @@ void			Program::handleRequest(int client_socket) {
 	int bytesRead = recv(client_socket, request_buffer, 4096, 0);
 	if (bytesRead == -1)
 	{
+		std::cerr << RED << "recv system call failed" << RESET << std::endl;
 		close(client_socket);
 		FD_CLR(client_socket, &this->readfds);
 		FD_CLR(client_socket, &this->writefds);

@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 18:06:13 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 21:54:58 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,11 @@ void	Server::handleRequest(int client_socket,
 	Response response(envp, request, *this);
 	std::string response_content(response.toString(request));
 	if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
-		std::cout << "Erreur de send, stop\n";
+	{
+		std::cerr << RED << "send system call failed" << RESET << std::endl;
+		request.setConnection(kClose);
+		return;
+	}
 	std::cout << BOLDGREEN << "===[" << this->server_name << "] --> SENT RESPONSE TO SOCKET n°[" << client_socket << "]===" RESET << std::endl;
 	std::cout << GREEN << response_content.substr(0, 300);
 	if (response_content.size() > 300)

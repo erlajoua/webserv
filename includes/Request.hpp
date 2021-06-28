@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:26:29 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 15:30:13 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 21:50:46 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ public:
 
 	//SETTERS
 	void				setUri(std::string uri);
+	void				setConnection(ConnectionDirective const& connection);
 
 	// EXCEPTIONS
 	class BadRequestException : public std::exception

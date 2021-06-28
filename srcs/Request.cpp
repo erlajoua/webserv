@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 15:30:07 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 21:51:23 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,6 +331,11 @@ std::string const	&Request::getBody(void) const
 void		Request::setUri(std::string uri)
 {
 	this->uri = uri;
+}
+
+void		Request::setConnection(ConnectionDirective const& connection)
+{
+	this->connection = connection;
 }
 
 // EXCEPTIONS
