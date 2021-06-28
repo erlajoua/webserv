@@ -206,7 +206,7 @@ void							Server::setClientBodySize(std::string const &field)
 	std::istringstream iss(up_to_colon);
 	std::vector<std::string> split((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 	ret = std::atoi(split[1].c_str());
-	if (ret < 1 || ret > 65535)
+	if (ret < 1 || ret > 2147483646)
 		throw InvalidClientBodySizeException();
 	else
 		this->client_body_size = ret;
@@ -217,7 +217,10 @@ void							Server::setClientBodySize(std::string const &field)
 void	Server::handleRequest(int client_socket,
 		std::string const &request_content, Request &request, char **envp) {
 	std::cout << BOLDBLUE << "===[" << this->server_name << "] <-- RECEIVED REQUEST FROM SOCKET n°[" << client_socket << "]===" RESET << std::endl;
-	std::cout << BLUE << request_content << RESET << std::endl;
+	std::cout << BLUE << request_content.substr(0, 500);
+	if (request_content.size() > 500)
+		std::cout << std::endl << "[TRUNCATED]";
+	std::cout << RESET << std::endl;
 
 	Response response(envp, request, *this);
 	std::string response_content(response.toString(request));
@@ -266,7 +269,7 @@ const char*		Server::SocketInitializationException::what() const throw()
 
 const char*		Server::InvalidPortException::what() const throw()
 {
-	return "Config file is incorrect: port value must be 0 < int < 65535.";
+	return "Config file is incorrect: port value must be 0 < int < 2147483646.";
 }
 
 const char*		Server::InvalidHostException::what() const throw()
