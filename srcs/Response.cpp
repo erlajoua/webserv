@@ -280,7 +280,7 @@ std::string Response::getCgiOutputBody(char **envp, Request const &request,
 	this->callCgi(envp, request, cgi_bin, pipes_fds);
 	std::string output = this->readCgiOutput(pipes_fds);
 	this->closeCgiPipes(pipes_fds);
-	std::size_t content_type_value_pos = output.find(' ') + 1;
+	std::size_t content_type_value_pos = output.find("Content-type: ") + 14;
 	std::size_t semicolon_pos = output.find(';', content_type_value_pos);
 	if (content_type_value_pos - 1 == output.npos
 			|| semicolon_pos == output.npos)
