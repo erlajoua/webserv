@@ -309,7 +309,7 @@ void		Response::setBody(char **envp, std::string const &uri,
 		this->body = a.getPageContent();
 		return ;
 	}
-	if (this->status_code != 200 || request.getMethod() == kDelete)
+	if (this->status_code != 200 || request.getMethod() == kDelete || request.getMethod() == kHead)
 	{
 		this->body = this->findCustomErrorPage(server, this->status_code);
 		return ;
@@ -422,6 +422,11 @@ void		Response::setStatusCode(Request &request, Server &server)
 		else
 			this->status_code = 204;
 	}
+	else if (request.getMethod() == kHead)
+	{
+		//std::cout << "passe dans la method head" << "\n";
+		this->status_code = 200;
+	}
 	else if (request.getBody().length() > server.getClientBodySize())
 	{
 		this->status_code = 413;
@@ -447,15 +452,20 @@ void		Response::setContentLength(void)
 	this->content_length = this->body.length();
 }
 
-std::string Response::toString() const
+std::string Response::toString(Request const &request) const
 {
 	std::stringstream ss;
 	ss << "HTTP/" << this->http_version << " " << this->status_code << " "
 		<< this->reason_phrase << "\r\nServer: " << this->server
 		<< "\r\nContent-Type: " << this->content_type;
-	if (this->status_code == 301)
+	if (this->status_code == 301 || this->status_code == 302
+	|| this->status_code == 303 || this->status_code == 304
+	|| this->status_code == 307 || this->status_code == 308)
 		ss << "\r\nLocation: " << this->redirection_path;
-	ss << "\r\nContent-Length: " << this->content_length << "\r\n\r\n" << this->body;
+	if (request.getMethod() != kHead)
+		ss << "\r\nContent-Length: " << this->content_length << "\r\n";
+	if (request.getMethod() != kHead)
+		ss << "\r\n" << this->body;
 	return (ss.str());
 }
 
@@ -525,6 +535,8 @@ int		Response::checkMethodsAllowed(Server &server, Request &request)
 			return (1);
 		if (*it == "delete" && request.getMethod() == kDelete)
 			return (1);
+		if (*it == "head" && request.getMethod() == kHead)
+			return (1);	
 	}
 	return (0);
 }

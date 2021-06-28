@@ -28,7 +28,8 @@ enum HttpMethod
 {
 	kGet,
 	kPost,
-	kDelete
+	kDelete,
+	kHead
 };
 
 enum ConnectionDirective
