@@ -10,9 +10,9 @@
     $uploaddir = './upload/';
     $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
     if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        echo '<h1tyle="color:blue";>SUCESS</h1><p>The file has been uploaded</p>';
+        echo '<h1>SUCCESS</h1><p>The file has been uploaded!</p>';
     } else {
-        echo '<h1 style="color:red";>FAILURE</h1><p>The file has NOT been uploaded</p>';
+        echo '<h1 style="color:red";>FAILURE</h1><p>The file has NOT been uploaded...</p>';
     }
     ?>
   </body>
