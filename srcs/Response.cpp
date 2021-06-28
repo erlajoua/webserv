@@ -396,14 +396,16 @@ void		Response::setStatusCode(Request &request, Server &server)
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
 
-	if (this->checkMethodsAllowed(server, request) == 0)
-		this->status_code = 405;
-	else if (request.getIsBad() == true)
+	if (request.getIsBad() == true)
 	{
 		if (request.getErrorType() == kBadRequest)
 			this->status_code = 400;
 		else if (request.getErrorType() == kVersionNotImplemented)
 			this->status_code = 505;
+	}
+	else if (this->checkMethodsAllowed(server, request) == 0)
+	{
+		this->status_code = 405;
 	}
 	else if (request.getMethod() == kDelete)
 	{
