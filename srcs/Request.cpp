@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 11:40:41 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/28 15:30:07 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,10 @@ void 				Request::parseContentLengthFieldValue(std::string const& field_value) {
 	this->content_length = std::atoi(field_value.c_str());
 }
 
+void 				Request::parseContentTypeFieldValue(std::string const& field_value) {
+	this->content_type = field_value;
+}
+
 void 				Request::parseHeaderField(std::string const& header_field) {
 	std::size_t colon_pos = header_field.find(':');
 	std::string field_name = header_field.substr(0, colon_pos);
@@ -180,6 +184,10 @@ void 				Request::parseHeaderField(std::string const& header_field) {
 	else if (field_name == "Content-Length")
 	{
 		this->parseContentLengthFieldValue(field_value);
+	}
+	else if (field_name == "Content-Type")
+	{
+		this->parseContentTypeFieldValue(field_value);
 	}
 }
 
@@ -298,9 +306,19 @@ int const			&Request::getPort(void) const
 	return (this->port);
 }
 
-ConnectionDirective const			&Request::getConnection(void) const
+ConnectionDirective const	&Request::getConnection(void) const
 {
 	return (this->connection);
+}
+
+std::size_t const 	&Request::getContentLength(void) const
+{
+	return (this->content_length);
+}
+
+std::string const 	&Request::getContentType(void) const
+{
+	return (this->content_type);
 }
 
 std::string const	&Request::getBody(void) const
@@ -352,6 +370,8 @@ std::ostream &operator<<(std::ostream &os, Request const &req)
 	os << "http_version : " << req.getHttpVersion() << std::endl;
 	os << "host : \"" << req.getHost() << "\"" << std::endl;
 	os << "port : " << req.getPort() << std::endl;
+	os << "content_type : " << req.getContentType() << std::endl;
+	os << "content_length : " << req.getContentLength() << std::endl;
 
 	if (req.getMethod() == kPost)
 		os << "body : \"" << req.getBody() << "\"" << std::endl;
