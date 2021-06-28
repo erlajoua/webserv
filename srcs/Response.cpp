@@ -125,10 +125,9 @@ void		Response::setCgiEnvVar(char **envp, Request const &request,
 			new char[("QUERY_STRING=" + request.getQueryString()).length() + 1];
 	std::strcpy(envp[kQueryString],
 			("QUERY_STRING=" + request.getQueryString()).c_str());
-	envp[kContentType] =
-		new char[std::strlen("CONTENT_TYPE=application/x-www-form-urlencoded") + 1];
+	envp[kContentType] = new char[("CONTENT_TYPE=" + request.getContentType()).length() + 1];
 	std::strcpy(envp[kContentType],
-			"CONTENT_TYPE=application/x-www-form-urlencoded");
+			("CONTENT_TYPE=" + request.getContentType()).c_str());
 	std::stringstream content_length;
 	content_length << "CONTENT_LENGTH=" << request.getBody().length();
 	envp[kContentLength] =
