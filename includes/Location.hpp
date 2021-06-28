@@ -66,7 +66,7 @@ public:
 
 	// GETTERS
 	std::string						getPath(void) const;
-	std::vector<std::string> const&	getMethods(void) const;
+	std::vector<std::string> 		&getMethods(void);
 	int								getRedirection(void) const;
 	std::string						getIndex(void) const;
 	bool							getAutoindex(void) const;

@@ -401,6 +401,22 @@ void			Program::setDefaultServer(void) {
 	}
 }
 
+void			Program::setDefaultRoutes(void) {
+	for (std::vector<Server>::iterator it = this->servers.begin(); it != this->servers.end(); it++)
+	{
+		for (std::vector<Location>::iterator it2 =(*it).getLocations()->begin(); it2 != (*it).getLocations()->end(); it2++)
+		if ((*it2).getMethods().size() == 0)
+		{
+			std::string m1("get");
+			std::string m2("post");
+			std::string m3("delete");
+			(*it2).getMethods().push_back(m1);
+			(*it2).getMethods().push_back(m2);
+			(*it2).getMethods().push_back(m3);			
+		}
+	}
+}
+
 void			Program::setupEnvp(char **main_envp)
 {
 	char **main_envp_it = main_envp;
@@ -540,6 +556,7 @@ void			Program::parseConfig(std::string path) {
 	this->parseValue(lines);
 	this->checkMinimumSetup();
 	this->setDefaultServer();
+	this->setDefaultRoutes();
 }
 
 void			Program::printParsing(void) {

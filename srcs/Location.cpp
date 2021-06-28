@@ -69,7 +69,7 @@ int								Location::getRedirection(void) const {
 	return (this->redirection);
 }
 
-std::vector<std::string> const &Location::getMethods(void) const {
+std::vector<std::string> 		&Location::getMethods(void) {
 	return (this->methods);
 }
 

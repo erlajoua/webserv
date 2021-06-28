@@ -78,6 +78,7 @@ private:
 	void		checkMinimumSetup(void);
 	bool		hasAlreadyDefaultServer(std::vector<Server>::iterator iter);
 	void		setDefaultServer(void);
+	void		setDefaultRoutes(void);
 
 	void		setupEnvp(char **envp);
 
