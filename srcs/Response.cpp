@@ -78,6 +78,16 @@ void		Response::setReasonPhrase(void)
 		this->reason_phrase = "Not Found";
 	else if (this->status_code == 301)
 		this->reason_phrase = "Move Permanently";
+	else if (this->status_code == 302)
+		this->reason_phrase = "Found";
+	else if (this->status_code == 303)
+		this->reason_phrase = "See Other";
+	else if (this->status_code == 304)
+		this->reason_phrase = "Not Modified";
+	else if (this->status_code == 307)
+		this->reason_phrase = "Temporary Redirect";
+	else if (this->status_code == 308)
+		this->reason_phrase = "Permanent Redirect";
 	else if (this->status_code == 505)
 		this->reason_phrase = "Version Not Supported";
 	else if (this->status_code == 400)
@@ -413,7 +423,6 @@ void		Response::setStatusCode(Request &request, Server &server)
 			this->status_code = 200;
 		else
 			this->status_code = 204;
-		return ;
 	}
 	else if (request.getBody().length() > server.getClientBodySize())
 	{
