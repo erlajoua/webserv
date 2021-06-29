@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 13:33:37 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/29 14:01:13 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/29 15:13:31 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,11 @@
 
 Server::Server(void)
 	:default_server(false), port(0), host(std::string("none")), server_name(std::string("none")),
-	root(std::string("none")), client_body_size(0)
+	root(std::string("none")), client_body_size(0), server_socket(-1)
 {
 		Location	l;
 		l.setPath("location / {");
 		this->locations.push_back(l);
-		memset(&this->addr, 0, sizeof(this->addr));
-		if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-			throw SocketInitializationException();
 }
 
 Server::Server(Server const &s)
@@ -253,6 +250,9 @@ int     Server::acceptNewConnection() const
 
 void							Server::setup(void)
 {
+	if ((this->server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		throw SocketInitializationException();
+	memset(&this->addr, 0, sizeof(this->addr));
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_addr.s_addr = inet_addr(this->host.c_str());
 	this->addr.sin_port = htons(this->port);
