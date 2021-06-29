@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 12:27:10 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 21:51:23 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/29 13:59:27 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,10 @@ void 				Request::parseContentTypeFieldValue(std::string const& field_value) {
 	this->content_type = field_value;
 }
 
+void 				Request::parseCookieFieldValue(std::string const& field_value) {
+	this->cookie = field_value;
+}
+
 void 				Request::parseHeaderField(std::string const& header_field) {
 	std::size_t colon_pos = header_field.find(':');
 	std::string field_name = header_field.substr(0, colon_pos);
@@ -183,6 +187,10 @@ void 				Request::parseHeaderField(std::string const& header_field) {
 	else if (field_name == "Content-Type")
 	{
 		this->parseContentTypeFieldValue(field_value);
+	}
+	else if (field_name == "Cookie")
+	{
+		this->parseCookieFieldValue(field_value);
 	}
 }
 
@@ -316,6 +324,11 @@ std::string const 	&Request::getContentType(void) const
 	return (this->content_type);
 }
 
+std::string const 	&Request::getCookie(void) const
+{
+	return (this->cookie);
+}
+
 std::string const	&Request::getBody(void) const
 {
 	return (this->body);
@@ -372,6 +385,7 @@ std::ostream &operator<<(std::ostream &os, Request const &req)
 	os << "port : " << req.getPort() << std::endl;
 	os << "content_type : " << req.getContentType() << std::endl;
 	os << "content_length : " << req.getContentLength() << std::endl;
+	os << "cookie : " << req.getCookie() << std::endl;
 
 	if (req.getMethod() == kPost)
 		os << "body : \"" << req.getBody() << "\"" << std::endl;

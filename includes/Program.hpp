@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:46:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 13:49:27 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/29 14:02:15 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ enum EnvpIndexes {
 	kRequestMethod,
 	kQueryString,
 	kContentType,
-	kContentLength
+	kContentLength,
+	kHttpCookie
 };
 
 class Program {

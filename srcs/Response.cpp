@@ -133,6 +133,10 @@ void		Response::setCgiEnvVar(char **envp, Request const &request,
 	envp[kContentLength] =
 		new char[content_length.str().length() + 1];
 	std::strcpy(envp[kContentLength], content_length.str().c_str());
+	envp[kHttpCookie] =
+			new char[("HTTP_COOKIE=" + request.getCookie()).length() + 1];
+	std::strcpy(envp[kHttpCookie],
+			("HTTP_COOKIE=" + request.getCookie()).c_str());
 }
 
 void		Response::deleteCgiEnvVar(char **envp)
@@ -149,6 +153,8 @@ void		Response::deleteCgiEnvVar(char **envp)
 	envp[kContentLength] = NULL;
 	delete[] envp[kContentType];
 	envp[kContentType] = NULL;
+	delete[] envp[kHttpCookie];
+	envp[kHttpCookie] = NULL;
 }
 
 void		Response::closeCgiPipes(int pipes_fds[2][2])

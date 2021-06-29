@@ -6,7 +6,7 @@
 /*   By: nessayan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 14:47:51 by nessayan          #+#    #+#             */
-/*   Updated: 2021/06/28 21:55:20 by clbrunet         ###   ########.fr       */
+/*   Updated: 2021/06/29 14:01:39 by clbrunet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -424,10 +424,10 @@ void			Program::setupEnvp(char **main_envp)
 	{
 		main_envp_it++;
 	}
-	this->envp = new char *[main_envp_it - main_envp + 6 + 1];
+	this->envp = new char *[main_envp_it - main_envp + 7 + 1];
 	main_envp_it = main_envp;
 	char **envp_it = this->envp;
-	while (envp_it - this->envp < 6)
+	while (envp_it - this->envp < 7)
 	{
 		*envp_it = NULL;
 		envp_it++;

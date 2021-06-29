@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>42 Webserv - Cookie creation</title>
+		<title>42 Webserv - Cookie form</title>
 		<meta charset="utf-8" name="Webserv" content="Webserv">
 	</head>
 	<body>
