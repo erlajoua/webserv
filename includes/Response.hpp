@@ -29,6 +29,7 @@ private:
 	int 						status_code;
 	std::string 				reason_phrase;
 	static std::string const	server;
+	std::vector<std::string>	set_cookie_values;
 	std::string 				content_type;
 	std::size_t 				content_length;
 	std::string 				body;
@@ -64,6 +65,7 @@ private:
 	void		callCgi(char **envp, Request const &request,
 			std::string const& cgi_bin, int pipes_fds[2][2]);
 	std::string readCgiOutput(int pipes_fds[2][2]);
+	std::size_t	parseCgiOutputHeaders(std::string const &output);
 	std::string getCgiOutputBody(char **envp, Request const &request,
 			std::string const& script_filename, std::string const& cgi_bin);
 

@@ -279,6 +279,38 @@ void		Response::callCgi(char **envp, Request const &request,
 	}
 }
 
+std::size_t	Response::parseCgiOutputHeaders(std::string const &output)
+{
+	std::size_t crlf_pos = 0;
+	std::size_t set_cookie_value_pos = output.find("Set-Cookie: ") + 12;
+	while (set_cookie_value_pos - 12 != output.npos)
+	{
+		crlf_pos = output.find("\r\n", set_cookie_value_pos);
+		if (crlf_pos == output.npos)
+		{
+			throw std::exception();
+		}
+		set_cookie_values.push_back(output.substr(set_cookie_value_pos,
+					crlf_pos - set_cookie_value_pos));
+		set_cookie_value_pos = output.find("Set-Cookie: ", set_cookie_value_pos) + 12;
+	}
+	std::size_t content_type_value_pos = output.find("Content-type: ") + 14;
+	crlf_pos = output.find("\r\n", content_type_value_pos);
+	if (content_type_value_pos - 14 == output.npos
+			|| crlf_pos == output.npos)
+	{
+		throw std::exception();
+	}
+	this->cgi_content_type = output.substr(content_type_value_pos,
+			crlf_pos - content_type_value_pos);
+	std::size_t body_pos = output.find("\n\r\n", crlf_pos) + 3;
+	if (body_pos - 3 == output.npos)
+	{
+		throw std::exception();
+	}
+	return (body_pos);
+}
+
 std::string Response::getCgiOutputBody(char **envp, Request const &request,
 		std::string const& script_filename, std::string const& cgi_bin)
 {
@@ -288,20 +320,7 @@ std::string Response::getCgiOutputBody(char **envp, Request const &request,
 	this->callCgi(envp, request, cgi_bin, pipes_fds);
 	std::string output = this->readCgiOutput(pipes_fds);
 	this->closeCgiPipes(pipes_fds);
-	std::size_t content_type_value_pos = output.find("Content-type: ") + 14;
-	std::size_t semicolon_pos = output.find(';', content_type_value_pos);
-	if (content_type_value_pos - 1 == output.npos
-			|| semicolon_pos == output.npos)
-	{
-		throw std::exception();
-	}
-	this->cgi_content_type = output.substr(content_type_value_pos,
-			semicolon_pos - content_type_value_pos);
-	std::size_t body_pos = output.find("\n\r\n", semicolon_pos) + 3;
-	if (body_pos - 3 == output.npos)
-	{
-		throw std::exception();
-	}
+	std::size_t body_pos = this->parseCgiOutputHeaders(output);
 	this->deleteCgiEnvVar(envp);
 	return output.substr(body_pos);
 }
@@ -461,8 +480,13 @@ std::string Response::toString() const
 {
 	std::stringstream ss;
 	ss << "HTTP/" << this->http_version << " " << this->status_code << " "
-		<< this->reason_phrase << "\r\nServer: " << this->server
-		<< "\r\nContent-Type: " << this->content_type;
+		<< this->reason_phrase << "\r\nServer: " << this->server << "\r\n";
+	for (std::vector<std::string>::const_iterator it = this->set_cookie_values.begin(),
+			ite = this->set_cookie_values.end(); it != ite; ++it)
+	{
+		ss << "Set-Cookie: " << *it << "\r\n";
+	}
+	ss << "Content-Type: " << this->content_type;
 	if (this->status_code == 301 || this->status_code == 302
 	|| this->status_code == 303 || this->status_code == 304
 	|| this->status_code == 307 || this->status_code == 308)
