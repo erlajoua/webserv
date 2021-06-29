@@ -27,7 +27,7 @@ bool				Location::isMethodDeclared(std::vector<std::string> methods, std::string
 // CONSTRUCTOR & DESTRUCTOR
 
 Location::Location(void)
-	:path(std::string("none")), redirection(0), index(std::string("none")), autoindex(false),
+	:path(std::string("none")), redirection(301), index(std::string("none")), autoindex(false),
 	cgi_extension(std::string("none")), cgi_bin(std::string("none")), upload_dir("none") {
 }
 
@@ -119,7 +119,7 @@ void				Location::setMethods(std::string const &field) {
 	size_t 	l = split.size();
 	for (size_t j = 1; j < l; j++)
 	{
-		if (split[j] != "get" && split[j] != "post" && split[j] != "delete" && split[j] != "head")
+		if (split[j] != "get" && split[j] != "post" && split[j] != "delete")
 			throw InvalidMethodsException();
 		else if (this->isMethodDeclared(this->methods, split[j]))
 			throw SameMethodException();
