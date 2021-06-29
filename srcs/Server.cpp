@@ -223,7 +223,7 @@ void	Server::handleRequest(int client_socket,
 	std::cout << RESET << std::endl;
 
 	Response response(envp, request, *this);
-	std::string response_content(response.toString(request));
+	std::string response_content(response.toString());
 	if (send(client_socket, response_content.c_str(), response_content.length(), 0) == -1)
 	{
 		std::cerr << RED << "send system call failed" << RESET << std::endl;

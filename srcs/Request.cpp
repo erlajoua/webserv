@@ -47,11 +47,6 @@ std::size_t 		Request::parseMethod(void)
 		this->method = kDelete;
 		return (6);
 	}
-	else if (this->content.compare(0, 4, "HEAD") == 0)
-	{
-		this->method = kHead;
-		return (4);
-	}
 	throw Request::BadRequestException();
 }
 

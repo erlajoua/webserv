@@ -82,7 +82,7 @@ public:
 	Response(char **envp, Request &request, Server &server);
 	~Response();
 
-	std::string toString(Request const &request) const;
+	std::string toString() const;
 
 	class 		defaultLocationNotFound: public std::exception
 	{
