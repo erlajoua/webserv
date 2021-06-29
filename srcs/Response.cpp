@@ -393,21 +393,27 @@ void		Response::handleFolderPath(Request &request, Server &server)
 {
 	struct stat stats_path;
 	std::string uri = server.getRoot() + request.getUri();
+	std::string saveUri(request.getUri());
 
 	try
 	{
 		Location location = this->getLocation(server, request.getUri());
 		if (location.getIndex() != "none") //il y a un index
 		{
-			request.setUri(server.getRoot() + request.getUri() + location.getIndex());
+			request.setUri(server.getRoot() + request.getUri() + "/" + location.getIndex());
 			if (stat(request.getUri().c_str(), &stats_path) == 0)
 			{
 				if (stats_path.st_mode & S_IFREG) //file
 					this->handleFilePath(request);
 				else if (stats_path.st_mode & S_IFDIR) //folder
 				{
-					this->redirection_path = location.getIndex();
-					this->status_code = 301;
+					this->status_code = location.getRedirection();
+
+					size_t pos = saveUri.rfind('/');
+					if (saveUri !=  "/" && pos != saveUri.length() - 1)
+						this->redirection_path = saveUri + "/";
+					else
+						this->redirection_path = location.getIndex();
 				}
 			}
 			else
