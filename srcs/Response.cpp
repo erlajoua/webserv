@@ -225,6 +225,7 @@ void		Response::cgiProcess(char **envp, std::string const &request_body,
 		this->closeCgiPipes(pipes_fds);
 		delete[] pathname;
 		delete[] argv[0];
+		exit(1);
 	}
 }
 
@@ -232,11 +233,15 @@ std::string Response::readCgiOutput(int pipes_fds[2][2])
 {
 	std::string output = "";
 	char buf[1024];
-	size_t bytes_read = read(pipes_fds[1][0], buf, 1024);
+	ssize_t bytes_read = read(pipes_fds[1][0], buf, 1024);
 	while (bytes_read > 0)
 	{
 		output += std::string(buf, bytes_read);
 		bytes_read = read(pipes_fds[1][0], buf, 1024);
+	}
+	if (bytes_read == -1)
+	{
+		throw std::exception();
 	}
 	return (output);
 }
@@ -263,11 +268,14 @@ void		Response::callCgi(char **envp, Request const &request,
 		pipes_fds[0][1] = -1;
 		close(pipes_fds[1][1]);
 		pipes_fds[1][1] = -1;
-		if (wait(NULL) == -1)
+		int wstatus;
+		if (wait(&wstatus) == -1)
 		{
 			this->closeCgiPipes(pipes_fds);
 			throw std::exception();
 		}
+		if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0)
+			throw std::exception();
 	}
 }
 
@@ -333,7 +341,8 @@ void		Response::setBody(char **envp, std::string const &uri,
 		catch (...)
 		{
 			this->deleteCgiEnvVar(envp);
-			// TODO: 500 response
+			this->status_code = 500;
+			this->body = this->findCustomErrorPage(server, this->status_code);
 		}
 	}
 	else
@@ -493,6 +502,8 @@ std::string Response::buildStandardErrorPage(int status_code)
 		content_page += "<h1>204 No Content</h1><p>The server has nothing to delete.</p>";
 	else if (this->status_code == 200)
 		content_page += "<h1>200 Delete</h1><p>File deleted.</p>";
+	else if (this->status_code == 500)
+		content_page += "<h1>500 Server internal error</h1><p>The server experienced an error.</p>";
 	else
 		content_page += "<h1>666 Error not handled</h1><p>Work in progress...</p>";
 	content_page += "</body></html>";
